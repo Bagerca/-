@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
+    const neonFrame = document.querySelector('.neon-frame');
 
     // Массив треков
     const tracks = [
@@ -80,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY7NDIx/MS04MDU5LmpwZWc.jpeg',
+            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178'
         },
@@ -155,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для неоновых линий
+            // Логика для неоновой рамки
             const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
             const mid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
             const high = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
@@ -166,18 +167,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Сбалансированная чувствительность для средней и высокой громкости
             const progress = Math.min(1, Math.pow(intensity * 2, 1.2));
             
-            // Обновляем dashoffset для SVG путей
-            const maxDashOffset = 300;
+            // Обновляем dashoffset для рамки
+            const maxDashOffset = 400;
             const currentDashOffset = maxDashOffset * (1 - progress);
             
-            // Применяем ко всем неоновым путям
-            document.querySelectorAll('.neon-path').forEach(path => {
-                path.style.strokeDashoffset = currentDashOffset;
+            // Применяем к неоновой рамке
+            if (neonFrame) {
+                neonFrame.style.strokeDashoffset = currentDashOffset;
                 
-                // Динамическое изменение толщины линии
-                const strokeWidth = 2 + progress * 2;
-                path.style.strokeWidth = `${strokeWidth}px`;
-            });
+                // Динамическое изменение толщины рамки
+                const strokeWidth = 2 + progress * 3;
+                neonFrame.style.strokeWidth = strokeWidth;
+            }
             
             if (isPlaying) {
                 animationId = requestAnimationFrame(visualize);
@@ -223,17 +224,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Кнопка play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
-        // Неоновые линии
+        // Неоновая рамка
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Динамическое обновление стилей для неоновых линий
+        // Динамическое обновление стилей для неоновой рамки
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
             }
-            .neon-path {
+            .neon-frame {
                 stroke: ${neonColor};
                 filter: drop-shadow(0 0 10px ${neonColor});
             }
@@ -252,11 +253,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Пересоздание частиц с новыми цветами
         createParticles();
         
-        // Сброс неоновых линий при смене трека
-        document.querySelectorAll('.neon-path').forEach(path => {
-            path.style.strokeDashoffset = '300';
-            path.style.strokeWidth = '3px';
-        });
+        // Сброс неоновой рамки при смене трека
+        if (neonFrame) {
+            neonFrame.style.strokeDashoffset = '400';
+            neonFrame.style.strokeWidth = '4';
+        }
     }
 
     // Форматирование времени
