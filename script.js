@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
+            cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8MIbLL0mxwQlReakos9P88kWStzlSV_fcYw&s',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178'
         },
