@@ -1,12 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     const audio = document.getElementById('audioPlayer');
-    const playBtn = document.getElementById('playBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const volumeSlider = document.getElementById('volumeSlider');
     const trackSelect = document.getElementById('trackSelect');
     const currentTrack = document.getElementById('currentTrack');
+    const progressBar = document.getElementById('progressBar');
+    const currentTime = document.getElementById('currentTime');
+    const duration = document.getElementById('duration');
+    const visualizer = document.getElementById('visualizer');
+    const particles = document.getElementById('particles');
 
     // Массив треков
     const tracks = [
@@ -17,35 +21,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentTrackIndex = 0;
     let isPlaying = false;
+    let audioContext, analyser, dataArray, bufferLength;
 
-    // Функция загрузки трека
+    // Создание частиц для фона
+    function createParticles() {
+        particles.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 20 + 5 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particles.appendChild(particle);
+        }
+    }
+
+    // Инициализация аудиоанализатора
+    function initAudioAnalyzer() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        analyser.fftSize = 256;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+    }
+
+    // Визуализация звука
+    function visualize() {
+        if (!analyser) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        
+        // Изменение фона в зависимости от громкости
+        const intensity = average / 256;
+        const hue = (intensity * 60 + 200) % 360;
+        document.body.style.background = `linear-gradient(45deg, hsl(${hue}, 70%, 50%), hsl(${hue + 60}, 70%, 50%))`;
+        
+        // Создание волн визуализатора
+        visualizer.innerHTML = '';
+        const barWidth = (visualizer.offsetWidth / bufferLength) * 2.5;
+        let x = 0;
+        
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = (dataArray[i] / 256) * 300;
+            const bar = document.createElement('div');
+            bar.style.position = 'absolute';
+            bar.style.left = x + 'px';
+            bar.style.bottom = '0';
+            bar.style.width = barWidth + 'px';
+            bar.style.height = barHeight + 'px';
+            bar.style.background = `hsl(${hue + i * 2}, 70%, 60%)`;
+            bar.style.borderRadius = '2px';
+            visualizer.appendChild(bar);
+            x += barWidth + 1;
+        }
+        
+        if (isPlaying) {
+            requestAnimationFrame(visualize);
+        }
+    }
+
+    // Форматирование времени
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Обновление прогресс-бара
+    function updateProgress() {
+        if (audio.duration) {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress;
+            currentTime.textContent = formatTime(audio.currentTime);
+        }
+    }
+
+    // Загрузка трека
     function loadTrack(index) {
         if (index >= 0 && index < tracks.length) {
             currentTrackIndex = index;
             audio.src = tracks[currentTrackIndex].path;
             currentTrack.textContent = tracks[currentTrackIndex].name;
             trackSelect.value = tracks[currentTrackIndex].path;
+            
+            audio.addEventListener('loadedmetadata', function() {
+                duration.textContent = formatTime(audio.duration);
+            });
+            
+            if (isPlaying) {
+                audio.play();
+            }
         }
     }
 
-    // Функция для попытки автовоспроизведения
+    // Попытка автовоспроизведения
     function attemptAutoplay() {
         const playPromise = audio.play();
-        
         if (playPromise !== undefined) {
             playPromise.then(() => {
-                // Автовоспроизведение успешно
                 isPlaying = true;
-                console.log('Автовоспроизведение запущено');
+                playPauseBtn.textContent = '⏸';
+                if (!analyser) initAudioAnalyzer();
+                visualize();
             }).catch(error => {
-                // Автовоспроизведение заблокировано
-                console.log('Автовоспроизведение заблокировано, требуется взаимодействие');
                 showPlayMessage();
             });
         }
     }
 
-    // Показать сообщение о необходимости клика
+    // Сообщение о необходимости запуска
     function showPlayMessage() {
         const message = document.createElement('div');
         message.innerHTML = '🎵 Нажмите для запуска музыки 🎵';
@@ -65,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
             animation: pulse 2s infinite;
         `;
         
-        // Добавляем CSS анимацию
         const style = document.createElement('style');
         style.textContent = `
             @keyframes pulse {
@@ -79,13 +175,15 @@ document.addEventListener('DOMContentLoaded', function() {
         message.addEventListener('click', function() {
             audio.play().then(() => {
                 isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+                if (!analyser) initAudioAnalyzer();
+                visualize();
                 message.remove();
             });
         });
         
         document.body.appendChild(message);
         
-        // Автоудаление через 10 секунд
         setTimeout(() => {
             if (document.body.contains(message)) {
                 message.remove();
@@ -94,48 +192,54 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Обработчики событий
-    trackSelect.addEventListener('change', function() {
-        const selectedPath = this.value;
-        const trackIndex = tracks.findIndex(track => track.path === selectedPath);
-        if (trackIndex !== -1) {
-            loadTrack(trackIndex);
-            if (isPlaying) {
-                audio.play();
-            }
+    playPauseBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            audio.pause();
+            isPlaying = false;
+            playPauseBtn.textContent = '▶';
+        } else {
+            audio.play().then(() => {
+                isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+                if (!analyser) initAudioAnalyzer();
+                visualize();
+            }).catch(error => {
+                showPlayMessage();
+            });
         }
-    });
-
-    playBtn.addEventListener('click', () => {
-        audio.play();
-        isPlaying = true;
-    });
-
-    pauseBtn.addEventListener('click', () => {
-        audio.pause();
-        isPlaying = false;
     });
 
     prevBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex - 1;
         if (newIndex < 0) newIndex = tracks.length - 1;
         loadTrack(newIndex);
-        if (isPlaying) {
-            audio.play();
-        }
     });
 
     nextBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= tracks.length) newIndex = 0;
         loadTrack(newIndex);
-        if (isPlaying) {
-            audio.play();
+    });
+
+    trackSelect.addEventListener('change', function() {
+        const selectedPath = this.value;
+        const trackIndex = tracks.findIndex(track => track.path === selectedPath);
+        if (trackIndex !== -1) {
+            loadTrack(trackIndex);
         }
     });
 
     volumeSlider.addEventListener('input', () => {
-        audio.volume = volumeSlider.value;
+        audio.volume = volumeSlider.value / 100;
     });
+
+    progressBar.addEventListener('input', () => {
+        if (audio.duration) {
+            audio.currentTime = (progressBar.value / 100) * audio.duration;
+        }
+    });
+
+    audio.addEventListener('timeupdate', updateProgress);
 
     audio.addEventListener('ended', () => {
         let newIndex = currentTrackIndex + 1;
@@ -146,15 +250,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Попытка автовоспроизведения при загрузке
+    // Инициализация
+    createParticles();
     loadTrack(0);
     
-    // Небольшая задержка для улучшения шансов автовоспроизведения
     setTimeout(() => {
         attemptAutoplay();
-    }, 500);
+    }, 1000);
 
-    // Также пробуем автовоспроизведение при любом взаимодействии с страницей
     document.addEventListener('click', function firstClick() {
         if (!isPlaying) {
             attemptAutoplay();
