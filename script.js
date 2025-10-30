@@ -16,8 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const leftGlow = document.querySelector('.left-side .neon-glow');
-    const rightGlow = document.querySelector('.right-side .neon-glow');
+    const neonFrame = document.querySelector('.neon-frame');
 
     // Массив треков
     const tracks = [
@@ -157,39 +156,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для неоновых линий
+            // Интенсивность для неоновых линий
             const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
-            const mid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
-            const high = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
+            const intensity = Math.min(1, bass / 180);
             
-            // Комбинируем частоты для лучшего отклика
-            const intensity = Math.min(1, (bass * 0.6 + mid * 0.3 + high * 0.1) / 180);
-            
-            // Вычисляем высоту линий (максимальная высота = 100% - 40px, чтобы не заходить на закругления)
-            const maxHeight = 100; // 100% от контейнера
-            const lineHeight = Math.min(maxHeight, Math.pow(intensity * 1.5, 1.2) * maxHeight);
-            
-            // Обновляем неоновые линии
-            if (leftGlow && rightGlow) {
-                leftGlow.style.height = `${lineHeight}%`;
-                rightGlow.style.height = `${lineHeight}%`;
+            // Динамическое изменение свечения
+            if (neonFrame) {
+                const glowIntensity = 0.7 + intensity * 0.3;
+                const shadowBlur = 10 + intensity * 25;
                 
-                // Динамическое изменение интенсивности свечения
-                const glowIntensity = 0.6 + intensity * 0.4;
-                leftGlow.style.opacity = glowIntensity;
-                rightGlow.style.opacity = glowIntensity;
-                
-                // Динамическое изменение тени в зависимости от интенсивности
-                const shadowBlur = 10 + intensity * 20;
-                const shadowSpread = 5 + intensity * 15;
-                leftGlow.style.boxShadow = 
-                    `0 0 ${shadowBlur}px var(--neon-color),
-                     0 0 ${shadowBlur * 2}px var(--neon-color),
-                     0 0 ${shadowBlur * 3}px var(--neon-color)`;
-                rightGlow.style.boxShadow = 
-                    `0 0 ${shadowBlur}px var(--neon-color),
-                     0 0 ${shadowBlur * 2}px var(--neon-color),
-                     0 0 ${shadowBlur * 3}px var(--neon-color)`;
+                neonFrame.style.setProperty('--glow-intensity', glowIntensity);
+                neonFrame.style.setProperty('--shadow-blur', `${shadowBlur}px`);
             }
             
             if (isPlaying) {
@@ -268,12 +245,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Пересоздание частиц с новыми цветами
         createParticles();
         
-        // Сброс неоновых линий при смене трека
-        if (leftGlow && rightGlow) {
-            leftGlow.style.height = '0%';
-            rightGlow.style.height = '0%';
-            leftGlow.style.opacity = '0.8';
-            rightGlow.style.opacity = '0.8';
+        // Сброс и повторная активация анимации неоновой рамки
+        if (neonFrame) {
+            neonFrame.classList.remove('frame-visible', 'playing');
+            setTimeout(() => {
+                neonFrame.classList.add('frame-visible');
+                if (isPlaying) {
+                    neonFrame.classList.add('playing');
+                }
+            }, 100);
         }
     }
 
@@ -414,6 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
+            if (neonFrame) neonFrame.classList.remove('playing');
             if (animationId) {
                 cancelAnimationFrame(animationId);
             }
@@ -421,6 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.play().then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
+                if (neonFrame) neonFrame.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
