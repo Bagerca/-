@@ -18,19 +18,28 @@ body {
     transition: background 1.5s ease;
 }
 
-.visualizer {
+.visualizer-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: -2;
-    opacity: 0.4;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding: 0 10px;
+    padding: 0 20px;
     box-sizing: border-box;
+}
+
+.visualizer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    height: 200px;
+    gap: 2px;
 }
 
 .particles {
@@ -257,95 +266,81 @@ body {
 /* Улучшенные анимации частиц */
 @keyframes float {
     0%, 100% {
-        transform: translateY(0) rotate(0deg) scale(1);
-        opacity: 0.7;
+        transform: translate(0, 0) rotate(0deg);
     }
     25% {
-        transform: translateY(-30px) rotate(90deg) scale(1.1);
+        transform: translate(10px, -20px) rotate(90deg);
     }
     50% {
-        transform: translateY(-60px) rotate(180deg) scale(1.2);
-        opacity: 1;
+        transform: translate(0, -40px) rotate(180deg);
     }
     75% {
-        transform: translateY(-30px) rotate(270deg) scale(1.1);
+        transform: translate(-10px, -20px) rotate(270deg);
     }
 }
 
-@keyframes pulse {
+@keyframes pulse-glow {
     0%, 100% {
         transform: scale(1);
-        opacity: 0.4;
+        opacity: 0.6;
+        filter: brightness(1);
     }
     50% {
-        transform: scale(1.5);
-        opacity: 0.8;
+        transform: scale(1.4);
+        opacity: 1;
+        filter: brightness(1.5);
     }
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg) scale(1);
-    }
-    to {
-        transform: rotate(360deg) scale(1.3);
-    }
-}
-
-@keyframes wave {
-    0%, 100% {
-        transform: translateX(0) scaleY(1);
-    }
-    25% {
-        transform: translateX(15px) scaleY(1.4);
-    }
-    50% {
-        transform: translateX(0) scaleY(1.8);
-    }
-    75% {
-        transform: translateX(-15px) scaleY(1.4);
-    }
-}
-
-@keyframes drift {
+@keyframes spin-drift {
     0% {
-        transform: translateX(-100px) rotate(0deg);
+        transform: rotate(0deg) translateX(0);
     }
     100% {
-        transform: translateX(calc(100vw + 100px)) rotate(360deg);
+        transform: rotate(360deg) translateX(100px);
+    }
+}
+
+@keyframes wave-motion {
+    0%, 100% {
+        transform: translateX(0) scale(1);
+        border-radius: 50%;
+    }
+    25% {
+        transform: translateX(10px) scale(1.2);
+        border-radius: 40% 60% 60% 40%;
+    }
+    50% {
+        transform: translateX(0) scale(1.4);
+        border-radius: 30% 70% 70% 30%;
+    }
+    75% {
+        transform: translateX(-10px) scale(1.2);
+        border-radius: 60% 40% 40% 60%;
     }
 }
 
 .particle {
     position: absolute;
-    animation-timing-function: ease-in-out;
     pointer-events: none;
-    filter: blur(1px);
-}
-
-.particle.type1 {
-    animation: float 12s infinite ease-in-out;
     border-radius: 50%;
 }
 
-.particle.type2 {
-    animation: pulse 6s infinite ease-in-out;
-    border-radius: 50%;
+.particle.circle {
+    animation: float 8s infinite ease-in-out;
 }
 
-.particle.type3 {
-    animation: spin 15s infinite linear;
-    border-radius: 50%;
+.particle.glow {
+    animation: pulse-glow 4s infinite ease-in-out;
+    filter: blur(8px);
 }
 
-.particle.type4 {
-    animation: wave 8s infinite ease-in-out;
-    border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;
+.particle.spiral {
+    animation: spin-drift 12s infinite linear;
 }
 
-.particle.type5 {
-    animation: drift 20s infinite linear;
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+.particle.wave {
+    animation: wave-motion 6s infinite ease-in-out;
 }
 
 /* Анимация смены трека */
@@ -366,4 +361,23 @@ body {
 
 .track-change-animation {
     animation: fadeOutIn 0.8s ease-in-out;
+}
+
+/* Стили для сообщения о автовоспроизведении */
+.autoplay-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 15px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    z-index: 1000;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: pulse-glow 2s infinite;
+    border: none;
+    font-size: 14px;
 }
