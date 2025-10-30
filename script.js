@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const leftLevel = document.getElementById('leftLevel');
-    const rightLevel = document.getElementById('rightLevel');
+    const leftGlow = document.querySelector('.left-side .neon-glow');
+    const rightGlow = document.querySelector('.right-side .neon-glow');
 
     // Массив треков
     const tracks = [
@@ -107,9 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let visualizerBars = [];
     let wasPlayingBeforeSwitch = false;
     let animationId = null;
-    let leftPeak = 0;
-    let rightPeak = 0;
-    let peakDecay = 0.98;
 
     // Создание визуализатора
     function createVisualizer() {
@@ -134,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             source.connect(analyser);
             analyser.connect(audioContext.destination);
             
-            analyser.fftSize = 256;
+            analyser.fftSize = 128;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
         } catch (error) {
@@ -160,45 +157,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для VU-метров
-            const leftBass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
-            const rightMid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
-            const highFreq = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
+            // Логика для неоновых линий
+            const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
+            const mid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
+            const high = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
             
-            // Комбинируем частоты для более динамичного отклика
-            const leftIntensity = Math.min(1, (leftBass * 0.7 + highFreq * 0.3) / 200);
-            const rightIntensity = Math.min(1, (rightMid * 0.6 + highFreq * 0.4) / 200);
+            // Комбинируем частоты для лучшего отклика
+            const intensity = Math.min(1, (bass * 0.6 + mid * 0.3 + high * 0.1) / 180);
             
-            // Сглаживаем переходы и добавляем инерцию
-            const leftHeight = Math.min(100, Math.pow(leftIntensity * 1.5, 1.2) * 100);
-            const rightHeight = Math.min(100, Math.pow(rightIntensity * 1.5, 1.2) * 100);
+            // Вычисляем высоту линий (максимальная высота = 100% - 40px, чтобы не заходить на закругления)
+            const maxHeight = 100; // 100% от контейнера
+            const lineHeight = Math.min(maxHeight, Math.pow(intensity * 1.5, 1.2) * maxHeight);
             
-            // Обновляем VU-метры
-            if (leftLevel) {
-                leftLevel.style.height = `${leftHeight}%`;
+            // Обновляем неоновые линии
+            if (leftGlow && rightGlow) {
+                leftGlow.style.height = `${lineHeight}%`;
+                rightGlow.style.height = `${lineHeight}%`;
                 
-                // Эффект пика для левого VU-метра
-                if (leftHeight > leftPeak) {
-                    leftPeak = leftHeight;
-                    leftLevel.classList.add('peak');
-                    setTimeout(() => leftLevel.classList.remove('peak'), 300);
-                }
-            }
-            
-            if (rightLevel) {
-                rightLevel.style.height = `${rightHeight}%`;
+                // Динамическое изменение интенсивности свечения
+                const glowIntensity = 0.6 + intensity * 0.4;
+                leftGlow.style.opacity = glowIntensity;
+                rightGlow.style.opacity = glowIntensity;
                 
-                // Эффект пика для правого VU-метра
-                if (rightHeight > rightPeak) {
-                    rightPeak = rightHeight;
-                    rightLevel.classList.add('peak');
-                    setTimeout(() => rightLevel.classList.remove('peak'), 300);
-                }
+                // Динамическое изменение тени в зависимости от интенсивности
+                const shadowBlur = 10 + intensity * 20;
+                const shadowSpread = 5 + intensity * 15;
+                leftGlow.style.boxShadow = 
+                    `0 0 ${shadowBlur}px var(--neon-color),
+                     0 0 ${shadowBlur * 2}px var(--neon-color),
+                     0 0 ${shadowBlur * 3}px var(--neon-color)`;
+                rightGlow.style.boxShadow = 
+                    `0 0 ${shadowBlur}px var(--neon-color),
+                     0 0 ${shadowBlur * 2}px var(--neon-color),
+                     0 0 ${shadowBlur * 3}px var(--neon-color)`;
             }
-            
-            // Плавное затухание пиков
-            leftPeak *= peakDecay;
-            rightPeak *= peakDecay;
             
             if (isPlaying) {
                 animationId = requestAnimationFrame(visualize);
@@ -244,31 +236,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // Кнопка play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
-        // VU-метры
+        // Неоновые линии
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Динамическое обновление стилей для VU-метров
+        // Динамическое обновление стилей для неоновых линий
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
             }
-            .vu-level {
-                background: linear-gradient(to top, 
-                    ${neonColor}, 
-                    ${neonColor}80);
+            .neon-glow {
+                background: ${neonColor};
                 box-shadow: 
                     0 0 10px ${neonColor},
-                    0 0 20px ${neonColor};
+                    0 0 20px ${neonColor},
+                    0 0 30px ${neonColor};
             }
         `;
         
         // Удаляем старые стили перед добавлением новых
-        const oldStyle = document.getElementById('dynamic-vu-styles');
+        const oldStyle = document.getElementById('dynamic-neon-styles');
         if (oldStyle) oldStyle.remove();
         
-        style.id = 'dynamic-vu-styles';
+        style.id = 'dynamic-neon-styles';
         document.head.appendChild(style);
         
         // Обложка
@@ -277,11 +268,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Пересоздание частиц с новыми цветами
         createParticles();
         
-        // Сброс VU-метров при смене трека
-        if (leftLevel) leftLevel.style.height = '0%';
-        if (rightLevel) rightLevel.style.height = '0%';
-        leftPeak = 0;
-        rightPeak = 0;
+        // Сброс неоновых линий при смене трека
+        if (leftGlow && rightGlow) {
+            leftGlow.style.height = '0%';
+            rightGlow.style.height = '0%';
+            leftGlow.style.opacity = '0.8';
+            rightGlow.style.opacity = '0.8';
+        }
     }
 
     // Форматирование времени
