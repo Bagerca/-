@@ -9,15 +9,27 @@
 <body>
     <div class="player-container">
         <audio id="audioPlayer" loop>
-            <!-- Замените ссылку на ваше аудио -->
-            <source src="https://taco.skysound7.com/t/109062769511648675807-taco-puttin-on-the-ritz/" type="audio/mpeg">
-            Ваш браузер не поддерживает аудио элементы.
+            <!-- Источник будет меняться через JavaScript -->
         </audio>
+        
+        <div class="track-selector">
+            <select id="trackSelect" class="track-select">
+                <option value="assets/572355312-322680992.mp3">Трек 1</option>
+                <option value="assets/Caro Emerald, Tangled Up (Lokee Remix).mp3">Caro Emerald - Tangled Up</option>
+                <option value="assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3">Valhalla Calling</option>
+            </select>
+        </div>
         
         <div class="controls">
             <button id="playBtn" class="btn">▶</button>
             <button id="pauseBtn" class="btn">⏸</button>
+            <button id="prevBtn" class="btn">⏮</button>
+            <button id="nextBtn" class="btn">⏭</button>
             <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        
+        <div class="track-info">
+            <span id="currentTrack">Выберите трек</span>
         </div>
     </div>
 
