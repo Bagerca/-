@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
 
-    // Массив треков с исправленными обложками
+    // Массив треков
     const tracks = [
         { 
             name: 'Tangled Up', 
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
+            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY7NDIx/MS04MDU5LmpwZWc.jpeg',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178'
         },
@@ -155,26 +155,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // УЛУЧШЕННАЯ ЛОГИКА ДЛЯ НЕОНОВЫХ ЛИНИЙ
-            const bass = dataArray.slice(0, 15).reduce((a, b) => a + b) / 15;
-            const mid = dataArray.slice(15, 40).reduce((a, b) => a + b) / 25;
+            // Логика для неоновых линий
+            const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
+            const mid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
+            const high = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
             
-            // Комбинируем басы и средние частоты для лучшей чувствительности
-            const intensity = Math.min(1, (bass * 0.7 + mid * 0.3) / 180);
+            // Комбинируем частоты с разными весами
+            const intensity = Math.min(1, (bass * 0.5 + mid * 0.3 + high * 0.2) / 200);
             
-            // Увеличиваем чувствительность и добавляем нелинейное преобразование
-            const progress = Math.min(1, Math.pow(intensity * 3, 1.5));
+            // Сбалансированная чувствительность для средней и высокой громкости
+            const progress = Math.min(1, Math.pow(intensity * 2, 1.2));
             
             // Обновляем dashoffset для SVG путей
-            const maxDashOffset = 150;
+            const maxDashOffset = 300;
             const currentDashOffset = maxDashOffset * (1 - progress);
             
             // Применяем ко всем неоновым путям
             document.querySelectorAll('.neon-path').forEach(path => {
                 path.style.strokeDashoffset = currentDashOffset;
                 
-                // Динамическое изменение толщины линии в зависимости от интенсивности
-                const strokeWidth = 2 + progress * 3;
+                // Динамическое изменение толщины линии
+                const strokeWidth = 2 + progress * 2;
                 path.style.strokeWidth = `${strokeWidth}px`;
             });
             
@@ -253,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сброс неоновых линий при смене трека
         document.querySelectorAll('.neon-path').forEach(path => {
-            path.style.strokeDashoffset = '150';
+            path.style.strokeDashoffset = '300';
             path.style.strokeWidth = '3px';
         });
     }
