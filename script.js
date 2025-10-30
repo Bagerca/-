@@ -105,9 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isPlaying = false;
     let audioContext, analyser, dataArray, bufferLength;
     let visualizerBars = [];
-    let wasPlayingBeforeSwitch = false;
     let animationId = null;
-    let isFirstPlay = true;
     
     // Переменные для ритмичного свечения
     let beatDetected = false;
@@ -132,6 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация аудиоанализатора
     function initAudioAnalyzer() {
         try {
+            if (audioContext) return;
+            
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
             const source = audioContext.createMediaElementSource(audio);
@@ -377,11 +377,12 @@ document.addEventListener('DOMContentLoaded', function() {
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
             
-            wasPlayingBeforeSwitch = isPlaying;
+            // Останавливаем текущее воспроизведение перед загрузкой нового трека
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
             
+            // Отменяем предыдущую анимацию
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
@@ -398,8 +399,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 duration.textContent = formatTime(audio.duration);
                 audio.removeEventListener('loadedmetadata', onLoaded);
                 
-                if (autoPlay || wasPlayingBeforeSwitch) {
-                    playTrack();
+                // Автоматически воспроизводим, если нужно
+                if (autoPlay) {
+                    setTimeout(() => {
+                        playTrack();
+                    }, 100);
                 }
             };
             
@@ -416,10 +420,9 @@ document.addEventListener('DOMContentLoaded', function() {
         audio.play().then(() => {
             isPlaying = true;
             playPauseBtn.textContent = '⏸';
-            if (!analyser && !isFirstPlay) {
+            if (!analyser) {
                 initAudioAnalyzer();
             }
-            isFirstPlay = false;
             visualize();
         }).catch(error => {
             console.error('Playback failed:', error);
@@ -431,6 +434,25 @@ document.addEventListener('DOMContentLoaded', function() {
     function seek(seconds) {
         if (audio.duration) {
             audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+        }
+    }
+
+    // Попытка автовоспроизведения
+    function attemptAutoplay() {
+        // Сбрасываем текущее время трека перед воспроизведением
+        audio.currentTime = 0;
+        
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+                if (!analyser) initAudioAnalyzer();
+                visualize();
+            }).catch(error => {
+                console.log('Autoplay blocked, showing message');
+                showPlayMessage();
+            });
         }
     }
 
@@ -451,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.body.contains(message)) {
                 message.remove();
             }
-        }, 5000);
+        }, 8000);
     }
 
     // Обработчики событий
@@ -534,6 +556,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex, true);
     });
 
+    // Обработка ошибок аудио
     audio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
     });
@@ -542,15 +565,17 @@ document.addEventListener('DOMContentLoaded', function() {
     createVisualizer();
     loadTrack(0);
     
-    // Предзагрузка аудиоконтекста при первом взаимодействии
-    const initOnInteraction = function() {
-        if (!audioContext) {
-            initAudioAnalyzer();
+    // Автовоспроизведение с задержкой
+    setTimeout(() => {
+        attemptAutoplay();
+    }, 1000);
+
+    // Обработка первого клика для автовоспроизведения
+    const firstClickHandler = function() {
+        if (!isPlaying) {
+            attemptAutoplay();
         }
-        document.removeEventListener('click', initOnInteraction);
-        document.removeEventListener('keydown', initOnInteraction);
+        document.removeEventListener('click', firstClickHandler);
     };
-    
-    document.addEventListener('click', initOnInteraction);
-    document.addEventListener('keydown', initOnInteraction);
+    document.addEventListener('click', firstClickHandler);
 });
