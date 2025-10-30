@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const particles = document.getElementById('particles');
     const transitionOverlay = document.getElementById('transitionOverlay');
 
-    // Массив треков с цветовыми темами
+    // Обновленный массив треков с новыми темами
     const tracks = [
         { 
             name: 'Трек 1', 
@@ -46,27 +46,36 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'Marino - Lust', 
             path: 'assets/Marino - Lust (feat. Alexandria).m4a',
             theme: {
-                primary: 'hsl(320, 70%, 40%)',
-                secondary: 'hsl(350, 70%, 50%)',
-                accent: 'hsl(20, 90%, 60%)'
+                primary: 'hsl(0, 0%, 0%)',        // Черный
+                secondary: 'hsl(0, 100%, 15%)',   // Темно-красный
+                accent: 'hsl(0, 100%, 45%)'       // Насыщенный красный
             }
         },
         { 
             name: 'Taco - Puttin\' On The Ritz', 
             path: 'assets/Taco - Puttin\' On The Ritz.m4a',
             theme: {
-                primary: 'hsl(50, 80%, 50%)',
-                secondary: 'hsl(80, 70%, 40%)',
-                accent: 'hsl(120, 90%, 60%)'
+                primary: 'hsl(220, 30%, 15%)',    // Темно-синий (смокинг)
+                secondary: 'hsl(0, 0%, 25%)',     // Темно-серый
+                accent: 'hsl(45, 100%, 50%)'      // Золотой (элегантность)
             }
         },
         { 
             name: 'The Cigarette Duet', 
             path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
             theme: {
-                primary: 'hsl(280, 50%, 30%)',
-                secondary: 'hsl(200, 40%, 40%)',
-                accent: 'hsl(160, 60%, 50%)'
+                primary: 'hsl(330, 60%, 70%)',    // Розовый
+                secondary: 'hsl(20, 30%, 30%)',   // Коричневый
+                accent: 'hsl(330, 80%, 85%)'      // Светло-розовый
+            }
+        },
+        { 
+            name: 'A Man Without Love', 
+            path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
+            theme: {
+                primary: 'hsl(220, 30%, 95%)',    // Белый с синим оттенком
+                secondary: 'hsl(220, 20%, 85%)',  // Светло-серый
+                accent: 'hsl(220, 50%, 70%)'      // Лунный синий
             }
         }
     ];
@@ -77,31 +86,39 @@ document.addEventListener('DOMContentLoaded', function() {
     let particleElements = [];
     let isTransitioning = false;
 
-    // Создание улучшенных частиц
+    // Улучшенное создание частиц
     function createParticles() {
         particles.innerHTML = '';
         particleElements = [];
         
-        const particleCount = 30;
-        const particleTypes = ['type1', 'type2', 'type3', 'type4'];
+        const particleCount = 25;
+        const particleTypes = ['type1', 'type2', 'type3', 'type4', 'type5'];
+        const currentTheme = tracks[currentTrackIndex].theme;
         
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             const type = particleTypes[Math.floor(Math.random() * particleTypes.length)];
-            const size = Math.random() * 25 + 5;
+            const size = Math.random() * 20 + 8; // Увеличил размер для лучшей видимости
             
             particle.className = `particle ${type}`;
             particle.style.width = size + 'px';
             particle.style.height = size + 'px';
             particle.style.left = Math.random() * 100 + 'vw';
             particle.style.top = Math.random() * 100 + 'vh';
-            particle.style.animationDelay = Math.random() * 8 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+            
+            // Улучшенные градиенты для частиц
+            const hue1 = getHue(currentTheme.primary) + Math.random() * 30 - 15;
+            const hue2 = getHue(currentTheme.accent) + Math.random() * 30 - 15;
+            
             particle.style.background = `radial-gradient(circle, 
-                rgba(255,255,255,0.8) 0%, 
-                rgba(255,255,255,0.4) 50%, 
-                rgba(255,255,255,0.2) 100%)`;
-            particle.style.filter = 'blur(1px)';
+                hsla(${hue1}, 80%, 70%, 0.8) 0%, 
+                hsla(${hue2}, 80%, 60%, 0.5) 50%, 
+                hsla(${hue1}, 80%, 50%, 0.3) 100%)`;
+            
+            // Добавляем тень для объема
+            particle.style.boxShadow = `0 0 15px hsla(${hue2}, 80%, 60%, 0.4)`;
             
             particles.appendChild(particle);
             particleElements.push(particle);
@@ -141,13 +158,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.style.background = `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`;
         
-        // Обновляем цвет частиц
-        particleElements.forEach(particle => {
-            particle.style.background = `radial-gradient(circle, 
-                ${theme.accent}80 0%, 
-                ${theme.secondary}60 50%, 
-                ${theme.primary}40 100%)`;
-        });
+        // Пересоздаем частицы с новой темой
+        createParticles();
     }
 
     // Инициализация аудиоанализатора
@@ -158,12 +170,12 @@ document.addEventListener('DOMContentLoaded', function() {
         source.connect(analyser);
         analyser.connect(audioContext.destination);
         
-        analyser.fftSize = 512;
+        analyser.fftSize = 256;
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
     }
 
-    // Визуализация звука с улучшенными эффектами
+    // Исправленная визуализация звука
     function visualize() {
         if (!analyser) return;
         
@@ -187,8 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Анимация частиц в такт музыки
         animateParticles(bass, mids, highs);
         
-        // Создание визуализатора с разными стилями для частот
-        visualizer.innerHTML = '';
+        // Создание исправленного визуализатора
         createFrequencyBars(dataArray, bass, mids, highs);
         
         if (isPlaying) {
@@ -217,33 +228,35 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (particle.classList.contains('type3')) {
                 particle.style.transform = `rotate(${highEffect * 360}deg) scale(${1 + highEffect * 0.3})`;
             } else if (particle.classList.contains('type4')) {
-                particle.style.filter = `blur(${1 + bassEffect * 3}px) hue-rotate(${mids}deg)`;
+                particle.style.filter = `blur(${1 + bassEffect * 2}px) hue-rotate(${mids}deg)`;
+            } else if (particle.classList.contains('type5')) {
+                particle.style.opacity = 0.4 + highEffect * 0.6;
             }
         });
     }
 
-    // Создание частотных полос визуализатора
+    // Исправленное создание частотных полос визуализатора
     function createFrequencyBars(dataArray, bass, mids, highs) {
-        const barCount = 80;
-        const visualizerWidth = visualizer.offsetWidth;
-        const barWidth = visualizerWidth / barCount;
+        const barCount = 60; // Уменьшил количество для лучшей производительности
+        const visualizerWidth = window.innerWidth;
+        const barWidth = Math.max(3, visualizerWidth / barCount - 2); // Минимальная ширина 3px
         const currentTheme = tracks[currentTrackIndex].theme;
+        
+        visualizer.innerHTML = '';
         
         for (let i = 0; i < barCount; i++) {
             const barValue = dataArray[Math.floor(i * bufferLength / barCount)];
-            const barHeight = (barValue / 256) * 200;
-            const hue = getHue(currentTheme.accent) + (i * 360 / barCount);
+            const barHeight = Math.max(10, (barValue / 256) * 150); // Минимальная высота 10px
             
             const bar = document.createElement('div');
-            bar.style.position = 'absolute';
-            bar.style.left = i * barWidth + 'px';
-            bar.style.bottom = '0';
-            bar.style.width = (barWidth - 1) + 'px';
+            bar.style.width = barWidth + 'px';
             bar.style.height = barHeight + 'px';
-            bar.style.background = `hsl(${hue}, 80%, 60%)`;
-            bar.style.borderRadius = '2px 2px 0 0';
-            bar.style.boxShadow = `0 0 10px hsl(${hue}, 80%, 60%)`;
-            bar.style.transform = `scaleY(${1 + (bass / 256) * 0.5})`;
+            bar.style.margin = '0 1px';
+            bar.style.background = `linear-gradient(to top, 
+                ${currentTheme.accent}80, 
+                ${currentTheme.accent})`;
+            bar.style.borderRadius = '3px 3px 0 0';
+            bar.style.boxShadow = `0 0 8px ${currentTheme.accent}80`;
             bar.style.transition = 'height 0.1s ease';
             
             visualizer.appendChild(bar);
@@ -418,8 +431,14 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex);
     });
 
+    // Обработка изменения размера окна для визуализатора
+    window.addEventListener('resize', function() {
+        if (isPlaying && analyser) {
+            visualize();
+        }
+    });
+
     // Инициализация
-    createParticles();
     loadTrack(0);
     
     setTimeout(() => {
