@@ -159,40 +159,50 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Логика для неоновых линий
             if (leftGlow && rightGlow) {
-                const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-                const mid = dataArray.slice(10, 30).reduce((a, b) => a + b) / 20;
+                // Берем только низкие частоты (басы) для более плавного движения
+                const bassFrequencies = dataArray.slice(0, 8); // первые 8 частот - басы
+                const bass = bassFrequencies.reduce((a, b) => a + b) / bassFrequencies.length;
                 
-                // Комбинируем частоты для плавного движения
-                const intensity = Math.min(1, (bass * 0.7 + mid * 0.3) / 150);
+                // Берем средние частоты для дополнительной динамики
+                const midFrequencies = dataArray.slice(8, 20);
+                const mid = midFrequencies.reduce((a, b) => a + b) / midFrequencies.length;
                 
-                // Вычисляем высоту линий (от 10% до 90% для красивого эффекта)
-                const minHeight = 10; // минимальная высота в %
-                const maxHeight = 90; // максимальная высота в %
-                const lineHeight = minHeight + (intensity * (maxHeight - minHeight));
+                // Комбинируем частоты с разными весами
+                // Басы дают основное движение, средние - небольшие колебания
+                const intensity = Math.min(1, (bass * 0.8 + mid * 0.2) / 200); // Увеличили делитель со 150 до 200
+                
+                // Нелинейное преобразование для более естественного движения
+                // Используем квадратный корень для сглаживания пиков
+                const smoothIntensity = Math.sqrt(intensity);
+                
+                // Вычисляем высоту линий с более узким диапазоном
+                const minHeight = 15; // увеличили минимальную высоту
+                const maxHeight = 80; // уменьшили максимальную высоту
+                const lineHeight = minHeight + (smoothIntensity * (maxHeight - minHeight));
                 
                 // Обновляем неоновые линии
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                // Динамическое изменение интенсивности свечения
-                const glowIntensity = 0.6 + intensity * 0.4;
+                // Более тонкое изменение интенсивности свечения
+                const glowIntensity = 0.5 + smoothIntensity * 0.3; // уменьшили диапазон
                 leftGlow.style.opacity = glowIntensity;
                 rightGlow.style.opacity = glowIntensity;
                 
-                // Динамическое изменение тени в зависимости от интенсивности
-                const shadowBlur = 10 + intensity * 25;
+                // Менее агрессивное изменение тени
+                const shadowBlur = 8 + smoothIntensity * 15; // уменьшили максимальное размытие
                 
                 leftGlow.style.boxShadow = 
                     `0 0 ${shadowBlur}px var(--neon-color),
-                     0 0 ${shadowBlur * 1.5}px var(--neon-color),
-                     0 0 ${shadowBlur * 2}px var(--neon-color),
-                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                     0 0 ${shadowBlur * 1.3}px var(--neon-color),
+                     0 0 ${shadowBlur * 1.6}px var(--neon-color),
+                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
                 
                 rightGlow.style.boxShadow = 
                     `0 0 ${shadowBlur}px var(--neon-color),
-                     0 0 ${shadowBlur * 1.5}px var(--neon-color),
-                     0 0 ${shadowBlur * 2}px var(--neon-color),
-                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                     0 0 ${shadowBlur * 1.3}px var(--neon-color),
+                     0 0 ${shadowBlur * 1.6}px var(--neon-color),
+                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
             }
             
             if (isPlaying) {
@@ -266,10 +276,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сброс неоновых линий при смене трека
         if (leftGlow && rightGlow) {
-            leftGlow.style.height = '10%';
-            rightGlow.style.height = '10%';
-            leftGlow.style.opacity = '0.8';
-            rightGlow.style.opacity = '0.8';
+            leftGlow.style.height = '15%';
+            rightGlow.style.height = '15%';
+            leftGlow.style.opacity = '0.5';
+            rightGlow.style.opacity = '0.5';
         }
     }
 
