@@ -17,31 +17,6 @@ body {
     transition: background 1.5s ease;
 }
 
-.neon-lines-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 20px;
-    padding-bottom: 50px;
-}
-
-.neon-line {
-    width: 4px;
-    height: 0;
-    background: linear-gradient(to top, transparent, var(--neon-color, #e94560));
-    border-radius: 2px 2px 0 0;
-    filter: blur(1px);
-    box-shadow: 0 0 10px var(--neon-color, #e94560);
-    transition: height 0.2s ease, background 0.5s ease;
-}
-
 .particles {
     position: fixed;
     top: 0;
@@ -89,6 +64,41 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     transition: all 0.5s ease;
+}
+
+/* Контейнер для неоновых линий на обложке */
+.album-neon-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.neon-line {
+    position: absolute;
+    bottom: 0;
+    width: 3px;
+    height: 0;
+    background: linear-gradient(to top, transparent, var(--neon-color, #e94560));
+    border-radius: 2px 2px 0 0;
+    filter: blur(1px);
+    box-shadow: 0 0 10px var(--neon-color, #e94560);
+    transition: height 0.2s ease;
+    transform-origin: bottom;
+}
+
+.neon-line.left {
+    left: 50%;
+    transform: translateX(-50%) rotate(-45deg);
+    transform-origin: bottom center;
+}
+
+.neon-line.right {
+    right: 50%;
+    transform: translateX(50%) rotate(45deg);
+    transform-origin: bottom center;
 }
 
 .track-info {
