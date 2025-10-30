@@ -107,13 +107,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let visualizerBars = [];
     let wasPlayingBeforeSwitch = false;
     let animationId = null;
+    let isFirstPlay = true;
 
     // Создание визуализатора
     function createVisualizer() {
         visualizer.innerHTML = '';
         visualizerBars = [];
         
-        for (let i = 0; i < 40; i++) {
+        // Уменьшим количество столбцов для производительности
+        for (let i = 0; i < 30; i++) {
             const bar = document.createElement('div');
             bar.className = 'visualizer-bar';
             bar.style.height = '5px';
@@ -131,7 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
             source.connect(analyser);
             analyser.connect(audioContext.destination);
             
-            analyser.fftSize = 128;
+            // Уменьшим сложность анализа для производительности
+            analyser.fftSize = 64;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
         } catch (error) {
@@ -139,77 +142,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Визуализация звука
+    // Оптимизированная визуализация звука
     function visualize() {
-        if (!analyser) return;
+        if (!analyser || !isPlaying) return;
         
         try {
             analyser.getByteFrequencyData(dataArray);
             
-            // Обновление визуализатора
+            // Упрощенное обновление визуализатора
             for (let i = 0; i < visualizerBars.length; i++) {
-                const barIndex = Math.floor(i * 1.5);
+                const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
-                const height = Math.max(5, Math.min(70, value * 70));
+                const height = Math.max(5, value * 70);
                 visualizerBars[i].style.height = `${height}px`;
                 
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для неоновых линий
+            // Упрощенная логика для неоновых линий
             if (leftGlow && rightGlow) {
-                // Берем только низкие частоты (басы) для более плавного движения
-                const bassFrequencies = dataArray.slice(0, 8); // первые 8 частот - басы
-                const bass = bassFrequencies.reduce((a, b) => a + b) / bassFrequencies.length;
+                // Более простое вычисление интенсивности
+                const bass = dataArray[0] / 255; // Используем только первую частоту
+                const intensity = Math.min(1, bass * 1.5);
                 
-                // Берем средние частоты для дополнительной динамики
-                const midFrequencies = dataArray.slice(8, 20);
-                const mid = midFrequencies.reduce((a, b) => a + b) / midFrequencies.length;
-                
-                // Комбинируем частоты с разными весами
-                // Басы дают основное движение, средние - небольшие колебания
-                const intensity = Math.min(1, (bass * 0.8 + mid * 0.2) / 200); // Увеличили делитель со 150 до 200
-                
-                // Нелинейное преобразование для более естественного движения
-                // Используем квадратный корень для сглаживания пиков
-                const smoothIntensity = Math.sqrt(intensity);
-                
-                // Вычисляем высоту линий с более узким диапазоном
-                const minHeight = 15; // увеличили минимальную высоту
-                const maxHeight = 80; // уменьшили максимальную высоту
-                const lineHeight = minHeight + (smoothIntensity * (maxHeight - minHeight));
+                // Вычисляем высоту линий
+                const minHeight = 15;
+                const maxHeight = 80;
+                const lineHeight = minHeight + (intensity * (maxHeight - minHeight));
                 
                 // Обновляем неоновые линии
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                // Более тонкое изменение интенсивности свечения
-                const glowIntensity = 0.5 + smoothIntensity * 0.3; // уменьшили диапазон
-                leftGlow.style.opacity = glowIntensity;
-                rightGlow.style.opacity = glowIntensity;
-                
-                // Менее агрессивное изменение тени
-                const shadowBlur = 8 + smoothIntensity * 15; // уменьшили максимальное размытие
-                
-                leftGlow.style.boxShadow = 
-                    `0 0 ${shadowBlur}px var(--neon-color),
-                     0 0 ${shadowBlur * 1.3}px var(--neon-color),
-                     0 0 ${shadowBlur * 1.6}px var(--neon-color),
-                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
-                
-                rightGlow.style.boxShadow = 
-                    `0 0 ${shadowBlur}px var(--neon-color),
-                     0 0 ${shadowBlur * 1.3}px var(--neon-color),
-                     0 0 ${shadowBlur * 1.6}px var(--neon-color),
-                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
+                // Упрощенное изменение интенсивности
+                leftGlow.style.opacity = 0.5 + intensity * 0.3;
+                rightGlow.style.opacity = 0.5 + intensity * 0.3;
             }
             
-            if (isPlaying) {
-                animationId = requestAnimationFrame(visualize);
-            }
+            animationId = requestAnimationFrame(visualize);
         } catch (error) {
             console.error('Visualization error:', error);
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
         }
     }
 
@@ -217,18 +193,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function createParticles() {
         particles.innerHTML = '';
         
-        for (let i = 0; i < 20; i++) {
+        // Уменьшим количество частиц для производительности
+        for (let i = 0; i < 15; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             
-            const size = Math.random() * 20 + 5;
+            const size = Math.random() * 15 + 5;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
             particle.style.left = `${Math.random() * 100}vw`;
             particle.style.top = `${Math.random() * 100}vh`;
             particle.style.animationDelay = `${Math.random() * 5}s`;
             particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
-            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            particle.style.opacity = Math.random() * 0.3 + 0.1;
             particle.style.background = tracks[currentTrackIndex].colors.accent;
             
             particles.appendChild(particle);
@@ -317,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Отменяем предыдущую анимацию
             if (animationId) {
                 cancelAnimationFrame(animationId);
+                animationId = null;
             }
             
             audio.src = track.path;
@@ -332,21 +310,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Автоматически воспроизводим, если нужно
                 if (autoPlay || wasPlayingBeforeSwitch) {
-                    setTimeout(() => {
-                        audio.play().then(() => {
-                            isPlaying = true;
-                            playPauseBtn.textContent = '⏸';
-                            if (!analyser) initAudioAnalyzer();
-                            visualize();
-                        }).catch(error => {
-                            console.error('Playback failed:', error);
-                            showPlayMessage();
-                        });
-                    }, 100);
+                    playTrack();
                 }
             };
-            audio.addEventListener('loadedmetadata', onLoaded);
+            
+            // Если трек уже загружен, сразу запускаем onLoaded
+            if (audio.readyState >= 1) {
+                onLoaded();
+            } else {
+                audio.addEventListener('loadedmetadata', onLoaded);
+            }
         }
+    }
+
+    // Воспроизведение трека
+    function playTrack() {
+        audio.play().then(() => {
+            isPlaying = true;
+            playPauseBtn.textContent = '⏸';
+            if (!analyser && !isFirstPlay) {
+                initAudioAnalyzer();
+            }
+            isFirstPlay = false;
+            visualize();
+        }).catch(error => {
+            console.error('Playback failed:', error);
+            showPlayMessage();
+        });
     }
 
     // Перемотка вперед/назад
@@ -368,25 +358,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Попытка автовоспроизведения
-    function attemptAutoplay() {
-        // Сбрасываем текущее время трека перед воспроизведением
-        audio.currentTime = 0;
-        
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                playPauseBtn.textContent = '⏸';
-                if (!analyser) initAudioAnalyzer();
-                visualize();
-            }).catch(error => {
-                console.log('Autoplay blocked, showing message');
-                showPlayMessage();
-            });
-        }
-    }
-
     // Сообщение о необходимости запуска
     function showPlayMessage() {
         const message = document.createElement('button');
@@ -394,15 +365,8 @@ document.addEventListener('DOMContentLoaded', function() {
         message.textContent = 'Нажмите для запуска музыки';
         
         message.addEventListener('click', function() {
-            audio.play().then(() => {
-                isPlaying = true;
-                playPauseBtn.textContent = '⏸';
-                if (!analyser) initAudioAnalyzer();
-                visualize();
-                message.remove();
-            }).catch(error => {
-                console.error('Playback failed:', error);
-            });
+            playTrack();
+            message.remove();
         });
         
         document.body.appendChild(message);
@@ -411,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.body.contains(message)) {
                 message.remove();
             }
-        }, 8000);
+        }, 5000);
     }
 
     // Обработчики событий
@@ -422,17 +386,10 @@ document.addEventListener('DOMContentLoaded', function() {
             playPauseBtn.textContent = '▶';
             if (animationId) {
                 cancelAnimationFrame(animationId);
+                animationId = null;
             }
         } else {
-            audio.play().then(() => {
-                isPlaying = true;
-                playPauseBtn.textContent = '⏸';
-                if (!analyser) initAudioAnalyzer();
-                visualize();
-            }).catch(error => {
-                console.error('Playback failed:', error);
-                showPlayMessage();
-            });
+            playTrack();
         }
     });
 
@@ -457,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     volumeSlider.addEventListener('input', () => {
-        smoothVolumeChange();
+        audio.volume = volumeSlider.value / 100;
     });
 
     progressBar.addEventListener('click', (e) => {
@@ -480,11 +437,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'ArrowUp':
                 volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 10);
-                smoothVolumeChange();
+                audio.volume = volumeSlider.value / 100;
                 break;
             case 'ArrowDown':
                 volumeSlider.value = Math.max(0, parseInt(volumeSlider.value) - 10);
-                smoothVolumeChange();
+                audio.volume = volumeSlider.value / 100;
                 break;
             case ' ':
                 e.preventDefault();
@@ -510,17 +467,15 @@ document.addEventListener('DOMContentLoaded', function() {
     createVisualizer();
     loadTrack(0);
     
-    // Автовоспроизведение с задержкой
-    setTimeout(() => {
-        attemptAutoplay();
-    }, 1000);
-
-    // Обработка первого клика для автовоспроизведения
-    const firstClickHandler = function() {
-        if (!isPlaying) {
-            attemptAutoplay();
+    // Предзагрузка аудиоконтекста при первом взаимодействии
+    const initOnInteraction = function() {
+        if (!audioContext) {
+            initAudioAnalyzer();
         }
-        document.removeEventListener('click', firstClickHandler);
+        document.removeEventListener('click', initOnInteraction);
+        document.removeEventListener('keydown', initOnInteraction);
     };
-    document.addEventListener('click', firstClickHandler);
+    
+    document.addEventListener('click', initOnInteraction);
+    document.addEventListener('keydown', initOnInteraction);
 });
