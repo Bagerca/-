@@ -75,7 +75,6 @@ body {
     height: 100%;
     pointer-events: none;
     border-radius: 20px;
-    overflow: hidden;
 }
 
 .neon-line {
@@ -83,15 +82,14 @@ body {
     top: 0;
     width: 6px;
     height: 100%;
-    overflow: hidden;
 }
 
 .left-line {
-    left: 0;
+    left: 2px;
 }
 
 .right-line {
-    right: 0;
+    right: 2px;
 }
 
 .neon-glow {
@@ -99,7 +97,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 0%;
+    height: 10%; /* Начальная высота */
     background: var(--neon-color, #e94560);
     border-radius: 3px;
     transition: height 0.1s ease-out;
@@ -109,7 +107,6 @@ body {
         0 0 30px var(--neon-color),
         inset 0 0 10px rgba(255, 255, 255, 0.3);
     opacity: 0.8;
-    transform-origin: bottom;
 }
 
 /* Анимация пульсации свечения */
