@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Элементы DOM
     const audio = document.getElementById('audioPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const prevBtn = document.getElementById('prevBtn');
@@ -6,161 +7,110 @@ document.addEventListener('DOMContentLoaded', function() {
     const volumeSlider = document.getElementById('volumeSlider');
     const trackSelect = document.getElementById('trackSelect');
     const currentTrack = document.getElementById('currentTrack');
+    const currentArtist = document.getElementById('currentArtist');
     const progressBar = document.getElementById('progressBar');
+    const progress = document.getElementById('progress');
     const currentTime = document.getElementById('currentTime');
     const duration = document.getElementById('duration');
     const visualizer = document.getElementById('visualizer');
+    const albumArt = document.getElementById('albumArt');
+    const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const transitionOverlay = document.getElementById('transitionOverlay');
+    const edgeEffects = document.querySelectorAll('.edge-effect');
 
-    // Обновленный массив треков с улучшенными темами
+    // Массив треков с улучшенными цветовыми схемами и обложками
     const tracks = [
         { 
-            name: 'Трек 1', 
-            path: 'assets/572355312-322680992.mp3',
-            theme: {
-                primary: 'hsl(230, 70%, 50%)',
-                secondary: 'hsl(270, 70%, 50%)',
-                accent: 'hsl(300, 80%, 60%)'
-            }
-        },
-        { 
-            name: 'Caro Emerald - Tangled Up', 
+            name: 'Tangled Up', 
+            artist: 'Caro Emerald',
             path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-            theme: {
-                primary: 'hsl(330, 70%, 50%)',
-                secondary: 'hsl(10, 70%, 50%)',
-                accent: 'hsl(40, 90%, 60%)'
-            }
+            colors: {
+                primary: '#ff9a00',
+                secondary: '#ff2e63',
+                accent: '#ff9a00'
+            },
+            cover: '🎸',
+            visualizer: ['#ff9a00', '#ff2e63']
         },
         { 
             name: 'Valhalla Calling', 
+            artist: 'Miracle Of Sound',
             path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-            theme: {
-                primary: 'hsl(180, 70%, 30%)',
-                secondary: 'hsl(220, 70%, 40%)',
-                accent: 'hsl(280, 80%, 60%)'
-            }
+            colors: {
+                primary: '#1d2b64',
+                secondary: '#f8cdda',
+                accent: '#1d2b64'
+            },
+            cover: '⚔️',
+            visualizer: ['#1d2b64', '#f8cdda']
         },
         { 
-            name: 'Marino - Lust', 
+            name: 'Lust', 
+            artist: 'Marino ft. Alexandria',
             path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-            theme: {
-                primary: 'hsl(0, 0%, 0%)',
-                secondary: 'hsl(0, 100%, 20%)',
-                accent: 'hsl(0, 100%, 50%)'
-            }
+            colors: {
+                primary: '#870000',
+                secondary: '#190a05',
+                accent: '#ff0000'
+            },
+            cover: '🔥',
+            visualizer: ['#870000', '#ff0000']
         },
         { 
-            name: 'Taco - Puttin\' On The Ritz', 
+            name: 'Puttin\' On The Ritz', 
+            artist: 'Taco',
             path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-            theme: {
-                primary: 'hsl(220, 40%, 15%)',
-                secondary: 'hsl(0, 0%, 20%)',
-                accent: 'hsl(45, 100%, 50%)'
-            }
+            colors: {
+                primary: '#141e30',
+                secondary: '#243b55',
+                accent: '#ffd700'
+            },
+            cover: '🎩',
+            visualizer: ['#141e30', '#ffd700']
         },
         { 
             name: 'The Cigarette Duet', 
+            artist: 'Princess Chelsea',
             path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-            theme: {
-                primary: 'hsl(330, 70%, 75%)',
-                secondary: 'hsl(25, 40%, 35%)',
-                accent: 'hsl(330, 90%, 90%)'
-            }
+            colors: {
+                primary: '#6d214f',
+                secondary: '#b33939',
+                accent: '#e84178'
+            },
+            cover: '🚬',
+            visualizer: ['#6d214f', '#e84178']
         },
         { 
             name: 'A Man Without Love', 
+            artist: 'Engelbert Humperdinck',
             path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-            theme: {
-                primary: 'hsl(220, 30%, 95%)',
-                secondary: 'hsl(220, 20%, 80%)',
-                accent: 'hsl(220, 50%, 70%)'
-            }
+            colors: {
+                primary: '#2c3e50',
+                secondary: '#4ca1af',
+                accent: '#86fde8'
+            },
+            cover: '🌙',
+            visualizer: ['#2c3e50', '#86fde8']
         }
     ];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
     let audioContext, analyser, dataArray, bufferLength;
-    let particleElements = [];
-    let isTransitioning = false;
+    let visualizerBars = [];
 
-    // Улучшенное создание частиц
-    function createParticles() {
-        particles.innerHTML = '';
-        particleElements = [];
+    // Создание визуализатора
+    function createVisualizer() {
+        visualizer.innerHTML = '';
+        visualizerBars = [];
         
-        const particleCount = 20;
-        const particleTypes = ['circle', 'glow', 'spiral', 'wave'];
-        const currentTheme = tracks[currentTrackIndex].theme;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            const type = particleTypes[Math.floor(Math.random() * particleTypes.length)];
-            const size = Math.random() * 25 + 10;
-            
-            particle.className = `particle ${type}`;
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.top = Math.random() * 100 + 'vh';
-            particle.style.animationDelay = Math.random() * 8 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
-            
-            // Улучшенные градиенты для частиц
-            const hue = getHue(currentTheme.accent) + Math.random() * 60 - 30;
-            const saturation = 70 + Math.random() * 30;
-            
-            if (type === 'glow') {
-                particle.style.background = `radial-gradient(circle, 
-                    hsla(${hue}, ${saturation}%, 70%, 0.9) 0%, 
-                    hsla(${hue}, ${saturation}%, 60%, 0.6) 50%, 
-                    transparent 100%)`;
-                particle.style.boxShadow = `0 0 30px hsla(${hue}, ${saturation}%, 60%, 0.7)`;
-            } else {
-                particle.style.background = `radial-gradient(circle, 
-                    hsla(${hue}, ${saturation}%, 70%, 0.8) 0%, 
-                    hsla(${hue}, ${saturation}%, 60%, 0.5) 70%, 
-                    transparent 100%)`;
-                particle.style.boxShadow = `0 0 20px hsla(${hue}, ${saturation}%, 60%, 0.5)`;
-            }
-            
-            particles.appendChild(particle);
-            particleElements.push(particle);
+        for (let i = 0; i < 40; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'visualizer-bar';
+            bar.style.height = '5px';
+            visualizer.appendChild(bar);
+            visualizerBars.push(bar);
         }
-    }
-
-    // Плавный переход между темами
-    function transitionToTheme(newTheme, callback) {
-        if (isTransitioning) return;
-        isTransitioning = true;
-        
-        transitionOverlay.classList.add('active');
-        
-        setTimeout(() => {
-            setTheme(newTheme);
-            
-            const playerContainer = document.querySelector('.player-container');
-            playerContainer.classList.add('track-change-animation');
-            
-            setTimeout(() => {
-                transitionOverlay.classList.remove('active');
-                playerContainer.classList.remove('track-change-animation');
-                isTransitioning = false;
-                if (callback) callback();
-            }, 800);
-        }, 300);
-    }
-
-    // Установка цветовой темы
-    function setTheme(theme) {
-        document.documentElement.style.setProperty('--theme-color', theme.accent);
-        document.documentElement.style.setProperty('--theme-glow', theme.accent + '80');
-        
-        document.body.style.background = `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`;
-        
-        createParticles();
     }
 
     // Инициализация аудиоанализатора
@@ -172,103 +122,101 @@ document.addEventListener('DOMContentLoaded', function() {
             source.connect(analyser);
             analyser.connect(audioContext.destination);
             
-            analyser.fftSize = 256;
+            analyser.fftSize = 128;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
         } catch (error) {
-            console.log('Audio analyzer initialization failed:', error);
+            console.error('Audio analyzer initialization failed:', error);
         }
     }
 
-    // Исправленная визуализация звука
+    // Визуализация звука
     function visualize() {
         if (!analyser) return;
         
         try {
             analyser.getByteFrequencyData(dataArray);
             
+            // Обновление визуализатора
+            for (let i = 0; i < visualizerBars.length; i++) {
+                const barIndex = Math.floor(i * 1.5);
+                const value = dataArray[barIndex] / 255;
+                const height = Math.max(5, Math.min(70, value * 70));
+                visualizerBars[i].style.height = `${height}px`;
+                
+                // Цвета из текущего трека
+                const currentColors = tracks[currentTrackIndex].visualizer;
+                visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
+            }
+            
+            // Обновление свечения по краям
             const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-            const mids = dataArray.slice(10, 50).reduce((a, b) => a + b) / 40;
-            const highs = dataArray.slice(50, 100).reduce((a, b) => a + b) / 50;
+            const intensity = bass / 256;
             
-            const average = (bass + mids + highs) / 3;
-            const intensity = average / 256;
-            
-            const currentTheme = tracks[currentTrackIndex].theme;
-            const hueShift = intensity * 60;
-            document.body.style.background = `linear-gradient(45deg, 
-                hsl(${getHue(currentTheme.primary) + hueShift}, 70%, 50%), 
-                hsl(${getHue(currentTheme.secondary) + hueShift}, 70%, 50%))`;
-            
-            animateParticles(bass, mids, highs);
-            createFrequencyBars(dataArray, bass, mids, highs);
+            edgeEffects.forEach(effect => {
+                effect.style.opacity = intensity * 0.7;
+                effect.style.background = `radial-gradient(circle, ${tracks[currentTrackIndex].colors.accent}${Math.floor(intensity * 50)} 0%, transparent 70%)`;
+            });
             
             if (isPlaying) {
                 requestAnimationFrame(visualize);
             }
         } catch (error) {
-            console.log('Visualization error:', error);
+            console.error('Visualization error:', error);
         }
     }
 
-    // Получение hue из HSL цвета
-    function getHue(hslColor) {
-        const match = hslColor.match(/hsl\((\d+)/);
-        return match ? parseInt(match[1]) : 0;
-    }
-
-    // Анимация частиц в такт музыки
-    function animateParticles(bass, mids, highs) {
-        particleElements.forEach((particle, index) => {
-            const bassEffect = bass / 256;
-            const midEffect = mids / 256;
-            
-            if (particle.classList.contains('circle')) {
-                particle.style.transform = `scale(${1 + bassEffect * 0.3})`;
-            } else if (particle.classList.contains('glow')) {
-                particle.style.opacity = 0.4 + midEffect * 0.6;
-            } else if (particle.classList.contains('spiral')) {
-                particle.style.filter = `hue-rotate(${mids}deg)`;
-            } else if (particle.classList.contains('wave')) {
-                particle.style.transform = `scale(${1 + bassEffect * 0.2})`;
-            }
-        });
-    }
-
-    // Исправленное создание частотных полос визуализатора
-    function createFrequencyBars(dataArray, bass, mids, highs) {
-        const barCount = 80;
-        const containerWidth = visualizer.parentElement.offsetWidth;
-        const barWidth = Math.max(2, (containerWidth - (barCount - 1) * 2) / barCount);
-        const currentTheme = tracks[currentTrackIndex].theme;
+    // Создание частиц
+    function createParticles() {
+        particles.innerHTML = '';
         
-        // Очищаем и создаем новые полосы
-        if (visualizer.children.length !== barCount) {
-            visualizer.innerHTML = '';
-            for (let i = 0; i < barCount; i++) {
-                const bar = document.createElement('div');
-                bar.style.width = barWidth + 'px';
-                bar.style.margin = '0 1px';
-                bar.style.borderRadius = '2px 2px 0 0';
-                bar.style.transition = 'height 0.1s ease';
-                visualizer.appendChild(bar);
-            }
-        }
-        
-        // Обновляем высоту полос
-        for (let i = 0; i < barCount; i++) {
-            const barIndex = Math.floor(i * bufferLength / barCount);
-            const barValue = dataArray[barIndex];
-            const barHeight = Math.max(5, (barValue / 256) * 150);
-            const bar = visualizer.children[i];
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
             
-            const hue = getHue(currentTheme.accent) + (i * 3);
-            bar.style.height = barHeight + 'px';
-            bar.style.background = `linear-gradient(to top, 
-                hsla(${hue}, 80%, 60%, 0.8), 
-                hsla(${hue}, 80%, 70%, 1))`;
-            bar.style.boxShadow = `0 0 10px hsla(${hue}, 80%, 60%, 0.6)`;
+            const size = Math.random() * 20 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            particle.style.background = tracks[currentTrackIndex].colors.accent;
+            
+            particles.appendChild(particle);
         }
+    }
+
+    // Обновление темы
+    function updateTheme() {
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        // Фон
+        document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
+        
+        // Прогресс-бар
+        progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
+        
+        // Кнопка play/pause
+        playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
+        
+        // Ползунок громкости
+        const volumeSlider = document.querySelector('.volume-slider');
+        const style = document.createElement('style');
+        style.textContent = `
+            .volume-slider::-webkit-slider-thumb {
+                background: ${currentColors.accent};
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Обложка
+        albumImage.textContent = tracks[currentTrackIndex].cover;
+        albumImage.style.background = `linear-gradient(135deg, ${currentColors.primary}, ${currentColors.secondary})`;
+        
+        // Пересоздание частиц с новыми цветами
+        createParticles();
     }
 
     // Форматирование времени
@@ -282,74 +230,90 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновление прогресс-бара
     function updateProgress() {
         if (audio.duration && !isNaN(audio.duration)) {
-            const progress = (audio.currentTime / audio.duration) * 100;
-            progressBar.value = progress;
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
             currentTime.textContent = formatTime(audio.currentTime);
         }
     }
 
-    // Загрузка трека с плавным переходом
+    // Загрузка трека
     function loadTrack(index) {
-        if (index >= 0 && index < tracks.length && !isTransitioning) {
-            const wasPlaying = isPlaying;
+        if (index >= 0 && index < tracks.length) {
+            currentTrackIndex = index;
+            const track = tracks[currentTrackIndex];
             
-            if (wasPlaying) {
-                audio.pause();
-            }
+            // Останавливаем текущее воспроизведение перед загрузкой нового трека
+            audio.pause();
+            isPlaying = false;
+            playPauseBtn.textContent = '▶';
+            albumArt.classList.remove('playing');
             
-            transitionToTheme(tracks[index].theme, () => {
-                currentTrackIndex = index;
-                audio.src = tracks[currentTrackIndex].path;
-                currentTrack.textContent = tracks[currentTrackIndex].name;
-                trackSelect.value = tracks[currentTrackIndex].path;
-                
-                const onLoaded = function() {
-                    duration.textContent = formatTime(audio.duration);
-                    audio.removeEventListener('loadedmetadata', onLoaded);
-                };
-                audio.addEventListener('loadedmetadata', onLoaded);
-                
-                if (wasPlaying) {
-                    audio.play().then(() => {
-                        isPlaying = true;
-                        playPauseBtn.textContent = '⏸';
-                        if (!analyser) initAudioAnalyzer();
-                        visualize();
-                    }).catch(console.error);
-                }
-            });
+            audio.src = track.path;
+            currentTrack.textContent = track.name;
+            currentArtist.textContent = track.artist;
+            trackSelect.value = track.path;
+            
+            updateTheme();
+            
+            const onLoaded = function() {
+                duration.textContent = formatTime(audio.duration);
+                audio.removeEventListener('loadedmetadata', onLoaded);
+            };
+            audio.addEventListener('loadedmetadata', onLoaded);
         }
+    }
+
+    // Перемотка вперед/назад
+    function seek(seconds) {
+        if (audio.duration) {
+            audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+        }
+    }
+
+    // Изменение громкости
+    function changeVolume(delta) {
+        const newVolume = Math.max(0, Math.min(1, audio.volume + delta));
+        audio.volume = newVolume;
+        volumeSlider.value = newVolume * 100;
     }
 
     // Попытка автовоспроизведения
     function attemptAutoplay() {
+        // Сбрасываем текущее время трека перед воспроизведением
+        audio.currentTime = 0;
+        
         const playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
+                albumArt.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
+                console.log('Autoplay blocked, showing message');
                 showPlayMessage();
             });
         }
     }
 
-    // Сообщение о необходимости запуска (без inline стилей)
+    // Сообщение о необходимости запуска
     function showPlayMessage() {
         const message = document.createElement('button');
         message.className = 'autoplay-message';
-        message.textContent = '🎵 Нажмите для запуска музыки 🎵';
+        message.textContent = 'Нажмите для запуска музыки';
         
         message.addEventListener('click', function() {
             audio.play().then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
+                albumArt.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
                 message.remove();
-            }).catch(console.error);
+            }).catch(error => {
+                console.error('Playback failed:', error);
+            });
         });
         
         document.body.appendChild(message);
@@ -358,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.body.contains(message)) {
                 message.remove();
             }
-        }, 10000);
+        }, 8000);
     }
 
     // Обработчики событий
@@ -367,13 +331,16 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
+            albumArt.classList.remove('playing');
         } else {
             audio.play().then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
+                albumArt.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
+                console.error('Playback failed:', error);
                 showPlayMessage();
             });
         }
@@ -383,12 +350,22 @@ document.addEventListener('DOMContentLoaded', function() {
         let newIndex = currentTrackIndex - 1;
         if (newIndex < 0) newIndex = tracks.length - 1;
         loadTrack(newIndex);
+        if (isPlaying) {
+            setTimeout(() => {
+                audio.play();
+            }, 100);
+        }
     });
 
     nextBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= tracks.length) newIndex = 0;
         loadTrack(newIndex);
+        if (isPlaying) {
+            setTimeout(() => {
+                audio.play();
+            }, 100);
+        }
     });
 
     trackSelect.addEventListener('change', function() {
@@ -396,6 +373,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const trackIndex = tracks.findIndex(track => track.path === selectedPath);
         if (trackIndex !== -1) {
             loadTrack(trackIndex);
+            if (isPlaying) {
+                setTimeout(() => {
+                    audio.play();
+                }, 100);
+            }
         }
     });
 
@@ -403,9 +385,34 @@ document.addEventListener('DOMContentLoaded', function() {
         audio.volume = volumeSlider.value / 100;
     });
 
-    progressBar.addEventListener('input', () => {
-        if (audio.duration && !isNaN(audio.duration)) {
-            audio.currentTime = (progressBar.value / 100) * audio.duration;
+    progressBar.addEventListener('click', (e) => {
+        if (audio.duration) {
+            const clickX = e.offsetX;
+            const width = progressBar.offsetWidth;
+            const clickTime = (clickX / width) * audio.duration;
+            audio.currentTime = clickTime;
+        }
+    });
+
+    // Обработка клавиатуры
+    document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+            case 'ArrowLeft':
+                seek(-5);
+                break;
+            case 'ArrowRight':
+                seek(5);
+                break;
+            case 'ArrowUp':
+                changeVolume(0.1);
+                break;
+            case 'ArrowDown':
+                changeVolume(-0.1);
+                break;
+            case ' ':
+                e.preventDefault();
+                playPauseBtn.click();
+                break;
         }
     });
 
@@ -415,19 +422,23 @@ document.addEventListener('DOMContentLoaded', function() {
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= tracks.length) newIndex = 0;
         loadTrack(newIndex);
-    });
-
-    // Обработка изменения размера окна
-    window.addEventListener('resize', function() {
-        if (isPlaying && analyser) {
-            visualize();
+        if (isPlaying) {
+            setTimeout(() => {
+                audio.play();
+            }, 100);
         }
     });
 
+    // Обработка ошибок аудио
+    audio.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
+    });
+
     // Инициализация
+    createVisualizer();
     loadTrack(0);
     
-    // Задержка для автовоспроизведения
+    // Автовоспроизведение с задержкой
     setTimeout(() => {
         attemptAutoplay();
     }, 1000);
