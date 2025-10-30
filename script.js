@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#1d2b64',
                 accent: '#4a90e2'
             },
-            cover: 'https://i.ytimg.com/vi/7Pf6jY9t_1I/maxresdefault.jpg',
+            cover: 'https://cdn-images.dzcdn.net/images/cover/f1896a5586193f71b7bc9d367b3d8730/0x1900-000000-80-0-0.jpg',
             visualizer: ['#1d2b64', '#4a90e2'],
             neonColor: '#4a90e2'
         },
