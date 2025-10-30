@@ -278,9 +278,9 @@ body {
 }
 
 .visualizer-container {
-    height: 80px;
+    height: 100px; /* Увеличили высоту */
     display: flex;
-    align-items: flex-end;
+    align-items: flex-end; /* Столбцы начинаются снизу */
     justify-content: center;
     gap: 3px;
     margin-bottom: 25px;
@@ -293,7 +293,7 @@ body {
 
 .visualizer {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-end; /* Столбцы выровнены по нижнему краю */
     justify-content: center;
     gap: 3px;
     width: 100%;
