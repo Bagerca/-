@@ -181,11 +181,11 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const currentTime = Date.now();
             
-            // Обновление визуализатора
+            // Обновление визуализатора - УВЕЛИЧЕНА МАКСИМАЛЬНАЯ ВЫСОТА
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
-                const height = Math.max(5, value * 70);
+                const height = Math.max(5, value * 90); // Увеличена максимальная высота до 90px
                 visualizerBars[i].style.height = `${height}px`;
                 
                 const currentColors = tracks[currentTrackIndex].visualizer;
