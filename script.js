@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const neonLineLeft = document.getElementById('neonLineLeft');
-    const neonLineRight = document.getElementById('neonLineRight');
 
     // Массив треков с улучшенными цветовыми схемами и обложками
     const tracks = [
@@ -157,19 +155,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Обновление неоновых линий на обложке
+            // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ НЕОНОВЫХ ЛИНИЙ
             const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
             const intensity = bass / 256;
             
-            // Высота линий зависит от интенсивности басов
-            const lineHeight = Math.max(20, intensity * 150);
-            neonLineLeft.style.height = `${lineHeight}px`;
-            neonLineRight.style.height = `${lineHeight}px`;
+            // Вычисляем прогресс анимации (от 0 до 1)
+            const progress = Math.min(1, intensity * 2);
             
-            // Интенсивность свечения также зависит от басов
-            const glowIntensity = intensity * 0.8 + 0.2;
-            neonLineLeft.style.opacity = glowIntensity;
-            neonLineRight.style.opacity = glowIntensity;
+            // Обновляем dashoffset для SVG путей
+            const maxDashOffset = 300;
+            const currentDashOffset = maxDashOffset * (1 - progress);
+            
+            // Применяем ко всем неоновым путям
+            document.querySelectorAll('.neon-path').forEach(path => {
+                path.style.strokeDashoffset = currentDashOffset;
+            });
             
             if (isPlaying) {
                 requestAnimationFrame(visualize);
@@ -217,12 +217,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Неоновые линии
         document.documentElement.style.setProperty('--neon-color', neonColor);
+        document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
         // Ползунок громкости
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
+            }
+            .neon-path {
+                stroke: ${neonColor};
+                filter: drop-shadow(0 0 10px ${neonColor});
             }
         `;
         document.head.appendChild(style);
@@ -232,6 +237,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Пересоздание частиц с новыми цветами
         createParticles();
+        
+        // Сброс неоновых линий при смене трека
+        document.querySelectorAll('.neon-path').forEach(path => {
+            path.style.strokeDashoffset = '300';
+        });
     }
 
     // Форматирование времени
