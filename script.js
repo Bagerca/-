@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
 
-    // Массив треков с улучшенными цветовыми схемами и обложками
+    // Массив треков с исправленными обложками
     const tracks = [
         { 
             name: 'Tangled Up', 
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#1d2b64',
                 accent: '#4a90e2'
             },
-            cover: 'https://static.wikia.nocookie.net/miracleofsound/images/0/01/ValhallaCalling.jpg/revision/latest?cb=20210227030354',
+            cover: 'https://i.ytimg.com/vi/7Pf6jY9t_1I/maxresdefault.jpg',
             visualizer: ['#1d2b64', '#4a90e2'],
             neonColor: '#4a90e2'
         },
