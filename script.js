@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const neonFrame = document.querySelector('.neon-frame');
 
     // Массив треков
     const tracks = [
@@ -156,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для неоновой рамки
+            // Логика для неоновых линий по краям
             const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
             const mid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
             const high = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
@@ -167,18 +166,20 @@ document.addEventListener('DOMContentLoaded', function() {
             // Сбалансированная чувствительность для средней и высокой громкости
             const progress = Math.min(1, Math.pow(intensity * 2, 1.2));
             
-            // Обновляем dashoffset для рамки
-            const maxDashOffset = 400;
-            const currentDashOffset = maxDashOffset * (1 - progress);
+            // Применяем к неоновым линиям
+            const edges = document.querySelectorAll('.neon-edge');
             
-            // Применяем к неоновой рамке
-            if (neonFrame) {
-                neonFrame.style.strokeDashoffset = currentDashOffset;
+            edges.forEach(edge => {
+                if (edge.classList.contains('top-edge') || edge.classList.contains('bottom-edge')) {
+                    edge.style.width = `${progress * 100}%`;
+                } else {
+                    edge.style.height = `${progress * 100}%`;
+                }
                 
-                // Динамическое изменение толщины рамки
-                const strokeWidth = 2 + progress * 3;
-                neonFrame.style.strokeWidth = strokeWidth;
-            }
+                // Динамическое изменение интенсивности свечения
+                const glowIntensity = 0.6 + progress * 0.4;
+                edge.style.opacity = glowIntensity;
+            });
             
             if (isPlaying) {
                 animationId = requestAnimationFrame(visualize);
@@ -224,19 +225,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Кнопка play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
-        // Неоновая рамка
+        // Неоновые линии
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Динамическое обновление стилей для неоновой рамки
+        // Динамическое обновление стилей для неоновых линий
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
             }
-            .neon-frame {
-                stroke: ${neonColor};
-                filter: drop-shadow(0 0 10px ${neonColor});
+            .neon-edge {
+                background: ${neonColor};
+                box-shadow: 0 0 10px ${neonColor},
+                            0 0 20px ${neonColor};
             }
         `;
         
@@ -253,11 +255,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Пересоздание частиц с новыми цветами
         createParticles();
         
-        // Сброс неоновой рамки при смене трека
-        if (neonFrame) {
-            neonFrame.style.strokeDashoffset = '400';
-            neonFrame.style.strokeWidth = '4';
-        }
+        // Сброс неоновых линий при смене трека
+        const edges = document.querySelectorAll('.neon-edge');
+        edges.forEach(edge => {
+            if (edge.classList.contains('top-edge') || edge.classList.contains('bottom-edge')) {
+                edge.style.width = '0%';
+            } else {
+                edge.style.height = '0%';
+            }
+            edge.style.opacity = '0.8';
+        });
     }
 
     // Форматирование времени
