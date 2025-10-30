@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const neonFrame = document.querySelector('.neon-frame');
+    const leftGlow = document.querySelector('.left-line .neon-glow');
+    const rightGlow = document.querySelector('.right-line .neon-glow');
 
     // Массив треков
     const tracks = [
@@ -156,17 +157,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Интенсивность для неоновых линий
-            const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
-            const intensity = Math.min(1, bass / 180);
+            // Логика для неоновых линий - используем басовые частоты
+            const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
+            const mid = dataArray.slice(10, 30).reduce((a, b) => a + b) / 20;
             
-            // Динамическое изменение свечения
-            if (neonFrame) {
-                const glowIntensity = 0.7 + intensity * 0.3;
-                const shadowBlur = 10 + intensity * 25;
+            // Комбинируем частоты для плавного движения
+            const intensity = Math.min(1, (bass * 0.7 + mid * 0.3) / 150);
+            
+            // Вычисляем высоту линий (от 10% до 90% для красивого эффекта)
+            const minHeight = 10; // минимальная высота в %
+            const maxHeight = 90; // максимальная высота в %
+            const lineHeight = minHeight + (intensity * (maxHeight - minHeight));
+            
+            // Обновляем неоновые линии
+            if (leftGlow && rightGlow) {
+                leftGlow.style.height = `${lineHeight}%`;
+                rightGlow.style.height = `${lineHeight}%`;
                 
-                neonFrame.style.setProperty('--glow-intensity', glowIntensity);
-                neonFrame.style.setProperty('--shadow-blur', `${shadowBlur}px`);
+                // Динамическое изменение интенсивности свечения
+                const glowIntensity = 0.6 + intensity * 0.4;
+                leftGlow.style.opacity = glowIntensity;
+                rightGlow.style.opacity = glowIntensity;
+                
+                // Динамическое изменение тени в зависимости от интенсивности
+                const shadowBlur = 10 + intensity * 25;
+                const shadowSpread = 5 + intensity * 20;
+                
+                leftGlow.style.boxShadow = 
+                    `0 0 ${shadowBlur}px var(--neon-color),
+                     0 0 ${shadowBlur * 1.5}px var(--neon-color),
+                     0 0 ${shadowBlur * 2}px var(--neon-color),
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                
+                rightGlow.style.boxShadow = 
+                    `0 0 ${shadowBlur}px var(--neon-color),
+                     0 0 ${shadowBlur * 1.5}px var(--neon-color),
+                     0 0 ${shadowBlur * 2}px var(--neon-color),
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
             if (isPlaying) {
@@ -223,13 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
             }
-            .neon-glow {
-                background: ${neonColor};
-                box-shadow: 
-                    0 0 10px ${neonColor},
-                    0 0 20px ${neonColor},
-                    0 0 30px ${neonColor};
-            }
         `;
         
         // Удаляем старые стили перед добавлением новых
@@ -245,15 +265,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Пересоздание частиц с новыми цветами
         createParticles();
         
-        // Сброс и повторная активация анимации неоновой рамки
-        if (neonFrame) {
-            neonFrame.classList.remove('frame-visible', 'playing');
-            setTimeout(() => {
-                neonFrame.classList.add('frame-visible');
-                if (isPlaying) {
-                    neonFrame.classList.add('playing');
-                }
-            }, 100);
+        // Сброс неоновых линий при смене трека
+        if (leftGlow && rightGlow) {
+            leftGlow.style.height = '0%';
+            rightGlow.style.height = '0%';
+            leftGlow.style.opacity = '0.8';
+            rightGlow.style.opacity = '0.8';
         }
     }
 
@@ -394,7 +411,6 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
-            if (neonFrame) neonFrame.classList.remove('playing');
             if (animationId) {
                 cancelAnimationFrame(animationId);
             }
@@ -402,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.play().then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
-                if (neonFrame) neonFrame.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
