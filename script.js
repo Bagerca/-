@@ -346,8 +346,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const intensity = currentMusicIntensity;
         const beatBoost = currentPulseIntensity;
         
-        // Общая интенсивность движения (базовая + усиление от музыки)
-        const movementStrength = 0.5 + intensity * 2 + beatBoost * 3;
+        // УМЕНЬШЕННАЯ интенсивность движения
+        const movementStrength = 0.2 + intensity * 0.8 + beatBoost * 1.2;
         
         particlesData.forEach((particleData, index) => {
             const particle = particleData.element;
@@ -356,20 +356,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const time = Date.now() * 0.001;
             const individualOffset = index * 0.1;
             
-            // Движение по синусоиде с разными частотами для каждой частицы
-            const moveX = Math.sin(time * (0.5 + particleData.movementIntensity * 0.5) + individualOffset) * movementStrength * 2;
-            const moveY = Math.cos(time * (0.3 + particleData.movementIntensity * 0.7) + individualOffset) * movementStrength * 1.5;
+            // УМЕНЬШЕННАЯ амплитуда движения
+            const moveX = Math.sin(time * (0.3 + particleData.movementIntensity * 0.3) + individualOffset) * movementStrength * 0.8;
+            const moveY = Math.cos(time * (0.2 + particleData.movementIntensity * 0.4) + individualOffset) * movementStrength * 0.6;
             
-            // Эффект "толчка" на битах
-            const beatPushX = beatBoost * (Math.random() - 0.5) * 10;
-            const beatPushY = beatBoost * (Math.random() - 0.5) * 10;
+            // УМЕНЬШЕННЫЙ эффект "толчка" на битах
+            const beatPushX = beatBoost * (Math.random() - 0.5) * 3;
+            const beatPushY = beatBoost * (Math.random() - 0.5) * 3;
             
-            // Изменение размера в зависимости от интенсивности
-            const sizeVariation = intensity * 5 + beatBoost * 8;
+            // УМЕНЬШЕННОЕ изменение размера
+            const sizeVariation = intensity * 2 + beatBoost * 3;
             const newSize = particleData.baseSize + sizeVariation;
             
-            // Изменение прозрачности
-            const opacityVariation = intensity * 0.2 + beatBoost * 0.3;
+            // УМЕНЬШЕННОЕ изменение прозрачности
+            const opacityVariation = intensity * 0.1 + beatBoost * 0.15;
             const newOpacity = Math.min(1, particleData.baseOpacity + opacityVariation);
             
             // Применяем изменения
@@ -382,8 +382,8 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.height = `${newSize}px`;
             particle.style.opacity = newOpacity;
             
-            // Динамическое изменение transition для более резких движений на высокой интенсивности
-            const transitionTime = Math.max(0.05, 0.2 - intensity * 0.15);
+            // БОЛЕЕ ПЛАВНЫЕ переходы
+            const transitionTime = Math.max(0.1, 0.3 - intensity * 0.2);
             particle.style.transition = `all ${transitionTime}s ease-out`;
         });
     }
