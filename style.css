@@ -38,6 +38,23 @@ body {
     pointer-events: none;
 }
 
+.transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+.transition-overlay.active {
+    opacity: 1;
+}
+
 .player-container {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
@@ -49,6 +66,8 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     animation: glow 3s ease-in-out infinite alternate;
     transition: all 0.5s ease;
+    position: relative;
+    z-index: 1000;
 }
 
 @keyframes glow {
@@ -171,7 +190,8 @@ body {
 
 .volume-icon {
     color: white;
-    font-size: 1.2rem;
+    width: 20px;
+    height: 20px;
     transition: color 0.5s ease;
 }
 
@@ -304,4 +324,24 @@ body {
 .particle.type4 {
     animation: wave 6s infinite ease-in-out;
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+/* Анимация смены трека */
+@keyframes fadeOutIn {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.track-change-animation {
+    animation: fadeOutIn 0.8s ease-in-out;
 }
