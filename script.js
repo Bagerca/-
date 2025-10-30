@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let audioContext, analyser, dataArray, bufferLength;
     let visualizerBars = [];
     let wasPlayingBeforeSwitch = false;
+    let animationId = null;
 
     // Создание визуализатора
     function createVisualizer() {
@@ -150,29 +151,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 const height = Math.max(5, Math.min(70, value * 70));
                 visualizerBars[i].style.height = `${height}px`;
                 
-                // Цвета из текущего трека
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ НЕОНОВЫХ ЛИНИЙ
-            const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-            const intensity = bass / 256;
+            // УЛУЧШЕННАЯ ЛОГИКА ДЛЯ НЕОНОВЫХ ЛИНИЙ
+            const bass = dataArray.slice(0, 15).reduce((a, b) => a + b) / 15;
+            const mid = dataArray.slice(15, 40).reduce((a, b) => a + b) / 25;
             
-            // Вычисляем прогресс анимации (от 0 до 1)
-            const progress = Math.min(1, intensity * 2);
+            // Комбинируем басы и средние частоты для лучшей чувствительности
+            const intensity = Math.min(1, (bass * 0.7 + mid * 0.3) / 180);
+            
+            // Увеличиваем чувствительность и добавляем нелинейное преобразование
+            const progress = Math.min(1, Math.pow(intensity * 3, 1.5));
             
             // Обновляем dashoffset для SVG путей
-            const maxDashOffset = 300;
+            const maxDashOffset = 150;
             const currentDashOffset = maxDashOffset * (1 - progress);
             
             // Применяем ко всем неоновым путям
             document.querySelectorAll('.neon-path').forEach(path => {
                 path.style.strokeDashoffset = currentDashOffset;
+                
+                // Динамическое изменение толщины линии в зависимости от интенсивности
+                const strokeWidth = 2 + progress * 3;
+                path.style.strokeWidth = `${strokeWidth}px`;
             });
             
             if (isPlaying) {
-                requestAnimationFrame(visualize);
+                animationId = requestAnimationFrame(visualize);
             }
         } catch (error) {
             console.error('Visualization error:', error);
@@ -219,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Ползунок громкости
+        // Динамическое обновление стилей для неоновых линий
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
@@ -230,6 +237,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 filter: drop-shadow(0 0 10px ${neonColor});
             }
         `;
+        
+        // Удаляем старые стили перед добавлением новых
+        const oldStyle = document.getElementById('dynamic-neon-styles');
+        if (oldStyle) oldStyle.remove();
+        
+        style.id = 'dynamic-neon-styles';
         document.head.appendChild(style);
         
         // Обложка
@@ -240,7 +253,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сброс неоновых линий при смене трека
         document.querySelectorAll('.neon-path').forEach(path => {
-            path.style.strokeDashoffset = '300';
+            path.style.strokeDashoffset = '150';
+            path.style.strokeWidth = '3px';
         });
     }
 
@@ -274,6 +288,11 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
+            
+            // Отменяем предыдущую анимацию
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
             
             audio.src = track.path;
             currentTrack.textContent = track.name;
@@ -312,11 +331,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Изменение громкости
-    function changeVolume(delta) {
-        const newVolume = Math.max(0, Math.min(1, audio.volume + delta));
-        audio.volume = newVolume;
-        volumeSlider.value = newVolume * 100;
+    // Плавное изменение громкости
+    function smoothVolumeChange() {
+        let targetVolume = volumeSlider.value / 100;
+        const currentVolume = audio.volume;
+        const diff = targetVolume - currentVolume;
+        
+        if (Math.abs(diff) > 0.01) {
+            audio.volume = currentVolume + diff * 0.1;
+            setTimeout(smoothVolumeChange, 50);
+        }
     }
 
     // Попытка автовоспроизведения
@@ -371,6 +395,9 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
         } else {
             audio.play().then(() => {
                 isPlaying = true;
@@ -405,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     volumeSlider.addEventListener('input', () => {
-        audio.volume = volumeSlider.value / 100;
+        smoothVolumeChange();
     });
 
     progressBar.addEventListener('click', (e) => {
@@ -427,10 +454,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 seek(5);
                 break;
             case 'ArrowUp':
-                changeVolume(0.1);
+                volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 10);
+                smoothVolumeChange();
                 break;
             case 'ArrowDown':
-                changeVolume(-0.1);
+                volumeSlider.value = Math.max(0, parseInt(volumeSlider.value) - 10);
+                smoothVolumeChange();
                 break;
             case ' ':
                 e.preventDefault();
