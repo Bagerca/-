@@ -113,6 +113,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let beatThreshold = 0.7;
     let currentPulseIntensity = 0;
 
+    // Переменные для анимации частиц
+    let particlesData = [];
+    let isParticlesTransitioning = false;
+    let particleTransitionProgress = 0;
+
     // Создание визуализатора
     function createVisualizer() {
         visualizer.innerHTML = '';
@@ -264,26 +269,109 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Создание частиц
+    // Создание частиц с анимацией перехода
     function createParticles() {
         particles.innerHTML = '';
+        particlesData = [];
         
-        for (let i = 0; i < 15; i++) {
+        const particleCount = 15;
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             
-            const size = Math.random() * 15 + 5;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.left = `${Math.random() * 100}vw`;
-            particle.style.top = `${Math.random() * 100}vh`;
-            particle.style.animationDelay = `${Math.random() * 5}s`;
-            particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
-            particle.style.opacity = Math.random() * 0.3 + 0.1;
-            particle.style.background = tracks[currentTrackIndex].colors.accent;
+            // Начальная позиция (случайная)
+            const startLeft = Math.random() * 100;
+            const startTop = Math.random() * 100;
+            const startSize = Math.random() * 15 + 5;
+            const startOpacity = Math.random() * 0.3 + 0.1;
+            
+            // Конечная позиция (специфичная для трека)
+            const endLeft = (Math.random() * 80 + 10) + (i % 3 - 1) * 20;
+            const endTop = (Math.random() * 80 + 10) + (i % 2 - 0.5) * 30;
+            const endSize = Math.random() * 15 + 5;
+            const endOpacity = Math.random() * 0.3 + 0.1;
+            
+            particle.style.left = `${startLeft}vw`;
+            particle.style.top = `${startTop}vh`;
+            particle.style.width = `${startSize}px`;
+            particle.style.height = `${startSize}px`;
+            particle.style.opacity = startOpacity;
+            particle.style.background = currentColors.accent;
+            particle.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             
             particles.appendChild(particle);
+            
+            // Сохраняем данные частицы для анимации
+            particlesData.push({
+                element: particle,
+                startLeft: startLeft,
+                startTop: startTop,
+                startSize: startSize,
+                startOpacity: startOpacity,
+                endLeft: endLeft,
+                endTop: endTop,
+                endSize: endSize,
+                endOpacity: endOpacity
+            });
         }
+        
+        // Запускаем анимацию перехода
+        startParticleTransition();
+    }
+
+    // Запуск анимации перехода частиц
+    function startParticleTransition() {
+        isParticlesTransitioning = true;
+        particleTransitionProgress = 0;
+        
+        const transitionDuration = 800; // 0.8 секунды
+        
+        particlesData.forEach(particleData => {
+            const particle = particleData.element;
+            
+            // Плавный переход к конечной позиции
+            setTimeout(() => {
+                particle.style.left = `${particleData.endLeft}vw`;
+                particle.style.top = `${particleData.endTop}vh`;
+                particle.style.width = `${particleData.endSize}px`;
+                particle.style.height = `${particleData.endSize}px`;
+                particle.style.opacity = particleData.endOpacity;
+            }, 50); // Небольшая задержка для красивого эффекта
+        });
+        
+        // Завершаем переход
+        setTimeout(() => {
+            isParticlesTransitioning = false;
+        }, transitionDuration);
+    }
+
+    // Обновление частиц при смене трека
+    function updateParticles() {
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        particlesData.forEach(particleData => {
+            const particle = particleData.element;
+            
+            // Сохраняем текущую позицию как начальную
+            particleData.startLeft = parseFloat(particle.style.left);
+            particleData.startTop = parseFloat(particle.style.top);
+            particleData.startSize = parseFloat(particle.style.width);
+            particleData.startOpacity = parseFloat(particle.style.opacity);
+            
+            // Устанавливаем новые конечные позиции
+            particleData.endLeft = (Math.random() * 80 + 10) + (Math.random() * 40 - 20);
+            particleData.endTop = (Math.random() * 80 + 10) + (Math.random() * 40 - 20);
+            particleData.endSize = Math.random() * 15 + 5;
+            particleData.endOpacity = Math.random() * 0.3 + 0.1;
+            
+            // Меняем цвет
+            particle.style.background = currentColors.accent;
+        });
+        
+        // Запускаем анимацию перехода
+        startParticleTransition();
     }
 
     // Обновление темы
@@ -322,8 +410,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Обложка
         albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
         
-        // Пересоздание частиц с новыми цветами
-        createParticles();
+        // Обновление частиц с новыми цветами и позициями
+        if (particlesData.length === 0) {
+            createParticles();
+        } else {
+            updateParticles();
+        }
         
         // Сброс неоновых линий при смене трека
         if (leftGlow && rightGlow) {
@@ -563,6 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация
     createVisualizer();
+    createParticles(); // Создаем частицы при загрузке
     loadTrack(0);
     
     // Автовоспроизведение с задержкой
