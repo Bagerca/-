@@ -277,15 +277,16 @@ body {
     color: white;
 }
 
+/* ОБНОВЛЕННЫЕ СТИЛИ ВИЗУАЛИЗАТОРА */
 .visualizer-container {
     height: 80px;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-end; /* Выравнивание по нижнему краю */
     justify-content: center;
     gap: 3px;
     margin-bottom: 25px;
     border-radius: 12px;
-    padding: 15px;
+    padding: 15px 15px 0 15px; /* Убираем отступ снизу */
     background: rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
@@ -293,7 +294,7 @@ body {
 
 .visualizer {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-end; /* Столбцы начинаются снизу */
     justify-content: center;
     gap: 3px;
     width: 100%;
@@ -302,11 +303,12 @@ body {
 
 .visualizer-bar {
     width: 8px;
-    min-height: 5px;
-    border-radius: 4px 4px 0 0;
+    min-height: 1px; /* Минимальная высота почти нулевая */
+    border-radius: 4px 4px 0 0; /* Закругление только сверху */
     transition: height 0.1s ease;
     position: relative;
     overflow: hidden;
+    background: linear-gradient(to top, var(--visualizer-color-1, #e94560), var(--visualizer-color-2, #4a90e2));
 }
 
 .visualizer-bar::after {
