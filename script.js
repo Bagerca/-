@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const particles = document.getElementById('particles');
     const transitionOverlay = document.getElementById('transitionOverlay');
 
-    // Обновленный массив треков с новыми темами
+    // Обновленный массив треков с улучшенными темами
     const tracks = [
         { 
             name: 'Трек 1', 
@@ -46,36 +46,36 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'Marino - Lust', 
             path: 'assets/Marino - Lust (feat. Alexandria).m4a',
             theme: {
-                primary: 'hsl(0, 0%, 0%)',        // Черный
-                secondary: 'hsl(0, 100%, 15%)',   // Темно-красный
-                accent: 'hsl(0, 100%, 45%)'       // Насыщенный красный
+                primary: 'hsl(0, 0%, 0%)',
+                secondary: 'hsl(0, 100%, 20%)',
+                accent: 'hsl(0, 100%, 50%)'
             }
         },
         { 
             name: 'Taco - Puttin\' On The Ritz', 
             path: 'assets/Taco - Puttin\' On The Ritz.m4a',
             theme: {
-                primary: 'hsl(220, 30%, 15%)',    // Темно-синий (смокинг)
-                secondary: 'hsl(0, 0%, 25%)',     // Темно-серый
-                accent: 'hsl(45, 100%, 50%)'      // Золотой (элегантность)
+                primary: 'hsl(220, 40%, 15%)',
+                secondary: 'hsl(0, 0%, 20%)',
+                accent: 'hsl(45, 100%, 50%)'
             }
         },
         { 
             name: 'The Cigarette Duet', 
             path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
             theme: {
-                primary: 'hsl(330, 60%, 70%)',    // Розовый
-                secondary: 'hsl(20, 30%, 30%)',   // Коричневый
-                accent: 'hsl(330, 80%, 85%)'      // Светло-розовый
+                primary: 'hsl(330, 70%, 75%)',
+                secondary: 'hsl(25, 40%, 35%)',
+                accent: 'hsl(330, 90%, 90%)'
             }
         },
         { 
             name: 'A Man Without Love', 
             path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
             theme: {
-                primary: 'hsl(220, 30%, 95%)',    // Белый с синим оттенком
-                secondary: 'hsl(220, 20%, 85%)',  // Светло-серый
-                accent: 'hsl(220, 50%, 70%)'      // Лунный синий
+                primary: 'hsl(220, 30%, 95%)',
+                secondary: 'hsl(220, 20%, 80%)',
+                accent: 'hsl(220, 50%, 70%)'
             }
         }
     ];
@@ -91,34 +91,40 @@ document.addEventListener('DOMContentLoaded', function() {
         particles.innerHTML = '';
         particleElements = [];
         
-        const particleCount = 25;
-        const particleTypes = ['type1', 'type2', 'type3', 'type4', 'type5'];
+        const particleCount = 20;
+        const particleTypes = ['circle', 'glow', 'spiral', 'wave'];
         const currentTheme = tracks[currentTrackIndex].theme;
         
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             const type = particleTypes[Math.floor(Math.random() * particleTypes.length)];
-            const size = Math.random() * 20 + 8; // Увеличил размер для лучшей видимости
+            const size = Math.random() * 25 + 10;
             
             particle.className = `particle ${type}`;
             particle.style.width = size + 'px';
             particle.style.height = size + 'px';
             particle.style.left = Math.random() * 100 + 'vw';
             particle.style.top = Math.random() * 100 + 'vh';
-            particle.style.animationDelay = Math.random() * 10 + 's';
-            particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
             
             // Улучшенные градиенты для частиц
-            const hue1 = getHue(currentTheme.primary) + Math.random() * 30 - 15;
-            const hue2 = getHue(currentTheme.accent) + Math.random() * 30 - 15;
+            const hue = getHue(currentTheme.accent) + Math.random() * 60 - 30;
+            const saturation = 70 + Math.random() * 30;
             
-            particle.style.background = `radial-gradient(circle, 
-                hsla(${hue1}, 80%, 70%, 0.8) 0%, 
-                hsla(${hue2}, 80%, 60%, 0.5) 50%, 
-                hsla(${hue1}, 80%, 50%, 0.3) 100%)`;
-            
-            // Добавляем тень для объема
-            particle.style.boxShadow = `0 0 15px hsla(${hue2}, 80%, 60%, 0.4)`;
+            if (type === 'glow') {
+                particle.style.background = `radial-gradient(circle, 
+                    hsla(${hue}, ${saturation}%, 70%, 0.9) 0%, 
+                    hsla(${hue}, ${saturation}%, 60%, 0.6) 50%, 
+                    transparent 100%)`;
+                particle.style.boxShadow = `0 0 30px hsla(${hue}, ${saturation}%, 60%, 0.7)`;
+            } else {
+                particle.style.background = `radial-gradient(circle, 
+                    hsla(${hue}, ${saturation}%, 70%, 0.8) 0%, 
+                    hsla(${hue}, ${saturation}%, 60%, 0.5) 70%, 
+                    transparent 100%)`;
+                particle.style.boxShadow = `0 0 20px hsla(${hue}, ${saturation}%, 60%, 0.5)`;
+            }
             
             particles.appendChild(particle);
             particleElements.push(particle);
@@ -130,18 +136,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isTransitioning) return;
         isTransitioning = true;
         
-        // Активируем оверлей перехода
         transitionOverlay.classList.add('active');
         
-        // Ждем немного перед сменой темы
         setTimeout(() => {
             setTheme(newTheme);
             
-            // Анимация смены трека в интерфейсе
             const playerContainer = document.querySelector('.player-container');
             playerContainer.classList.add('track-change-animation');
             
-            // Убираем оверлей после смены темы
             setTimeout(() => {
                 transitionOverlay.classList.remove('active');
                 playerContainer.classList.remove('track-change-animation');
@@ -158,52 +160,54 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.style.background = `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`;
         
-        // Пересоздаем частицы с новой темой
         createParticles();
     }
 
     // Инициализация аудиоанализатора
     function initAudioAnalyzer() {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        const source = audioContext.createMediaElementSource(audio);
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        
-        analyser.fftSize = 256;
-        bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            analyser.fftSize = 256;
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+        } catch (error) {
+            console.log('Audio analyzer initialization failed:', error);
+        }
     }
 
     // Исправленная визуализация звука
     function visualize() {
         if (!analyser) return;
         
-        analyser.getByteFrequencyData(dataArray);
-        
-        // Анализ разных частотных диапазонов
-        const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-        const mids = dataArray.slice(10, 50).reduce((a, b) => a + b) / 40;
-        const highs = dataArray.slice(50, 100).reduce((a, b) => a + b) / 50;
-        
-        const average = (bass + mids + highs) / 3;
-        const intensity = average / 256;
-        
-        // Динамическое обновление фона на основе музыки
-        const currentTheme = tracks[currentTrackIndex].theme;
-        const hueShift = intensity * 60;
-        document.body.style.background = `linear-gradient(45deg, 
-            hsl(${getHue(currentTheme.primary) + hueShift}, 70%, 50%), 
-            hsl(${getHue(currentTheme.secondary) + hueShift}, 70%, 50%))`;
-        
-        // Анимация частиц в такт музыки
-        animateParticles(bass, mids, highs);
-        
-        // Создание исправленного визуализатора
-        createFrequencyBars(dataArray, bass, mids, highs);
-        
-        if (isPlaying) {
-            requestAnimationFrame(visualize);
+        try {
+            analyser.getByteFrequencyData(dataArray);
+            
+            const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
+            const mids = dataArray.slice(10, 50).reduce((a, b) => a + b) / 40;
+            const highs = dataArray.slice(50, 100).reduce((a, b) => a + b) / 50;
+            
+            const average = (bass + mids + highs) / 3;
+            const intensity = average / 256;
+            
+            const currentTheme = tracks[currentTrackIndex].theme;
+            const hueShift = intensity * 60;
+            document.body.style.background = `linear-gradient(45deg, 
+                hsl(${getHue(currentTheme.primary) + hueShift}, 70%, 50%), 
+                hsl(${getHue(currentTheme.secondary) + hueShift}, 70%, 50%))`;
+            
+            animateParticles(bass, mids, highs);
+            createFrequencyBars(dataArray, bass, mids, highs);
+            
+            if (isPlaying) {
+                requestAnimationFrame(visualize);
+            }
+        } catch (error) {
+            console.log('Visualization error:', error);
         }
     }
 
@@ -218,53 +222,58 @@ document.addEventListener('DOMContentLoaded', function() {
         particleElements.forEach((particle, index) => {
             const bassEffect = bass / 256;
             const midEffect = mids / 256;
-            const highEffect = highs / 256;
             
-            // Разные частицы реагируют на разные частоты
-            if (particle.classList.contains('type1')) {
-                particle.style.transform = `scale(${1 + bassEffect * 0.5})`;
-            } else if (particle.classList.contains('type2')) {
-                particle.style.opacity = 0.3 + midEffect * 0.7;
-            } else if (particle.classList.contains('type3')) {
-                particle.style.transform = `rotate(${highEffect * 360}deg) scale(${1 + highEffect * 0.3})`;
-            } else if (particle.classList.contains('type4')) {
-                particle.style.filter = `blur(${1 + bassEffect * 2}px) hue-rotate(${mids}deg)`;
-            } else if (particle.classList.contains('type5')) {
-                particle.style.opacity = 0.4 + highEffect * 0.6;
+            if (particle.classList.contains('circle')) {
+                particle.style.transform = `scale(${1 + bassEffect * 0.3})`;
+            } else if (particle.classList.contains('glow')) {
+                particle.style.opacity = 0.4 + midEffect * 0.6;
+            } else if (particle.classList.contains('spiral')) {
+                particle.style.filter = `hue-rotate(${mids}deg)`;
+            } else if (particle.classList.contains('wave')) {
+                particle.style.transform = `scale(${1 + bassEffect * 0.2})`;
             }
         });
     }
 
     // Исправленное создание частотных полос визуализатора
     function createFrequencyBars(dataArray, bass, mids, highs) {
-        const barCount = 60; // Уменьшил количество для лучшей производительности
-        const visualizerWidth = window.innerWidth;
-        const barWidth = Math.max(3, visualizerWidth / barCount - 2); // Минимальная ширина 3px
+        const barCount = 80;
+        const containerWidth = visualizer.parentElement.offsetWidth;
+        const barWidth = Math.max(2, (containerWidth - (barCount - 1) * 2) / barCount);
         const currentTheme = tracks[currentTrackIndex].theme;
         
-        visualizer.innerHTML = '';
+        // Очищаем и создаем новые полосы
+        if (visualizer.children.length !== barCount) {
+            visualizer.innerHTML = '';
+            for (let i = 0; i < barCount; i++) {
+                const bar = document.createElement('div');
+                bar.style.width = barWidth + 'px';
+                bar.style.margin = '0 1px';
+                bar.style.borderRadius = '2px 2px 0 0';
+                bar.style.transition = 'height 0.1s ease';
+                visualizer.appendChild(bar);
+            }
+        }
         
+        // Обновляем высоту полос
         for (let i = 0; i < barCount; i++) {
-            const barValue = dataArray[Math.floor(i * bufferLength / barCount)];
-            const barHeight = Math.max(10, (barValue / 256) * 150); // Минимальная высота 10px
+            const barIndex = Math.floor(i * bufferLength / barCount);
+            const barValue = dataArray[barIndex];
+            const barHeight = Math.max(5, (barValue / 256) * 150);
+            const bar = visualizer.children[i];
             
-            const bar = document.createElement('div');
-            bar.style.width = barWidth + 'px';
+            const hue = getHue(currentTheme.accent) + (i * 3);
             bar.style.height = barHeight + 'px';
-            bar.style.margin = '0 1px';
             bar.style.background = `linear-gradient(to top, 
-                ${currentTheme.accent}80, 
-                ${currentTheme.accent})`;
-            bar.style.borderRadius = '3px 3px 0 0';
-            bar.style.boxShadow = `0 0 8px ${currentTheme.accent}80`;
-            bar.style.transition = 'height 0.1s ease';
-            
-            visualizer.appendChild(bar);
+                hsla(${hue}, 80%, 60%, 0.8), 
+                hsla(${hue}, 80%, 70%, 1))`;
+            bar.style.boxShadow = `0 0 10px hsla(${hue}, 80%, 60%, 0.6)`;
         }
     }
 
     // Форматирование времени
     function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
@@ -272,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обновление прогресс-бара
     function updateProgress() {
-        if (audio.duration) {
+        if (audio.duration && !isNaN(audio.duration)) {
             const progress = (audio.currentTime / audio.duration) * 100;
             progressBar.value = progress;
             currentTime.textContent = formatTime(audio.currentTime);
@@ -288,16 +297,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 audio.pause();
             }
             
-            // Плавный переход к новой теме
             transitionToTheme(tracks[index].theme, () => {
                 currentTrackIndex = index;
                 audio.src = tracks[currentTrackIndex].path;
                 currentTrack.textContent = tracks[currentTrackIndex].name;
                 trackSelect.value = tracks[currentTrackIndex].path;
                 
-                audio.addEventListener('loadedmetadata', function() {
+                const onLoaded = function() {
                     duration.textContent = formatTime(audio.duration);
-                });
+                    audio.removeEventListener('loadedmetadata', onLoaded);
+                };
+                audio.addEventListener('loadedmetadata', onLoaded);
                 
                 if (wasPlaying) {
                     audio.play().then(() => {
@@ -305,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         playPauseBtn.textContent = '⏸';
                         if (!analyser) initAudioAnalyzer();
                         visualize();
-                    });
+                    }).catch(console.error);
                 }
             });
         }
@@ -326,35 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Сообщение о необходимости запуска
+    // Сообщение о необходимости запуска (без inline стилей)
     function showPlayMessage() {
-        const message = document.createElement('div');
-        message.innerHTML = '🎵 Нажмите для запуска музыки 🎵';
-        message.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            padding: 15px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            z-index: 1000;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            animation: pulse 2s infinite;
-        `;
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: translateX(-50%) scale(1); }
-                50% { transform: translateX(-50%) scale(1.05); }
-                100% { transform: translateX(-50%) scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
+        const message = document.createElement('button');
+        message.className = 'autoplay-message';
+        message.textContent = '🎵 Нажмите для запуска музыки 🎵';
         
         message.addEventListener('click', function() {
             audio.play().then(() => {
@@ -363,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!analyser) initAudioAnalyzer();
                 visualize();
                 message.remove();
-            });
+            }).catch(console.error);
         });
         
         document.body.appendChild(message);
@@ -418,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     progressBar.addEventListener('input', () => {
-        if (audio.duration) {
+        if (audio.duration && !isNaN(audio.duration)) {
             audio.currentTime = (progressBar.value / 100) * audio.duration;
         }
     });
@@ -431,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex);
     });
 
-    // Обработка изменения размера окна для визуализатора
+    // Обработка изменения размера окна
     window.addEventListener('resize', function() {
         if (isPlaying && analyser) {
             visualize();
@@ -441,14 +427,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация
     loadTrack(0);
     
+    // Задержка для автовоспроизведения
     setTimeout(() => {
         attemptAutoplay();
     }, 1000);
 
-    document.addEventListener('click', function firstClick() {
+    // Обработка первого клика для автовоспроизведения
+    const firstClickHandler = function() {
         if (!isPlaying) {
             attemptAutoplay();
         }
-        document.removeEventListener('click', firstClick);
-    });
+        document.removeEventListener('click', firstClickHandler);
+    };
+    document.addEventListener('click', firstClickHandler);
 });
