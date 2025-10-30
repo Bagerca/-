@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#16213e',
                 accent: '#ff9a00'
             },
-            cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            cover: 'https://i.scdn.co/image/ab67616d0000b273cd30153be1ecdfea9b4abf52',
             visualizer: ['#ff9a00', '#ff2e63'],
             neonColor: '#ff9a00'
         },
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#1d2b64',
                 accent: '#4a90e2'
             },
-            cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            cover: 'https://static.wikia.nocookie.net/miracleofsound/images/0/01/ValhallaCalling.jpg/revision/latest?cb=20210227030354',
             visualizer: ['#1d2b64', '#4a90e2'],
             neonColor: '#4a90e2'
         },
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#330000',
                 accent: '#ff0000'
             },
-            cover: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            cover: 'https://i.scdn.co/image/ab67616d0000b273c10ff9923331db1916236dba',
             visualizer: ['#870000', '#ff0000'],
             neonColor: '#ff0000'
         },
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#1a1a2e',
                 accent: '#ffd700'
             },
-            cover: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/dc/d5/1d/dcd51dee-de60-400c-f97a-6d3cb5c92b60/cover.jpg/600x600bf-60.jpg',
             visualizer: ['#141e30', '#ffd700'],
             neonColor: '#ffd700'
         },
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178'
         },
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#1f3a5c',
                 accent: '#4ca1af'
             },
-            cover: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/15/8d/e3/158de33b-a496-56f7-c302-002978906503/00602557548259.rgb.jpg/600x600bf-60.jpg',
             visualizer: ['#2c3e50', '#4ca1af'],
             neonColor: '#4ca1af'
         }
