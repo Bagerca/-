@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let particlesData = [];
     let isParticlesTransitioning = false;
     let particleTransitionProgress = 0;
+    let currentMusicIntensity = 0;
 
     // Создание визуализатора
     function createVisualizer() {
@@ -191,6 +192,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
+            // Расчет общей интенсивности музыки
+            const overallIntensity = dataArray.reduce((a, b) => a + b) / (bufferLength * 255);
+            currentMusicIntensity = overallIntensity;
+            
             // Логика для неоновых линий с ритмичным свечением
             if (leftGlow && rightGlow) {
                 // Анализ низких частот для детекции битов
@@ -260,6 +265,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
+            // Обновление движения частиц в зависимости от интенсивности музыки
+            updateParticlesMovement();
+            
             animationId = requestAnimationFrame(visualize);
         } catch (error) {
             console.error('Visualization error:', error);
@@ -300,6 +308,9 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.opacity = startOpacity;
             particle.style.background = currentColors.accent;
             particle.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            particle.style.position = 'absolute';
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
             
             particles.appendChild(particle);
             
@@ -313,12 +324,68 @@ document.addEventListener('DOMContentLoaded', function() {
                 endLeft: endLeft,
                 endTop: endTop,
                 endSize: endSize,
-                endOpacity: endOpacity
+                endOpacity: endOpacity,
+                baseLeft: endLeft,
+                baseTop: endTop,
+                baseSize: endSize,
+                baseOpacity: endOpacity,
+                velocityX: 0,
+                velocityY: 0,
+                movementIntensity: Math.random() * 0.5 + 0.5
             });
         }
         
         // Запускаем анимацию перехода
         startParticleTransition();
+    }
+
+    // Обновление движения частиц в зависимости от интенсивности музыки
+    function updateParticlesMovement() {
+        if (isParticlesTransitioning || particlesData.length === 0) return;
+        
+        const intensity = currentMusicIntensity;
+        const beatBoost = currentPulseIntensity;
+        
+        // Общая интенсивность движения (базовая + усиление от музыки)
+        const movementStrength = 0.5 + intensity * 2 + beatBoost * 3;
+        
+        particlesData.forEach((particleData, index) => {
+            const particle = particleData.element;
+            
+            // Случайные колебания вокруг базовой позиции
+            const time = Date.now() * 0.001;
+            const individualOffset = index * 0.1;
+            
+            // Движение по синусоиде с разными частотами для каждой частицы
+            const moveX = Math.sin(time * (0.5 + particleData.movementIntensity * 0.5) + individualOffset) * movementStrength * 2;
+            const moveY = Math.cos(time * (0.3 + particleData.movementIntensity * 0.7) + individualOffset) * movementStrength * 1.5;
+            
+            // Эффект "толчка" на битах
+            const beatPushX = beatBoost * (Math.random() - 0.5) * 10;
+            const beatPushY = beatBoost * (Math.random() - 0.5) * 10;
+            
+            // Изменение размера в зависимости от интенсивности
+            const sizeVariation = intensity * 5 + beatBoost * 8;
+            const newSize = particleData.baseSize + sizeVariation;
+            
+            // Изменение прозрачности
+            const opacityVariation = intensity * 0.2 + beatBoost * 0.3;
+            const newOpacity = Math.min(1, particleData.baseOpacity + opacityVariation);
+            
+            // Применяем изменения
+            const newLeft = particleData.baseLeft + moveX + beatPushX;
+            const newTop = particleData.baseTop + moveY + beatPushY;
+            
+            particle.style.left = `${newLeft}vw`;
+            particle.style.top = `${newTop}vh`;
+            particle.style.width = `${newSize}px`;
+            particle.style.height = `${newSize}px`;
+            particle.style.opacity = newOpacity;
+            
+            // Динамическое изменение transition для более резких движений на высокой интенсивности
+            const transitionTime = Math.max(0.05, 0.2 - intensity * 0.15);
+            particle.style.transition = `all ${transitionTime}s ease-out`;
+        });
     }
 
     // Запуск анимации перехода частиц
@@ -338,6 +405,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 particle.style.width = `${particleData.endSize}px`;
                 particle.style.height = `${particleData.endSize}px`;
                 particle.style.opacity = particleData.endOpacity;
+                particle.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                
+                // Обновляем базовые позиции
+                particleData.baseLeft = particleData.endLeft;
+                particleData.baseTop = particleData.endTop;
+                particleData.baseSize = particleData.endSize;
+                particleData.baseOpacity = particleData.endOpacity;
             }, 50); // Небольшая задержка для красивого эффекта
         });
         
@@ -444,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
         currentPulseIntensity = 0;
         lastBeatTime = 0;
+        currentMusicIntensity = 0;
     }
 
     // Форматирование времени
