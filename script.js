@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Плавное затухание пульсации
     function updatePulseIntensity() {
         if (currentPulseIntensity > 0) {
-            currentPulseIntensity -= 0.1; // Скорость затухания
+            currentPulseIntensity -= 0.08; // Скорость затухания
             if (currentPulseIntensity < 0) currentPulseIntensity = 0;
         }
         beatDetected = false;
@@ -211,44 +211,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                // РИТМИЧНОЕ СВЕЧЕНИЕ - основная логика
-                const baseOpacity = 0.5;
-                const pulseOpacity = currentPulseIntensity * 0.5; // Дополнительная пульсация
+                // РИТМИЧНОЕ СВЕЧЕНИЕ - без мерцания, только пульсация на битах
+                const baseOpacity = 0.8; // Постоянная непрозрачность
+                const pulseOpacity = currentPulseIntensity * 0.2; // Легкая пульсация на битах
                 const totalOpacity = baseOpacity + pulseOpacity;
                 
                 leftGlow.style.opacity = Math.min(1, totalOpacity);
                 rightGlow.style.opacity = Math.min(1, totalOpacity);
                 
-                // Динамическое изменение свечения в такт
-                const baseBlur = 8;
-                const pulseBlur = currentPulseIntensity * 20; // Усиление свечения на битах
+                // Динамическое изменение свечения в такт (без постоянного мерцания)
+                const baseBlur = 10;
+                const pulseBlur = currentPulseIntensity * 25; // Усиление свечения только на битах
                 const totalBlur = baseBlur + pulseBlur;
                 
-                const baseSpread = 2;
-                const pulseSpread = currentPulseIntensity * 8;
+                const baseSpread = 3;
+                const pulseSpread = currentPulseIntensity * 10;
                 const totalSpread = baseSpread + pulseSpread;
                 
-                // Яркое неоновое свечение в такт музыке
+                // Стабильное неоновое свечение с пульсацией на битах
                 leftGlow.style.boxShadow = 
                     `0 0 ${totalBlur}px var(--neon-color),
                      0 0 ${totalBlur * 1.5}px var(--neon-color),
                      0 0 ${totalBlur * 2}px var(--neon-color),
                      0 0 ${totalSpread}px var(--neon-color),
-                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
                 
                 rightGlow.style.boxShadow = 
                     `0 0 ${totalBlur}px var(--neon-color),
                      0 0 ${totalBlur * 1.5}px var(--neon-color),
                      0 0 ${totalBlur * 2}px var(--neon-color),
                      0 0 ${totalSpread}px var(--neon-color),
-                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
                 
-                // Дополнительный эффект - изменение цвета при сильных битах
-                if (currentPulseIntensity > 0.8) {
-                    const pulseColor = `rgba(255, 255, 255, ${currentPulseIntensity * 0.3})`;
-                    leftGlow.style.background = `linear-gradient(to top, var(--neon-color), ${pulseColor})`;
-                    rightGlow.style.background = `linear-gradient(to top, var(--neon-color), ${pulseColor})`;
+                // Легкое изменение цвета при сильных битах (без резких переходов)
+                if (currentPulseIntensity > 0.6) {
+                    const pulseColor = `rgba(255, 255, 255, ${currentPulseIntensity * 0.2})`;
+                    leftGlow.style.background = `linear-gradient(to top, var(--neon-color) 70%, ${pulseColor})`;
+                    rightGlow.style.background = `linear-gradient(to top, var(--neon-color) 70%, ${pulseColor})`;
                 } else {
+                    // Плавный возврат к основному цвету
                     leftGlow.style.background = 'var(--neon-color)';
                     rightGlow.style.background = 'var(--neon-color)';
                 }
@@ -328,10 +329,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (leftGlow && rightGlow) {
             leftGlow.style.height = '15%';
             rightGlow.style.height = '15%';
-            leftGlow.style.opacity = '0.5';
-            rightGlow.style.opacity = '0.5';
+            leftGlow.style.opacity = '0.8';
+            rightGlow.style.opacity = '0.8';
             leftGlow.style.background = 'var(--neon-color)';
             rightGlow.style.background = 'var(--neon-color)';
+            
+            // Стабильное свечение без анимации мерцания
+            leftGlow.style.boxShadow = 
+                `0 0 10px var(--neon-color),
+                 0 0 20px var(--neon-color),
+                 0 0 30px var(--neon-color),
+                 inset 0 0 8px rgba(255, 255, 255, 0.2)`;
+            
+            rightGlow.style.boxShadow = 
+                `0 0 10px var(--neon-color),
+                 0 0 20px var(--neon-color),
+                 0 0 30px var(--neon-color),
+                 inset 0 0 8px rgba(255, 255, 255, 0.2)`;
         }
         
         // Сброс детектора битов
