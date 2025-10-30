@@ -14,10 +14,18 @@
         
         <div class="album-art" id="albumArt">
             <div class="album-image" id="albumImage"></div>
-            <!-- Контейнер для неоновых линий на обложке -->
-            <div class="album-neon-lines" id="albumNeonLines">
-                <div class="neon-line left" id="neonLineLeft"></div>
-                <div class="neon-line right" id="neonLineRight"></div>
+            <!-- Обновленные неоновые линии -->
+            <div class="album-neon-lines">
+                <div class="neon-line left">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path class="neon-path" d="M50,100 L0,100 L0,0" />
+                    </svg>
+                </div>
+                <div class="neon-line right">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path class="neon-path" d="M50,100 L100,100 L100,0" />
+                    </svg>
+                </div>
             </div>
         </div>
         
