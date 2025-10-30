@@ -280,7 +280,7 @@ body {
 .visualizer-container {
     height: 80px;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-end; /* Изменено: выравнивание по нижнему краю */
     justify-content: center;
     gap: 3px;
     margin-bottom: 25px;
@@ -293,7 +293,7 @@ body {
 
 .visualizer {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-end; /* Столбцы начинаются снизу */
     justify-content: center;
     gap: 3px;
     width: 100%;
@@ -303,20 +303,21 @@ body {
 .visualizer-bar {
     width: 8px;
     min-height: 5px;
-    border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0; /* Закругление только сверху */
     transition: height 0.1s ease;
     position: relative;
     overflow: hidden;
+    align-self: flex-end; /* Каждый столбец прижат к низу */
 }
 
 .visualizer-bar::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: 0; /* Начинается снизу */
     left: 0;
     right: 0;
-    height: 20px;
-    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.3));
+    height: 100%; /* Заполняет всю высоту столбца */
+    background: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.3));
     border-radius: 4px 4px 0 0;
 }
 
