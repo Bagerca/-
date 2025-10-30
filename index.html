@@ -13,14 +13,20 @@
     <div class="player-container">
         <audio id="audioPlayer"></audio>
         
-        <div class="album-art" id="albumArt">
-            <div class="album-image" id="albumImage"></div>
-            <!-- Неоновые линии по краям обложки -->
-            <div class="neon-edges-container">
-                <div class="neon-edge top-edge"></div>
-                <div class="neon-edge right-edge"></div>
-                <div class="neon-edge bottom-edge"></div>
-                <div class="neon-edge left-edge"></div>
+        <div class="album-art-wrapper">
+            <div class="album-art" id="albumArt">
+                <div class="album-image" id="albumImage"></div>
+            </div>
+            <!-- VU-метры по бокам -->
+            <div class="vu-meters">
+                <div class="vu-meter left-vu">
+                    <div class="vu-level" id="leftLevel"></div>
+                    <div class="vu-ticks"></div>
+                </div>
+                <div class="vu-meter right-vu">
+                    <div class="vu-level" id="rightLevel"></div>
+                    <div class="vu-ticks"></div>
+                </div>
             </div>
         </div>
         
@@ -72,4 +78,4 @@
 
     <script src="script.js"></script>
 </body>
-</html>
+</html>ммммммммммммммммммммммммммммммм
