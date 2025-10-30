@@ -245,7 +245,7 @@
             color: white;
         }
 
-        .visualizer {
+        .visualizer-container {
             height: 80px;
             display: flex;
             align-items: flex-end;
@@ -255,13 +255,38 @@
             border-radius: 12px;
             padding: 15px;
             background: rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visualizer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+            width: 100%;
+            height: 100%;
         }
 
         .visualizer-bar {
             width: 8px;
+            min-height: 5px;
             background: linear-gradient(to top, #e94560, #533483);
             border-radius: 4px 4px 0 0;
             transition: height 0.1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visualizer-bar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.3));
+            border-radius: 4px 4px 0 0;
         }
 
         @keyframes rotate {
@@ -352,7 +377,9 @@
             <div class="track-artist" id="currentArtist">Артист</div>
         </div>
         
-        <div class="visualizer" id="visualizer"></div>
+        <div class="visualizer-container">
+            <div class="visualizer" id="visualizer"></div>
+        </div>
         
         <div class="progress-container">
             <div class="progress-bar" id="progressBar">
@@ -408,49 +435,56 @@
             const backgroundAnimation = document.getElementById('backgroundAnimation');
             const particles = document.getElementById('particles');
 
-            // Массив треков
+            // Массив треков с улучшенными цветовыми схемами
             const tracks = [
                 { 
                     name: 'Трек 1', 
                     artist: 'Неизвестный артист',
                     path: 'assets/572355312-322680992.mp3',
-                    color: ['#0f3460', '#e94560']
+                    color: ['#0f3460', '#e94560'],
+                    icon: '🎵'
                 },
                 { 
                     name: 'Tangled Up', 
                     artist: 'Caro Emerald',
                     path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-                    color: ['#ff9a00', '#ff2e63']
+                    color: ['#ff9a00', '#ff2e63'],
+                    icon: '🎸'
                 },
                 { 
                     name: 'Valhalla Calling', 
                     artist: 'Miracle Of Sound',
                     path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-                    color: ['#1d2b64', '#f8cdda']
+                    color: ['#1d2b64', '#f8cdda'],
+                    icon: '⚔️'
                 },
                 { 
                     name: 'Lust', 
                     artist: 'Marino ft. Alexandria',
                     path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-                    color: ['#870000', '#190a05']
+                    color: ['#870000', '#190a05'],
+                    icon: '🔥'
                 },
                 { 
                     name: 'Puttin\' On The Ritz', 
                     artist: 'Taco',
                     path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-                    color: ['#141e30', '#243b55']
+                    color: ['#141e30', '#243b55'],
+                    icon: '🎩'
                 },
                 { 
                     name: 'The Cigarette Duet', 
                     artist: 'Princess Chelsea',
                     path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-                    color: ['#ffafbd', '#ffc3a0']
+                    color: ['#6d214f', '#b33939'],
+                    icon: '🚬'
                 },
                 { 
                     name: 'A Man Without Love', 
                     artist: 'Engelbert Humperdinck',
                     path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-                    color: ['#acb6e5', '#86fde8']
+                    color: ['#2c3e50', '#4ca1af'],
+                    icon: '🌙'
                 }
             ];
 
@@ -464,7 +498,7 @@
                 visualizer.innerHTML = '';
                 visualizerBars = [];
                 
-                for (let i = 0; i < 32; i++) {
+                for (let i = 0; i < 40; i++) {
                     const bar = document.createElement('div');
                     bar.className = 'visualizer-bar';
                     bar.style.height = '5px';
@@ -481,7 +515,7 @@
                 source.connect(analyser);
                 analyser.connect(audioContext.destination);
                 
-                analyser.fftSize = 64;
+                analyser.fftSize = 128;
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
             }
@@ -493,18 +527,53 @@
                 analyser.getByteFrequencyData(dataArray);
                 
                 for (let i = 0; i < visualizerBars.length; i++) {
-                    const value = dataArray[i] / 255;
-                    const height = Math.max(5, value * 70);
+                    const barIndex = Math.floor(i * 1.5); // Растягиваем данные по полосам
+                    const value = dataArray[barIndex] / 255;
+                    // Ограничиваем высоту, чтобы полосы не выходили за пределы контейнера
+                    const height = Math.max(5, Math.min(70, value * 70));
                     visualizerBars[i].style.height = `${height}px`;
                     
                     // Изменение цвета в зависимости от интенсивности
-                    const hue = 330 + (value * 60);
-                    visualizerBars[i].style.background = `linear-gradient(to top, hsl(${hue}, 70%, 60%), hsl(${hue + 30}, 70%, 40%))`;
+                    const currentColors = tracks[currentTrackIndex].color;
+                    const hue1 = getHueFromColor(currentColors[0]);
+                    const hue2 = getHueFromColor(currentColors[1]);
+                    const hue = hue1 + (value * (hue2 - hue1));
+                    
+                    visualizerBars[i].style.background = `linear-gradient(to top, 
+                        hsl(${hue}, 70%, 60%), 
+                        hsl(${hue + 30}, 70%, 40%))`;
                 }
                 
                 if (isPlaying) {
                     requestAnimationFrame(visualize);
                 }
+            }
+
+            // Получение hue из цвета в формате hex
+            function getHueFromColor(hex) {
+                // Упрощенная функция для получения hue из hex
+                const r = parseInt(hex.substr(1, 2), 16) / 255;
+                const g = parseInt(hex.substr(3, 2), 16) / 255;
+                const b = parseInt(hex.substr(5, 2), 16) / 255;
+                
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                let h = 0;
+                
+                if (max === min) {
+                    h = 0;
+                } else if (max === r) {
+                    h = ((g - b) / (max - min)) % 6;
+                } else if (max === g) {
+                    h = (b - r) / (max - min) + 2;
+                } else {
+                    h = (r - g) / (max - min) + 4;
+                }
+                
+                h = Math.round(h * 60);
+                if (h < 0) h += 360;
+                
+                return h;
             }
 
             // Создание частиц
@@ -533,11 +602,15 @@
                 const currentColors = tracks[currentTrackIndex].color;
                 document.body.style.background = `linear-gradient(135deg, ${currentColors[0]} 0%, ${currentColors[1]} 100%)`;
                 
-                // Обновление цвета визуализатора
+                // Обновление цвета визуализатора и прогресс-бара
                 const progressElement = document.querySelector('.progress');
                 if (progressElement) {
                     progressElement.style.background = `linear-gradient(90deg, ${currentColors[1]}, ${currentColors[0]})`;
                 }
+                
+                // Обновление иконки альбома
+                const albumImage = document.querySelector('.album-image');
+                albumImage.textContent = tracks[currentTrackIndex].icon;
             }
 
             // Форматирование времени
