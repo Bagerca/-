@@ -9,6 +9,7 @@
 <body>
     <div class="visualizer" id="visualizer"></div>
     <div class="particles" id="particles"></div>
+    <div class="transition-overlay" id="transitionOverlay"></div>
     
     <div class="player-container">
         <audio id="audioPlayer"></audio>
@@ -31,7 +32,11 @@
         </div>
         
         <div class="volume-container">
-            <span class="volume-icon">🔊</span>
+            <div class="volume-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+            </div>
             <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50">
         </div>
         
@@ -40,6 +45,9 @@
                 <option value="assets/572355312-322680992.mp3">Трек 1</option>
                 <option value="assets/Caro Emerald, Tangled Up (Lokee Remix).mp3">Caro Emerald - Tangled Up</option>
                 <option value="assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3">Valhalla Calling</option>
+                <option value="assets/Marino - Lust (feat. Alexandria).m4a">Marino - Lust</option>
+                <option value="assets/Taco - Puttin' On The Ritz.m4a">Taco - Puttin' On The Ritz</option>
+                <option value="assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a">The Cigarette Duet</option>
             </select>
         </div>
     </div>
