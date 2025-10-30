@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const leftGlow = document.querySelector('.left-line .neon-glow');
-    const rightGlow = document.querySelector('.right-line .neon-glow');
+    const leftGlow = document.getElementById('leftGlow');
+    const rightGlow = document.getElementById('rightGlow');
 
     // Массив треков
     const tracks = [
@@ -157,20 +157,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для неоновых линий - используем басовые частоты
-            const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-            const mid = dataArray.slice(10, 30).reduce((a, b) => a + b) / 20;
-            
-            // Комбинируем частоты для плавного движения
-            const intensity = Math.min(1, (bass * 0.7 + mid * 0.3) / 150);
-            
-            // Вычисляем высоту линий (от 10% до 90% для красивого эффекта)
-            const minHeight = 10; // минимальная высота в %
-            const maxHeight = 90; // максимальная высота в %
-            const lineHeight = minHeight + (intensity * (maxHeight - minHeight));
-            
-            // Обновляем неоновые линии
+            // Логика для неоновых линий
             if (leftGlow && rightGlow) {
+                const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
+                const mid = dataArray.slice(10, 30).reduce((a, b) => a + b) / 20;
+                
+                // Комбинируем частоты для плавного движения
+                const intensity = Math.min(1, (bass * 0.7 + mid * 0.3) / 150);
+                
+                // Вычисляем высоту линий (от 10% до 90% для красивого эффекта)
+                const minHeight = 10; // минимальная высота в %
+                const maxHeight = 90; // максимальная высота в %
+                const lineHeight = minHeight + (intensity * (maxHeight - minHeight));
+                
+                // Обновляем неоновые линии
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
@@ -181,7 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Динамическое изменение тени в зависимости от интенсивности
                 const shadowBlur = 10 + intensity * 25;
-                const shadowSpread = 5 + intensity * 20;
                 
                 leftGlow.style.boxShadow = 
                     `0 0 ${shadowBlur}px var(--neon-color),
@@ -244,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Динамическое обновление стилей для неоновых линий
+        // Динамическое обновление стилей
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
@@ -267,8 +266,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сброс неоновых линий при смене трека
         if (leftGlow && rightGlow) {
-            leftGlow.style.height = '0%';
-            rightGlow.style.height = '0%';
+            leftGlow.style.height = '10%';
+            rightGlow.style.height = '10%';
             leftGlow.style.opacity = '0.8';
             rightGlow.style.opacity = '0.8';
         }
