@@ -16,11 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const neonLines = [
-        document.getElementById('neonLine1'),
-        document.getElementById('neonLine2'),
-        document.getElementById('neonLine3')
-    ];
+    const neonLineLeft = document.getElementById('neonLineLeft');
+    const neonLineRight = document.getElementById('neonLineRight');
 
     // Массив треков с улучшенными цветовыми схемами и обложками
     const tracks = [
@@ -160,15 +157,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Обновление неоновых линий
+            // Обновление неоновых линий на обложке
             const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-            const mids = dataArray.slice(10, 50).reduce((a, b) => a + b) / 40;
-            const highs = dataArray.slice(50, 100).reduce((a, b) => a + b) / 50;
+            const intensity = bass / 256;
             
-            // Анимация линий в зависимости от частот
-            neonLines[0].style.height = `${Math.max(10, (bass / 256) * 150)}px`;
-            neonLines[1].style.height = `${Math.max(10, (mids / 256) * 150)}px`;
-            neonLines[2].style.height = `${Math.max(10, (highs / 256) * 150)}px`;
+            // Высота линий зависит от интенсивности басов
+            const lineHeight = Math.max(20, intensity * 150);
+            neonLineLeft.style.height = `${lineHeight}px`;
+            neonLineRight.style.height = `${lineHeight}px`;
+            
+            // Интенсивность свечения также зависит от басов
+            const glowIntensity = intensity * 0.8 + 0.2;
+            neonLineLeft.style.opacity = glowIntensity;
+            neonLineRight.style.opacity = glowIntensity;
             
             if (isPlaying) {
                 requestAnimationFrame(visualize);
