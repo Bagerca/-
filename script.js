@@ -181,15 +181,21 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const currentTime = Date.now();
             
-            // Обновление визуализатора
+            // ОБНОВЛЕНИЕ ВИЗУАЛИЗАТОРА - столбцы растут снизу вверх
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
                 const height = Math.max(5, value * 70);
+                
+                // Применяем высоту - столбец растет снизу вверх
                 visualizerBars[i].style.height = `${height}px`;
                 
+                // Градиент снизу вверх
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
+                
+                // Убедимся, что столбец прижат к низу
+                visualizerBars[i].style.alignSelf = 'flex-end';
             }
             
             // Расчет общей интенсивности музыки
