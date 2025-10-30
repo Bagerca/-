@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const duration = document.getElementById('duration');
     const visualizer = document.getElementById('visualizer');
     const particles = document.getElementById('particles');
+    const transitionOverlay = document.getElementById('transitionOverlay');
 
     // Массив треков с цветовыми темами
     const tracks = [
@@ -40,6 +41,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: 'hsl(220, 70%, 40%)',
                 accent: 'hsl(280, 80%, 60%)'
             }
+        },
+        { 
+            name: 'Marino - Lust', 
+            path: 'assets/Marino - Lust (feat. Alexandria).m4a',
+            theme: {
+                primary: 'hsl(320, 70%, 40%)',
+                secondary: 'hsl(350, 70%, 50%)',
+                accent: 'hsl(20, 90%, 60%)'
+            }
+        },
+        { 
+            name: 'Taco - Puttin\' On The Ritz', 
+            path: 'assets/Taco - Puttin\' On The Ritz.m4a',
+            theme: {
+                primary: 'hsl(50, 80%, 50%)',
+                secondary: 'hsl(80, 70%, 40%)',
+                accent: 'hsl(120, 90%, 60%)'
+            }
+        },
+        { 
+            name: 'The Cigarette Duet', 
+            path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
+            theme: {
+                primary: 'hsl(280, 50%, 30%)',
+                secondary: 'hsl(200, 40%, 40%)',
+                accent: 'hsl(160, 60%, 50%)'
+            }
         }
     ];
 
@@ -47,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isPlaying = false;
     let audioContext, analyser, dataArray, bufferLength;
     let particleElements = [];
+    let isTransitioning = false;
 
     // Создание улучшенных частиц
     function createParticles() {
@@ -77,6 +106,32 @@ document.addEventListener('DOMContentLoaded', function() {
             particles.appendChild(particle);
             particleElements.push(particle);
         }
+    }
+
+    // Плавный переход между темами
+    function transitionToTheme(newTheme, callback) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
+        // Активируем оверлей перехода
+        transitionOverlay.classList.add('active');
+        
+        // Ждем немного перед сменой темы
+        setTimeout(() => {
+            setTheme(newTheme);
+            
+            // Анимация смены трека в интерфейсе
+            const playerContainer = document.querySelector('.player-container');
+            playerContainer.classList.add('track-change-animation');
+            
+            // Убираем оверлей после смены темы
+            setTimeout(() => {
+                transitionOverlay.classList.remove('active');
+                playerContainer.classList.remove('track-change-animation');
+                isTransitioning = false;
+                if (callback) callback();
+            }, 800);
+        }, 300);
     }
 
     // Установка цветовой темы
@@ -129,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hsl(${getHue(currentTheme.primary) + hueShift}, 70%, 50%), 
             hsl(${getHue(currentTheme.secondary) + hueShift}, 70%, 50%))`;
         
-        // Анимация частиц в такт музыке
+        // Анимация частиц в такт музыки
         animateParticles(bass, mids, highs);
         
         // Создание визуализатора с разными стилями для частот
@@ -147,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return match ? parseInt(match[1]) : 0;
     }
 
-    // Анимация частиц в такт музыке
+    // Анимация частиц в такт музыки
     function animateParticles(bass, mids, highs) {
         particleElements.forEach((particle, index) => {
             const bassEffect = bass / 256;
@@ -211,24 +266,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Загрузка трека
+    // Загрузка трека с плавным переходом
     function loadTrack(index) {
-        if (index >= 0 && index < tracks.length) {
-            currentTrackIndex = index;
-            audio.src = tracks[currentTrackIndex].path;
-            currentTrack.textContent = tracks[currentTrackIndex].name;
-            trackSelect.value = tracks[currentTrackIndex].path;
+        if (index >= 0 && index < tracks.length && !isTransitioning) {
+            const wasPlaying = isPlaying;
             
-            // Установка темы
-            setTheme(tracks[currentTrackIndex].theme);
-            
-            audio.addEventListener('loadedmetadata', function() {
-                duration.textContent = formatTime(audio.duration);
-            });
-            
-            if (isPlaying) {
-                audio.play();
+            if (wasPlaying) {
+                audio.pause();
             }
+            
+            // Плавный переход к новой теме
+            transitionToTheme(tracks[index].theme, () => {
+                currentTrackIndex = index;
+                audio.src = tracks[currentTrackIndex].path;
+                currentTrack.textContent = tracks[currentTrackIndex].name;
+                trackSelect.value = tracks[currentTrackIndex].path;
+                
+                audio.addEventListener('loadedmetadata', function() {
+                    duration.textContent = formatTime(audio.duration);
+                });
+                
+                if (wasPlaying) {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        playPauseBtn.textContent = '⏸';
+                        if (!analyser) initAudioAnalyzer();
+                        visualize();
+                    });
+                }
+            });
         }
     }
 
@@ -350,9 +416,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= tracks.length) newIndex = 0;
         loadTrack(newIndex);
-        if (isPlaying) {
-            audio.play();
-        }
     });
 
     // Инициализация
