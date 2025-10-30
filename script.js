@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlSy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
+            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178'
         },
@@ -127,9 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 0; i < 30; i++) {
             const bar = document.createElement('div');
             bar.className = 'visualizer-bar';
-            bar.style.height = '3px'; // Начальная высота - минимальная
-            bar.style.alignSelf = 'flex-end'; // Гарантируем прижатие к низу
-            bar.style.marginTop = 'auto'; // Дополнительное прижатие к низу
+            bar.style.height = '5px';
             visualizer.appendChild(bar);
             visualizerBars.push(bar);
         }
@@ -183,26 +181,15 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const currentTime = Date.now();
             
-            // ОБНОВЛЕНИЕ ВИЗУАЛИЗАТОРА - столбцы начинаются САМОГО НИЗА
+            // Обновление визуализатора
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
-                
-                // Высота от 3px (минимум) до 60px (максимум)
-                const minHeight = 3;
-                const maxHeight = 60;
-                const height = minHeight + (value * (maxHeight - minHeight));
-                
-                // Применяем высоту - столбец растет снизу вверх
+                const height = Math.max(5, value * 70);
                 visualizerBars[i].style.height = `${height}px`;
                 
-                // Градиент снизу вверх
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
-                
-                // Гарантируем, что столбец прижат к самому низу
-                visualizerBars[i].style.alignSelf = 'flex-end';
-                visualizerBars[i].style.marginTop = 'auto';
             }
             
             // Расчет общей интенсивности музыки
