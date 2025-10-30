@@ -26,6 +26,11 @@ body {
     height: 100%;
     z-index: -2;
     opacity: 0.4;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
 .particles {
@@ -249,32 +254,32 @@ body {
     color: white;
 }
 
-/* Анимации частиц */
+/* Улучшенные анимации частиц */
 @keyframes float {
     0%, 100% {
         transform: translateY(0) rotate(0deg) scale(1);
         opacity: 0.7;
     }
     25% {
-        transform: translateY(-20px) rotate(90deg) scale(1.1);
+        transform: translateY(-30px) rotate(90deg) scale(1.1);
     }
     50% {
-        transform: translateY(-40px) rotate(180deg) scale(1.2);
+        transform: translateY(-60px) rotate(180deg) scale(1.2);
         opacity: 1;
     }
     75% {
-        transform: translateY(-20px) rotate(270deg) scale(1.1);
+        transform: translateY(-30px) rotate(270deg) scale(1.1);
     }
 }
 
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
-        opacity: 0.6;
+        opacity: 0.4;
     }
     50% {
-        transform: scale(1.3);
-        opacity: 1;
+        transform: scale(1.5);
+        opacity: 0.8;
     }
 }
 
@@ -283,7 +288,7 @@ body {
         transform: rotate(0deg) scale(1);
     }
     to {
-        transform: rotate(360deg) scale(1.2);
+        transform: rotate(360deg) scale(1.3);
     }
 }
 
@@ -292,37 +297,54 @@ body {
         transform: translateX(0) scaleY(1);
     }
     25% {
-        transform: translateX(10px) scaleY(1.3);
+        transform: translateX(15px) scaleY(1.4);
     }
     50% {
-        transform: translateX(0) scaleY(1.5);
+        transform: translateX(0) scaleY(1.8);
     }
     75% {
-        transform: translateX(-10px) scaleY(1.3);
+        transform: translateX(-15px) scaleY(1.4);
+    }
+}
+
+@keyframes drift {
+    0% {
+        transform: translateX(-100px) rotate(0deg);
+    }
+    100% {
+        transform: translateX(calc(100vw + 100px)) rotate(360deg);
     }
 }
 
 .particle {
     position: absolute;
-    border-radius: 50%;
     animation-timing-function: ease-in-out;
     pointer-events: none;
+    filter: blur(1px);
 }
 
 .particle.type1 {
-    animation: float 8s infinite ease-in-out;
+    animation: float 12s infinite ease-in-out;
+    border-radius: 50%;
 }
 
 .particle.type2 {
-    animation: pulse 4s infinite ease-in-out;
+    animation: pulse 6s infinite ease-in-out;
+    border-radius: 50%;
 }
 
 .particle.type3 {
-    animation: spin 12s infinite linear;
+    animation: spin 15s infinite linear;
+    border-radius: 50%;
 }
 
 .particle.type4 {
-    animation: wave 6s infinite ease-in-out;
+    animation: wave 8s infinite ease-in-out;
+    border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;
+}
+
+.particle.type5 {
+    animation: drift 20s infinite linear;
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
 }
 
