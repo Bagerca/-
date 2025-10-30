@@ -16,7 +16,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
-    const edgeEffects = document.querySelectorAll('.edge-effect');
+    const neonLines = [
+        document.getElementById('neonLine1'),
+        document.getElementById('neonLine2'),
+        document.getElementById('neonLine3')
+    ];
 
     // Массив треков с улучшенными цветовыми схемами и обложками
     const tracks = [
@@ -25,72 +29,78 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Caro Emerald',
             path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
             colors: {
-                primary: '#ff9a00',
-                secondary: '#ff2e63',
+                primary: '#1a1a2e',
+                secondary: '#16213e',
                 accent: '#ff9a00'
             },
-            cover: '🎸',
-            visualizer: ['#ff9a00', '#ff2e63']
+            cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            visualizer: ['#ff9a00', '#ff2e63'],
+            neonColor: '#ff9a00'
         },
         { 
             name: 'Valhalla Calling', 
             artist: 'Miracle Of Sound',
             path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
             colors: {
-                primary: '#1d2b64',
-                secondary: '#f8cdda',
-                accent: '#1d2b64'
+                primary: '#0f1b2e',
+                secondary: '#1d2b64',
+                accent: '#4a90e2'
             },
-            cover: '⚔️',
-            visualizer: ['#1d2b64', '#f8cdda']
+            cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            visualizer: ['#1d2b64', '#4a90e2'],
+            neonColor: '#4a90e2'
         },
         { 
             name: 'Lust', 
             artist: 'Marino ft. Alexandria',
             path: 'assets/Marino - Lust (feat. Alexandria).m4a',
             colors: {
-                primary: '#870000',
-                secondary: '#190a05',
+                primary: '#1a0a0a',
+                secondary: '#330000',
                 accent: '#ff0000'
             },
-            cover: '🔥',
-            visualizer: ['#870000', '#ff0000']
+            cover: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            visualizer: ['#870000', '#ff0000'],
+            neonColor: '#ff0000'
         },
         { 
             name: 'Puttin\' On The Ritz', 
             artist: 'Taco',
             path: 'assets/Taco - Puttin\' On The Ritz.m4a',
             colors: {
-                primary: '#141e30',
-                secondary: '#243b55',
+                primary: '#0a0a14',
+                secondary: '#1a1a2e',
                 accent: '#ffd700'
             },
-            cover: '🎩',
-            visualizer: ['#141e30', '#ffd700']
+            cover: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            visualizer: ['#141e30', '#ffd700'],
+            neonColor: '#ffd700'
         },
         { 
             name: 'The Cigarette Duet', 
             artist: 'Princess Chelsea',
             path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
             colors: {
-                primary: '#6d214f',
-                secondary: '#b33939',
+                primary: '#2d1b2e',
+                secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: '🚬',
-            visualizer: ['#6d214f', '#e84178']
+            cover: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            visualizer: ['#6d214f', '#e84178'],
+            neonColor: '#e84178'
         },
         { 
             name: 'A Man Without Love', 
             artist: 'Engelbert Humperdinck',
             path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
             colors: {
-                primary: '#2c3e50',
-                secondary: '#4ca1af',
-                accent: '#86fde8'
+                primary: '#0f1c2e',
+                secondary: '#1f3a5c',
+                accent: '#4ca1af'
             },
-            cover: '🌙',
-            visualizer: ['#2c3e50', '#86fde8']
+            cover: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            visualizer: ['#2c3e50', '#4ca1af'],
+            neonColor: '#4ca1af'
         }
     ];
 
@@ -98,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isPlaying = false;
     let audioContext, analyser, dataArray, bufferLength;
     let visualizerBars = [];
+    let wasPlayingBeforeSwitch = false;
 
     // Создание визуализатора
     function createVisualizer() {
@@ -149,14 +160,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Обновление свечения по краям
+            // Обновление неоновых линий
             const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
-            const intensity = bass / 256;
+            const mids = dataArray.slice(10, 50).reduce((a, b) => a + b) / 40;
+            const highs = dataArray.slice(50, 100).reduce((a, b) => a + b) / 50;
             
-            edgeEffects.forEach(effect => {
-                effect.style.opacity = intensity * 0.7;
-                effect.style.background = `radial-gradient(circle, ${tracks[currentTrackIndex].colors.accent}${Math.floor(intensity * 50)} 0%, transparent 70%)`;
-            });
+            // Анимация линий в зависимости от частот
+            neonLines[0].style.height = `${Math.max(10, (bass / 256) * 150)}px`;
+            neonLines[1].style.height = `${Math.max(10, (mids / 256) * 150)}px`;
+            neonLines[2].style.height = `${Math.max(10, (highs / 256) * 150)}px`;
             
             if (isPlaying) {
                 requestAnimationFrame(visualize);
@@ -191,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновление темы
     function updateTheme() {
         const currentColors = tracks[currentTrackIndex].colors;
+        const neonColor = tracks[currentTrackIndex].neonColor;
         
         // Фон
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
@@ -201,8 +214,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Кнопка play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
+        // Неоновые линии
+        document.documentElement.style.setProperty('--neon-color', neonColor);
+        
         // Ползунок громкости
-        const volumeSlider = document.querySelector('.volume-slider');
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
@@ -212,8 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(style);
         
         // Обложка
-        albumImage.textContent = tracks[currentTrackIndex].cover;
-        albumImage.style.background = `linear-gradient(135deg, ${currentColors.primary}, ${currentColors.secondary})`;
+        albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
         
         // Пересоздание частиц с новыми цветами
         createParticles();
@@ -237,16 +251,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Загрузка трека
-    function loadTrack(index) {
+    function loadTrack(index, autoPlay = false) {
         if (index >= 0 && index < tracks.length) {
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
+            
+            // Сохраняем состояние воспроизведения
+            wasPlayingBeforeSwitch = isPlaying;
             
             // Останавливаем текущее воспроизведение перед загрузкой нового трека
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
-            albumArt.classList.remove('playing');
             
             audio.src = track.path;
             currentTrack.textContent = track.name;
@@ -258,6 +274,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const onLoaded = function() {
                 duration.textContent = formatTime(audio.duration);
                 audio.removeEventListener('loadedmetadata', onLoaded);
+                
+                // Автоматически воспроизводим, если нужно
+                if (autoPlay || wasPlayingBeforeSwitch) {
+                    setTimeout(() => {
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            playPauseBtn.textContent = '⏸';
+                            if (!analyser) initAudioAnalyzer();
+                            visualize();
+                        }).catch(error => {
+                            console.error('Playback failed:', error);
+                            showPlayMessage();
+                        });
+                    }, 100);
+                }
             };
             audio.addEventListener('loadedmetadata', onLoaded);
         }
@@ -287,7 +318,6 @@ document.addEventListener('DOMContentLoaded', function() {
             playPromise.then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
-                albumArt.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
@@ -307,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.play().then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
-                albumArt.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
                 message.remove();
@@ -331,12 +360,10 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
-            albumArt.classList.remove('playing');
         } else {
             audio.play().then(() => {
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
-                albumArt.classList.add('playing');
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
@@ -349,35 +376,20 @@ document.addEventListener('DOMContentLoaded', function() {
     prevBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex - 1;
         if (newIndex < 0) newIndex = tracks.length - 1;
-        loadTrack(newIndex);
-        if (isPlaying) {
-            setTimeout(() => {
-                audio.play();
-            }, 100);
-        }
+        loadTrack(newIndex, true);
     });
 
     nextBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= tracks.length) newIndex = 0;
-        loadTrack(newIndex);
-        if (isPlaying) {
-            setTimeout(() => {
-                audio.play();
-            }, 100);
-        }
+        loadTrack(newIndex, true);
     });
 
     trackSelect.addEventListener('change', function() {
         const selectedPath = this.value;
         const trackIndex = tracks.findIndex(track => track.path === selectedPath);
         if (trackIndex !== -1) {
-            loadTrack(trackIndex);
-            if (isPlaying) {
-                setTimeout(() => {
-                    audio.play();
-                }, 100);
-            }
+            loadTrack(trackIndex, true);
         }
     });
 
@@ -421,12 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
     audio.addEventListener('ended', () => {
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= tracks.length) newIndex = 0;
-        loadTrack(newIndex);
-        if (isPlaying) {
-            setTimeout(() => {
-                audio.play();
-            }, 100);
-        }
+        loadTrack(newIndex, true);
     });
 
     // Обработка ошибок аудио
