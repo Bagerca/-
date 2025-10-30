@@ -12,31 +12,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const visualizer = document.getElementById('visualizer');
     const particles = document.getElementById('particles');
 
-    // Массив треков
+    // Массив треков с цветовыми темами
     const tracks = [
-        { name: 'Трек 1', path: 'assets/572355312-322680992.mp3' },
-        { name: 'Caro Emerald - Tangled Up', path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3' },
-        { name: 'Valhalla Calling', path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3' }
+        { 
+            name: 'Трек 1', 
+            path: 'assets/572355312-322680992.mp3',
+            theme: {
+                primary: 'hsl(230, 70%, 50%)',
+                secondary: 'hsl(270, 70%, 50%)',
+                accent: 'hsl(300, 80%, 60%)'
+            }
+        },
+        { 
+            name: 'Caro Emerald - Tangled Up', 
+            path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
+            theme: {
+                primary: 'hsl(330, 70%, 50%)',
+                secondary: 'hsl(10, 70%, 50%)',
+                accent: 'hsl(40, 90%, 60%)'
+            }
+        },
+        { 
+            name: 'Valhalla Calling', 
+            path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
+            theme: {
+                primary: 'hsl(180, 70%, 30%)',
+                secondary: 'hsl(220, 70%, 40%)',
+                accent: 'hsl(280, 80%, 60%)'
+            }
+        }
     ];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
     let audioContext, analyser, dataArray, bufferLength;
+    let particleElements = [];
 
-    // Создание частиц для фона
+    // Создание улучшенных частиц
     function createParticles() {
         particles.innerHTML = '';
-        for (let i = 0; i < 20; i++) {
+        particleElements = [];
+        
+        const particleCount = 30;
+        const particleTypes = ['type1', 'type2', 'type3', 'type4'];
+        
+        for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.width = Math.random() * 20 + 5 + 'px';
-            particle.style.height = particle.style.width;
+            const type = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+            const size = Math.random() * 25 + 5;
+            
+            particle.className = `particle ${type}`;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
             particle.style.left = Math.random() * 100 + 'vw';
             particle.style.top = Math.random() * 100 + 'vh';
-            particle.style.animationDelay = Math.random() * 5 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            particle.style.background = `radial-gradient(circle, 
+                rgba(255,255,255,0.8) 0%, 
+                rgba(255,255,255,0.4) 50%, 
+                rgba(255,255,255,0.2) 100%)`;
+            particle.style.filter = 'blur(1px)';
+            
             particles.appendChild(particle);
+            particleElements.push(particle);
         }
+    }
+
+    // Установка цветовой темы
+    function setTheme(theme) {
+        document.documentElement.style.setProperty('--theme-color', theme.accent);
+        document.documentElement.style.setProperty('--theme-glow', theme.accent + '80');
+        
+        document.body.style.background = `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`;
+        
+        // Обновляем цвет частиц
+        particleElements.forEach(particle => {
+            particle.style.background = `radial-gradient(circle, 
+                ${theme.accent}80 0%, 
+                ${theme.secondary}60 50%, 
+                ${theme.primary}40 100%)`;
+        });
     }
 
     // Инициализация аудиоанализатора
@@ -47,49 +103,95 @@ document.addEventListener('DOMContentLoaded', function() {
         source.connect(analyser);
         analyser.connect(audioContext.destination);
         
-        analyser.fftSize = 256;
+        analyser.fftSize = 512;
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
     }
 
-    // Визуализация звука
+    // Визуализация звука с улучшенными эффектами
     function visualize() {
         if (!analyser) return;
         
         analyser.getByteFrequencyData(dataArray);
         
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
+        // Анализ разных частотных диапазонов
+        const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
+        const mids = dataArray.slice(10, 50).reduce((a, b) => a + b) / 40;
+        const highs = dataArray.slice(50, 100).reduce((a, b) => a + b) / 50;
         
-        // Изменение фона в зависимости от громкости
+        const average = (bass + mids + highs) / 3;
         const intensity = average / 256;
-        const hue = (intensity * 60 + 200) % 360;
-        document.body.style.background = `linear-gradient(45deg, hsl(${hue}, 70%, 50%), hsl(${hue + 60}, 70%, 50%))`;
         
-        // Создание волн визуализатора
+        // Динамическое обновление фона на основе музыки
+        const currentTheme = tracks[currentTrackIndex].theme;
+        const hueShift = intensity * 60;
+        document.body.style.background = `linear-gradient(45deg, 
+            hsl(${getHue(currentTheme.primary) + hueShift}, 70%, 50%), 
+            hsl(${getHue(currentTheme.secondary) + hueShift}, 70%, 50%))`;
+        
+        // Анимация частиц в такт музыке
+        animateParticles(bass, mids, highs);
+        
+        // Создание визуализатора с разными стилями для частот
         visualizer.innerHTML = '';
-        const barWidth = (visualizer.offsetWidth / bufferLength) * 2.5;
-        let x = 0;
-        
-        for (let i = 0; i < bufferLength; i++) {
-            const barHeight = (dataArray[i] / 256) * 300;
-            const bar = document.createElement('div');
-            bar.style.position = 'absolute';
-            bar.style.left = x + 'px';
-            bar.style.bottom = '0';
-            bar.style.width = barWidth + 'px';
-            bar.style.height = barHeight + 'px';
-            bar.style.background = `hsl(${hue + i * 2}, 70%, 60%)`;
-            bar.style.borderRadius = '2px';
-            visualizer.appendChild(bar);
-            x += barWidth + 1;
-        }
+        createFrequencyBars(dataArray, bass, mids, highs);
         
         if (isPlaying) {
             requestAnimationFrame(visualize);
+        }
+    }
+
+    // Получение hue из HSL цвета
+    function getHue(hslColor) {
+        const match = hslColor.match(/hsl\((\d+)/);
+        return match ? parseInt(match[1]) : 0;
+    }
+
+    // Анимация частиц в такт музыке
+    function animateParticles(bass, mids, highs) {
+        particleElements.forEach((particle, index) => {
+            const bassEffect = bass / 256;
+            const midEffect = mids / 256;
+            const highEffect = highs / 256;
+            
+            // Разные частицы реагируют на разные частоты
+            if (particle.classList.contains('type1')) {
+                particle.style.transform = `scale(${1 + bassEffect * 0.5})`;
+            } else if (particle.classList.contains('type2')) {
+                particle.style.opacity = 0.3 + midEffect * 0.7;
+            } else if (particle.classList.contains('type3')) {
+                particle.style.transform = `rotate(${highEffect * 360}deg) scale(${1 + highEffect * 0.3})`;
+            } else if (particle.classList.contains('type4')) {
+                particle.style.filter = `blur(${1 + bassEffect * 3}px) hue-rotate(${mids}deg)`;
+            }
+        });
+    }
+
+    // Создание частотных полос визуализатора
+    function createFrequencyBars(dataArray, bass, mids, highs) {
+        const barCount = 80;
+        const visualizerWidth = visualizer.offsetWidth;
+        const barWidth = visualizerWidth / barCount;
+        const currentTheme = tracks[currentTrackIndex].theme;
+        
+        for (let i = 0; i < barCount; i++) {
+            const barValue = dataArray[Math.floor(i * bufferLength / barCount)];
+            const barHeight = (barValue / 256) * 200;
+            const hue = getHue(currentTheme.accent) + (i * 360 / barCount);
+            
+            const bar = document.createElement('div');
+            bar.style.position = 'absolute';
+            bar.style.left = i * barWidth + 'px';
+            bar.style.bottom = '0';
+            bar.style.width = (barWidth - 1) + 'px';
+            bar.style.height = barHeight + 'px';
+            bar.style.background = `hsl(${hue}, 80%, 60%)`;
+            bar.style.borderRadius = '2px 2px 0 0';
+            bar.style.boxShadow = `0 0 10px hsl(${hue}, 80%, 60%)`;
+            bar.style.transform = `scaleY(${1 + (bass / 256) * 0.5})`;
+            bar.style.transition = 'height 0.1s ease';
+            
+            visualizer.appendChild(bar);
         }
     }
 
@@ -116,6 +218,9 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.src = tracks[currentTrackIndex].path;
             currentTrack.textContent = tracks[currentTrackIndex].name;
             trackSelect.value = tracks[currentTrackIndex].path;
+            
+            // Установка темы
+            setTheme(tracks[currentTrackIndex].theme);
             
             audio.addEventListener('loadedmetadata', function() {
                 duration.textContent = formatTime(audio.duration);
