@@ -66,8 +66,8 @@ body {
     transition: all 0.5s ease;
 }
 
-/* Неоновая рамка вокруг обложки */
-.neon-frame-container {
+/* Неоновые линии по краям обложки */
+.neon-edges-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -76,37 +76,63 @@ body {
     pointer-events: none;
 }
 
-.neon-frame-svg {
-    width: 100%;
-    height: 100%;
+.neon-edge {
+    position: absolute;
+    background: var(--neon-color, #e94560);
+    box-shadow: 0 0 10px var(--neon-color, #e94560),
+                0 0 20px var(--neon-color, #e94560);
+    transition: all 0.1s ease-out;
+    opacity: 0.8;
 }
 
-.neon-frame {
-    fill: none;
-    stroke: var(--neon-color, #e94560);
-    stroke-width: 4;
-    stroke-linecap: round;
-    filter: drop-shadow(0 0 10px var(--neon-color, #e94560));
-    stroke-dasharray: 400;
-    stroke-dashoffset: 400;
-    transition: stroke-dashoffset 0.05s ease-out;
+.top-edge {
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    transform-origin: left center;
 }
 
-/* Анимация свечения рамки */
-@keyframes neonFrameGlow {
+.right-edge {
+    top: 0;
+    right: 0;
+    width: 3px;
+    height: 0%;
+    transform-origin: center top;
+}
+
+.bottom-edge {
+    bottom: 0;
+    right: 0;
+    width: 0%;
+    height: 3px;
+    transform-origin: right center;
+}
+
+.left-edge {
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    height: 0%;
+    transform-origin: center bottom;
+}
+
+/* Анимация свечения */
+@keyframes neonEdgeGlow {
     0%, 100% {
-        filter: drop-shadow(0 0 5px var(--neon-color, #e94560));
-        opacity: 0.8;
+        opacity: 0.6;
+        box-shadow: 0 0 5px var(--neon-color, #e94560),
+                    0 0 10px var(--neon-color, #e94560);
     }
     50% {
-        filter: drop-shadow(0 0 20px var(--neon-color, #e94560)) 
-                drop-shadow(0 0 30px var(--neon-color, #e94560));
         opacity: 1;
+        box-shadow: 0 0 15px var(--neon-color, #e94560),
+                    0 0 30px var(--neon-color, #e94560);
     }
 }
 
-.neon-frame {
-    animation: neonFrameGlow 2s ease-in-out infinite alternate;
+.neon-edge {
+    animation: neonEdgeGlow 2s ease-in-out infinite alternate;
 }
 
 .track-info {
