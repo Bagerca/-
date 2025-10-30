@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 0; i < 30; i++) {
             const bar = document.createElement('div');
             bar.className = 'visualizer-bar';
-            bar.style.height = '5px';
+            bar.style.height = '1px'; // Начальная высота - минимальная
             visualizer.appendChild(bar);
             visualizerBars.push(bar);
         }
@@ -181,15 +181,16 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const currentTime = Date.now();
             
-            // Обновление визуализатора
+            // ОБНОВЛЕНИЕ ВИЗУАЛИЗАТОРА - столбцы начинаются САМОГО НИЗА
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
-                const height = Math.max(5, value * 70);
-                visualizerBars[i].style.height = `${height}px`;
                 
-                const currentColors = tracks[currentTrackIndex].visualizer;
-                visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
+                // Высота от 1px до 70px
+                const height = 1 + (value * 69);
+                
+                // Применяем высоту - столбец растет снизу вверх
+                visualizerBars[i].style.height = `${height}px`;
             }
             
             // Расчет общей интенсивности музыки
@@ -452,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTheme() {
         const currentColors = tracks[currentTrackIndex].colors;
         const neonColor = tracks[currentTrackIndex].neonColor;
+        const visualizerColors = tracks[currentTrackIndex].visualizer;
         
         // Фон
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
@@ -465,6 +467,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Неоновые линии
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
+        
+        // Цвета визуализатора
+        document.documentElement.style.setProperty('--visualizer-color-1', visualizerColors[0]);
+        document.documentElement.style.setProperty('--visualizer-color-2', visualizerColors[1]);
         
         // Динамическое обновление стилей
         const style = document.createElement('style');
