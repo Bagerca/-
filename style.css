@@ -66,7 +66,7 @@ body {
     transition: all 0.5s ease;
 }
 
-/* Контейнер для неоновых линий на обложке */
+/* Обновленные неоновые линии */
 .album-neon-lines {
     position: absolute;
     top: 0;
@@ -78,27 +78,33 @@ body {
 
 .neon-line {
     position: absolute;
-    bottom: 0;
-    width: 3px;
-    height: 0;
-    background: linear-gradient(to top, transparent, var(--neon-color, #e94560));
-    border-radius: 2px 2px 0 0;
-    filter: blur(1px);
-    box-shadow: 0 0 10px var(--neon-color, #e94560);
-    transition: height 0.2s ease;
-    transform-origin: bottom;
+    top: 0;
+    width: 50%;
+    height: 100%;
 }
 
 .neon-line.left {
-    left: 50%;
-    transform: translateX(-50%) rotate(-45deg);
-    transform-origin: bottom center;
+    left: 0;
 }
 
 .neon-line.right {
-    right: 50%;
-    transform: translateX(50%) rotate(45deg);
-    transform-origin: bottom center;
+    right: 0;
+}
+
+.neon-line svg {
+    width: 100%;
+    height: 100%;
+}
+
+.neon-path {
+    fill: none;
+    stroke: var(--neon-color, #e94560);
+    stroke-width: 3;
+    filter: blur(1px);
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    transition: stroke-dashoffset 0.1s ease;
+    box-shadow: 0 0 15px var(--neon-color, #e94560);
 }
 
 .track-info {
@@ -219,6 +225,7 @@ body {
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
+    background: var(--accent-color, #e94560);
 }
 
 .track-selector {
