@@ -108,13 +108,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let wasPlayingBeforeSwitch = false;
     let animationId = null;
     let isFirstPlay = true;
+    
+    // Переменные для ритмичного свечения
+    let beatDetected = false;
+    let lastBeatTime = 0;
+    let beatThreshold = 0.7;
+    let currentPulseIntensity = 0;
 
     // Создание визуализатора
     function createVisualizer() {
         visualizer.innerHTML = '';
         visualizerBars = [];
         
-        // Уменьшим количество столбцов для производительности
         for (let i = 0; i < 30; i++) {
             const bar = document.createElement('div');
             bar.className = 'visualizer-bar';
@@ -133,8 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             source.connect(analyser);
             analyser.connect(audioContext.destination);
             
-            // Уменьшим сложность анализа для производительности
-            analyser.fftSize = 64;
+            analyser.fftSize = 256;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
         } catch (error) {
@@ -142,14 +146,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Оптимизированная визуализация звука
+    // Детектор битов (ритма)
+    function detectBeat(bassIntensity, currentTime) {
+        // Если интенсивность баса превышает порог и прошло достаточно времени с последнего бита
+        if (bassIntensity > beatThreshold && (currentTime - lastBeatTime) > 200) {
+            beatDetected = true;
+            lastBeatTime = currentTime;
+            currentPulseIntensity = 1.0; // Максимальная интенсивность пульсации
+            return true;
+        }
+        return false;
+    }
+
+    // Плавное затухание пульсации
+    function updatePulseIntensity() {
+        if (currentPulseIntensity > 0) {
+            currentPulseIntensity -= 0.1; // Скорость затухания
+            if (currentPulseIntensity < 0) currentPulseIntensity = 0;
+        }
+        beatDetected = false;
+    }
+
+    // Визуализация звука с ритмичным свечением
     function visualize() {
         if (!analyser || !isPlaying) return;
         
         try {
             analyser.getByteFrequencyData(dataArray);
+            const currentTime = Date.now();
             
-            // Упрощенное обновление визуализатора
+            // Обновление визуализатора
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
@@ -160,24 +186,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Упрощенная логика для неоновых линий
+            // Логика для неоновых линий с ритмичным свечением
             if (leftGlow && rightGlow) {
-                // Более простое вычисление интенсивности
-                const bass = dataArray[0] / 255; // Используем только первую частоту
-                const intensity = Math.min(1, bass * 1.5);
+                // Анализ низких частот для детекции битов
+                const bassFrequencies = dataArray.slice(0, 10);
+                const bass = bassFrequencies.reduce((a, b) => a + b) / bassFrequencies.length / 255;
+                
+                // Анализ средних частот для высоты линий
+                const midFrequencies = dataArray.slice(10, 30);
+                const mid = midFrequencies.reduce((a, b) => a + b) / midFrequencies.length / 255;
+                
+                // Детекция битов
+                detectBeat(bass, currentTime);
+                
+                // Обновление пульсации
+                updatePulseIntensity();
                 
                 // Вычисляем высоту линий
                 const minHeight = 15;
                 const maxHeight = 80;
-                const lineHeight = minHeight + (intensity * (maxHeight - minHeight));
+                const lineHeight = minHeight + (mid * (maxHeight - minHeight));
                 
                 // Обновляем неоновые линии
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                // Упрощенное изменение интенсивности
-                leftGlow.style.opacity = 0.5 + intensity * 0.3;
-                rightGlow.style.opacity = 0.5 + intensity * 0.3;
+                // РИТМИЧНОЕ СВЕЧЕНИЕ - основная логика
+                const baseOpacity = 0.5;
+                const pulseOpacity = currentPulseIntensity * 0.5; // Дополнительная пульсация
+                const totalOpacity = baseOpacity + pulseOpacity;
+                
+                leftGlow.style.opacity = Math.min(1, totalOpacity);
+                rightGlow.style.opacity = Math.min(1, totalOpacity);
+                
+                // Динамическое изменение свечения в такт
+                const baseBlur = 8;
+                const pulseBlur = currentPulseIntensity * 20; // Усиление свечения на битах
+                const totalBlur = baseBlur + pulseBlur;
+                
+                const baseSpread = 2;
+                const pulseSpread = currentPulseIntensity * 8;
+                const totalSpread = baseSpread + pulseSpread;
+                
+                // Яркое неоновое свечение в такт музыке
+                leftGlow.style.boxShadow = 
+                    `0 0 ${totalBlur}px var(--neon-color),
+                     0 0 ${totalBlur * 1.5}px var(--neon-color),
+                     0 0 ${totalBlur * 2}px var(--neon-color),
+                     0 0 ${totalSpread}px var(--neon-color),
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                
+                rightGlow.style.boxShadow = 
+                    `0 0 ${totalBlur}px var(--neon-color),
+                     0 0 ${totalBlur * 1.5}px var(--neon-color),
+                     0 0 ${totalBlur * 2}px var(--neon-color),
+                     0 0 ${totalSpread}px var(--neon-color),
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                
+                // Дополнительный эффект - изменение цвета при сильных битах
+                if (currentPulseIntensity > 0.8) {
+                    const pulseColor = `rgba(255, 255, 255, ${currentPulseIntensity * 0.3})`;
+                    leftGlow.style.background = `linear-gradient(to top, var(--neon-color), ${pulseColor})`;
+                    rightGlow.style.background = `linear-gradient(to top, var(--neon-color), ${pulseColor})`;
+                } else {
+                    leftGlow.style.background = 'var(--neon-color)';
+                    rightGlow.style.background = 'var(--neon-color)';
+                }
             }
             
             animationId = requestAnimationFrame(visualize);
@@ -193,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function createParticles() {
         particles.innerHTML = '';
         
-        // Уменьшим количество частиц для производительности
         for (let i = 0; i < 15; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
@@ -257,7 +330,14 @@ document.addEventListener('DOMContentLoaded', function() {
             rightGlow.style.height = '15%';
             leftGlow.style.opacity = '0.5';
             rightGlow.style.opacity = '0.5';
+            leftGlow.style.background = 'var(--neon-color)';
+            rightGlow.style.background = 'var(--neon-color)';
         }
+        
+        // Сброс детектора битов
+        beatDetected = false;
+        currentPulseIntensity = 0;
+        lastBeatTime = 0;
     }
 
     // Форматирование времени
@@ -283,15 +363,11 @@ document.addEventListener('DOMContentLoaded', function() {
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
             
-            // Сохраняем состояние воспроизведения
             wasPlayingBeforeSwitch = isPlaying;
-            
-            // Останавливаем текущее воспроизведение перед загрузкой нового трека
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
             
-            // Отменяем предыдущую анимацию
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
@@ -308,13 +384,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 duration.textContent = formatTime(audio.duration);
                 audio.removeEventListener('loadedmetadata', onLoaded);
                 
-                // Автоматически воспроизводим, если нужно
                 if (autoPlay || wasPlayingBeforeSwitch) {
                     playTrack();
                 }
             };
             
-            // Если трек уже загружен, сразу запускаем onLoaded
             if (audio.readyState >= 1) {
                 onLoaded();
             } else {
@@ -343,18 +417,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function seek(seconds) {
         if (audio.duration) {
             audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
-        }
-    }
-
-    // Плавное изменение громкости
-    function smoothVolumeChange() {
-        let targetVolume = volumeSlider.value / 100;
-        const currentVolume = audio.volume;
-        const diff = targetVolume - currentVolume;
-        
-        if (Math.abs(diff) > 0.01) {
-            audio.volume = currentVolume + diff * 0.1;
-            setTimeout(smoothVolumeChange, 50);
         }
     }
 
@@ -458,7 +520,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex, true);
     });
 
-    // Обработка ошибок аудио
     audio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
     });
