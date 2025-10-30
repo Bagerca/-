@@ -23,14 +23,55 @@
             position: relative;
         }
 
-        .background-animation {
+        .edge-effects {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -2;
-            opacity: 0.7;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .edge-effect {
+            position: absolute;
+            background: radial-gradient(circle, rgba(233, 69, 96, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .top-edge {
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        .bottom-edge {
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        .left-edge {
+            left: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        .right-edge {
+            right: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+            height: 200px;
         }
 
         .particles {
@@ -53,6 +94,8 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
         }
 
         .player-container:hover {
@@ -92,7 +135,8 @@
         .album-image {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0f3460, #e94560);
+            background-size: cover;
+            background-position: center;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -134,7 +178,6 @@
 
         .progress {
             height: 100%;
-            background: linear-gradient(90deg, #e94560, #533483);
             border-radius: 10px;
             width: 0%;
             transition: width 0.1s linear;
@@ -178,13 +221,12 @@
         .play-pause-btn {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, #e94560, #533483);
             font-size: 24px;
-            box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
 
         .play-pause-btn:hover {
-            background: linear-gradient(135deg, #f05c78, #6140a0);
             transform: scale(1.08);
         }
 
@@ -215,8 +257,8 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #e94560;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .track-selector {
@@ -271,7 +313,6 @@
         .visualizer-bar {
             width: 8px;
             min-height: 5px;
-            background: linear-gradient(to top, #e94560, #533483);
             border-radius: 4px 4px 0 0;
             transition: height 0.1s ease;
             position: relative;
@@ -287,6 +328,18 @@
             height: 20px;
             background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.3));
             border-radius: 4px 4px 0 0;
+        }
+
+        .keyboard-hint {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
         }
 
         @keyframes rotate {
@@ -358,18 +411,29 @@
                 width: 60px;
                 height: 60px;
             }
+            
+            .keyboard-hint {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="background-animation" id="backgroundAnimation"></div>
+    <div class="edge-effects">
+        <div class="edge-effect top-edge"></div>
+        <div class="edge-effect bottom-edge"></div>
+        <div class="edge-effect left-edge"></div>
+        <div class="edge-effect right-edge"></div>
+    </div>
     <div class="particles" id="particles"></div>
     
     <div class="player-container">
+        <div class="keyboard-hint">← → перемотка | ↑ ↓ громкость</div>
+        
         <audio id="audioPlayer"></audio>
         
         <div class="album-art" id="albumArt">
-            <div class="album-image">🎵</div>
+            <div class="album-image" id="albumImage">🎵</div>
         </div>
         
         <div class="track-info">
@@ -404,7 +468,6 @@
         
         <div class="track-selector">
             <select id="trackSelect" class="track-select">
-                <option value="assets/572355312-322680992.mp3">Трек 1</option>
                 <option value="assets/Caro Emerald, Tangled Up (Lokee Remix).mp3">Caro Emerald - Tangled Up</option>
                 <option value="assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3">Valhalla Calling</option>
                 <option value="assets/Marino - Lust (feat. Alexandria).m4a">Marino - Lust</option>
@@ -432,59 +495,83 @@
             const duration = document.getElementById('duration');
             const visualizer = document.getElementById('visualizer');
             const albumArt = document.getElementById('albumArt');
-            const backgroundAnimation = document.getElementById('backgroundAnimation');
+            const albumImage = document.getElementById('albumImage');
             const particles = document.getElementById('particles');
+            const edgeEffects = document.querySelectorAll('.edge-effect');
 
-            // Массив треков с улучшенными цветовыми схемами
+            // Массив треков с улучшенными цветовыми схемами и обложками
             const tracks = [
-                { 
-                    name: 'Трек 1', 
-                    artist: 'Неизвестный артист',
-                    path: 'assets/572355312-322680992.mp3',
-                    color: ['#0f3460', '#e94560'],
-                    icon: '🎵'
-                },
                 { 
                     name: 'Tangled Up', 
                     artist: 'Caro Emerald',
                     path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-                    color: ['#ff9a00', '#ff2e63'],
-                    icon: '🎸'
+                    colors: {
+                        primary: '#ff9a00',
+                        secondary: '#ff2e63',
+                        accent: '#ff9a00'
+                    },
+                    cover: '🎸',
+                    visualizer: ['#ff9a00', '#ff2e63']
                 },
                 { 
                     name: 'Valhalla Calling', 
                     artist: 'Miracle Of Sound',
                     path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-                    color: ['#1d2b64', '#f8cdda'],
-                    icon: '⚔️'
+                    colors: {
+                        primary: '#1d2b64',
+                        secondary: '#f8cdda',
+                        accent: '#1d2b64'
+                    },
+                    cover: '⚔️',
+                    visualizer: ['#1d2b64', '#f8cdda']
                 },
                 { 
                     name: 'Lust', 
                     artist: 'Marino ft. Alexandria',
                     path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-                    color: ['#870000', '#190a05'],
-                    icon: '🔥'
+                    colors: {
+                        primary: '#870000',
+                        secondary: '#190a05',
+                        accent: '#ff0000'
+                    },
+                    cover: '🔥',
+                    visualizer: ['#870000', '#ff0000']
                 },
                 { 
                     name: 'Puttin\' On The Ritz', 
                     artist: 'Taco',
                     path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-                    color: ['#141e30', '#243b55'],
-                    icon: '🎩'
+                    colors: {
+                        primary: '#141e30',
+                        secondary: '#243b55',
+                        accent: '#ffd700'
+                    },
+                    cover: '🎩',
+                    visualizer: ['#141e30', '#ffd700']
                 },
                 { 
                     name: 'The Cigarette Duet', 
                     artist: 'Princess Chelsea',
                     path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-                    color: ['#6d214f', '#b33939'],
-                    icon: '🚬'
+                    colors: {
+                        primary: '#6d214f',
+                        secondary: '#b33939',
+                        accent: '#e84178'
+                    },
+                    cover: '🚬',
+                    visualizer: ['#6d214f', '#e84178']
                 },
                 { 
                     name: 'A Man Without Love', 
                     artist: 'Engelbert Humperdinck',
                     path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-                    color: ['#2c3e50', '#4ca1af'],
-                    icon: '🌙'
+                    colors: {
+                        primary: '#2c3e50',
+                        secondary: '#4ca1af',
+                        accent: '#86fde8'
+                    },
+                    cover: '🌙',
+                    visualizer: ['#2c3e50', '#86fde8']
                 }
             ];
 
@@ -526,54 +613,30 @@
                 
                 analyser.getByteFrequencyData(dataArray);
                 
+                // Обновление визуализатора
                 for (let i = 0; i < visualizerBars.length; i++) {
-                    const barIndex = Math.floor(i * 1.5); // Растягиваем данные по полосам
+                    const barIndex = Math.floor(i * 1.5);
                     const value = dataArray[barIndex] / 255;
-                    // Ограничиваем высоту, чтобы полосы не выходили за пределы контейнера
                     const height = Math.max(5, Math.min(70, value * 70));
                     visualizerBars[i].style.height = `${height}px`;
                     
-                    // Изменение цвета в зависимости от интенсивности
-                    const currentColors = tracks[currentTrackIndex].color;
-                    const hue1 = getHueFromColor(currentColors[0]);
-                    const hue2 = getHueFromColor(currentColors[1]);
-                    const hue = hue1 + (value * (hue2 - hue1));
-                    
-                    visualizerBars[i].style.background = `linear-gradient(to top, 
-                        hsl(${hue}, 70%, 60%), 
-                        hsl(${hue + 30}, 70%, 40%))`;
+                    // Цвета из текущего трека
+                    const currentColors = tracks[currentTrackIndex].visualizer;
+                    visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
                 }
+                
+                // Обновление свечения по краям
+                const bass = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10;
+                const intensity = bass / 256;
+                
+                edgeEffects.forEach(effect => {
+                    effect.style.opacity = intensity * 0.7;
+                    effect.style.background = `radial-gradient(circle, ${tracks[currentTrackIndex].colors.accent}${Math.floor(intensity * 50)} 0%, transparent 70%)`;
+                });
                 
                 if (isPlaying) {
                     requestAnimationFrame(visualize);
                 }
-            }
-
-            // Получение hue из цвета в формате hex
-            function getHueFromColor(hex) {
-                // Упрощенная функция для получения hue из hex
-                const r = parseInt(hex.substr(1, 2), 16) / 255;
-                const g = parseInt(hex.substr(3, 2), 16) / 255;
-                const b = parseInt(hex.substr(5, 2), 16) / 255;
-                
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
-                let h = 0;
-                
-                if (max === min) {
-                    h = 0;
-                } else if (max === r) {
-                    h = ((g - b) / (max - min)) % 6;
-                } else if (max === g) {
-                    h = (b - r) / (max - min) + 2;
-                } else {
-                    h = (r - g) / (max - min) + 4;
-                }
-                
-                h = Math.round(h * 60);
-                if (h < 0) h += 360;
-                
-                return h;
             }
 
             // Создание частиц
@@ -592,25 +655,37 @@
                     particle.style.animationDelay = `${Math.random() * 5}s`;
                     particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
                     particle.style.opacity = Math.random() * 0.5 + 0.1;
+                    particle.style.background = tracks[currentTrackIndex].colors.accent;
                     
                     particles.appendChild(particle);
                 }
             }
 
-            // Обновление фона
-            function updateBackground() {
-                const currentColors = tracks[currentTrackIndex].color;
-                document.body.style.background = `linear-gradient(135deg, ${currentColors[0]} 0%, ${currentColors[1]} 100%)`;
+            // Обновление темы
+            function updateTheme() {
+                const currentColors = tracks[currentTrackIndex].colors;
                 
-                // Обновление цвета визуализатора и прогресс-бара
-                const progressElement = document.querySelector('.progress');
-                if (progressElement) {
-                    progressElement.style.background = `linear-gradient(90deg, ${currentColors[1]}, ${currentColors[0]})`;
+                // Фон
+                document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
+                
+                // Прогресс-бар
+                progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
+                
+                // Кнопка play/pause
+                playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
+                
+                // Ползунок громкости
+                const volumeThumb = document.querySelector('.volume-slider::-webkit-slider-thumb');
+                if (volumeThumb) {
+                    volumeThumb.style.background = currentColors.accent;
                 }
                 
-                // Обновление иконки альбома
-                const albumImage = document.querySelector('.album-image');
-                albumImage.textContent = tracks[currentTrackIndex].icon;
+                // Обложка
+                albumImage.textContent = tracks[currentTrackIndex].cover;
+                albumImage.style.background = `linear-gradient(135deg, ${currentColors.primary}, ${currentColors.secondary})`;
+                
+                // Пересоздание частиц с новыми цветами
+                createParticles();
             }
 
             // Форматирование времени
@@ -641,7 +716,7 @@
                     currentArtist.textContent = track.artist;
                     trackSelect.value = track.path;
                     
-                    updateBackground();
+                    updateTheme();
                     
                     audio.addEventListener('loadedmetadata', function() {
                         duration.textContent = formatTime(audio.duration);
@@ -651,6 +726,20 @@
                         audio.play();
                     }
                 }
+            }
+
+            // Перемотка вперед/назад
+            function seek(seconds) {
+                if (audio.duration) {
+                    audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+                }
+            }
+
+            // Изменение громкости
+            function changeVolume(delta) {
+                const newVolume = Math.max(0, Math.min(1, audio.volume + delta));
+                audio.volume = newVolume;
+                volumeSlider.value = newVolume * 100;
             }
 
             // Попытка автовоспроизведения
@@ -757,6 +846,28 @@
                 }
             });
 
+            // Обработка клавиатуры
+            document.addEventListener('keydown', (e) => {
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        seek(-5);
+                        break;
+                    case 'ArrowRight':
+                        seek(5);
+                        break;
+                    case 'ArrowUp':
+                        changeVolume(0.1);
+                        break;
+                    case 'ArrowDown':
+                        changeVolume(-0.1);
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        playPauseBtn.click();
+                        break;
+                }
+            });
+
             audio.addEventListener('timeupdate', updateProgress);
 
             audio.addEventListener('ended', () => {
@@ -770,7 +881,6 @@
 
             // Инициализация
             createVisualizer();
-            createParticles();
             loadTrack(0);
             
             // Автовоспроизведение с задержкой
