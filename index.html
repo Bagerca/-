@@ -15,18 +15,11 @@
         
         <div class="album-art" id="albumArt">
             <div class="album-image" id="albumImage"></div>
-            <!-- Неоновые линии по контуру обложки -->
-            <div class="neon-lines-container">
-                <div class="neon-line-wrapper">
-                    <svg class="neon-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path class="neon-path left-path" d="M50,100 L0,100 L0,0 L50,0" />
-                    </svg>
-                </div>
-                <div class="neon-line-wrapper">
-                    <svg class="neon-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path class="neon-path right-path" d="M50,100 L100,100 L100,0 L50,0" />
-                    </svg>
-                </div>
+            <!-- Неоновая рамка вокруг обложки -->
+            <div class="neon-frame-container">
+                <svg class="neon-frame-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <rect class="neon-frame" x="0" y="0" width="100" height="100" rx="15" ry="15"/>
+                </svg>
             </div>
         </div>
         
