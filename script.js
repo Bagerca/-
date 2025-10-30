@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const albumArt = document.getElementById('albumArt');
     const albumImage = document.getElementById('albumImage');
     const particles = document.getElementById('particles');
+    const leftLevel = document.getElementById('leftLevel');
+    const rightLevel = document.getElementById('rightLevel');
 
     // Массив треков
     const tracks = [
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#1d2b64',
                 accent: '#4a90e2'
             },
-            cover: 'https://cdn-images.dzcdn.net/images/cover/f1896a5586193f71b7bc9d367b3d8730/0x1900-000000-80-0-0.jpg',
+            cover: 'https://i.ytimg.com/vi/7Pf6jY9t_1I/maxresdefault.jpg',
             visualizer: ['#1d2b64', '#4a90e2'],
             neonColor: '#4a90e2'
         },
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 secondary: '#4a2c4d',
                 accent: '#e84178'
             },
-            cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8MIbLL0mxwQlReakos9P88kWStzlSV_fcYw&s',
+            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178'
         },
@@ -105,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let visualizerBars = [];
     let wasPlayingBeforeSwitch = false;
     let animationId = null;
+    let leftPeak = 0;
+    let rightPeak = 0;
+    let peakDecay = 0.98;
 
     // Создание визуализатора
     function createVisualizer() {
@@ -129,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             source.connect(analyser);
             analyser.connect(audioContext.destination);
             
-            analyser.fftSize = 128;
+            analyser.fftSize = 256;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
         } catch (error) {
@@ -155,31 +160,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Логика для неоновых линий по краям
-            const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
-            const mid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
-            const high = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
+            // Логика для VU-метров
+            const leftBass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
+            const rightMid = dataArray.slice(20, 60).reduce((a, b) => a + b) / 40;
+            const highFreq = dataArray.slice(60, 100).reduce((a, b) => a + b) / 40;
             
-            // Комбинируем частоты с разными весами
-            const intensity = Math.min(1, (bass * 0.5 + mid * 0.3 + high * 0.2) / 200);
+            // Комбинируем частоты для более динамичного отклика
+            const leftIntensity = Math.min(1, (leftBass * 0.7 + highFreq * 0.3) / 200);
+            const rightIntensity = Math.min(1, (rightMid * 0.6 + highFreq * 0.4) / 200);
             
-            // Сбалансированная чувствительность для средней и высокой громкости
-            const progress = Math.min(1, Math.pow(intensity * 2, 1.2));
+            // Сглаживаем переходы и добавляем инерцию
+            const leftHeight = Math.min(100, Math.pow(leftIntensity * 1.5, 1.2) * 100);
+            const rightHeight = Math.min(100, Math.pow(rightIntensity * 1.5, 1.2) * 100);
             
-            // Применяем к неоновым линиям
-            const edges = document.querySelectorAll('.neon-edge');
-            
-            edges.forEach(edge => {
-                if (edge.classList.contains('top-edge') || edge.classList.contains('bottom-edge')) {
-                    edge.style.width = `${progress * 100}%`;
-                } else {
-                    edge.style.height = `${progress * 100}%`;
-                }
+            // Обновляем VU-метры
+            if (leftLevel) {
+                leftLevel.style.height = `${leftHeight}%`;
                 
-                // Динамическое изменение интенсивности свечения
-                const glowIntensity = 0.6 + progress * 0.4;
-                edge.style.opacity = glowIntensity;
-            });
+                // Эффект пика для левого VU-метра
+                if (leftHeight > leftPeak) {
+                    leftPeak = leftHeight;
+                    leftLevel.classList.add('peak');
+                    setTimeout(() => leftLevel.classList.remove('peak'), 300);
+                }
+            }
+            
+            if (rightLevel) {
+                rightLevel.style.height = `${rightHeight}%`;
+                
+                // Эффект пика для правого VU-метра
+                if (rightHeight > rightPeak) {
+                    rightPeak = rightHeight;
+                    rightLevel.classList.add('peak');
+                    setTimeout(() => rightLevel.classList.remove('peak'), 300);
+                }
+            }
+            
+            // Плавное затухание пиков
+            leftPeak *= peakDecay;
+            rightPeak *= peakDecay;
             
             if (isPlaying) {
                 animationId = requestAnimationFrame(visualize);
@@ -225,28 +244,31 @@ document.addEventListener('DOMContentLoaded', function() {
         // Кнопка play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
-        // Неоновые линии
+        // VU-метры
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Динамическое обновление стилей для неоновых линий
+        // Динамическое обновление стилей для VU-метров
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
             }
-            .neon-edge {
-                background: ${neonColor};
-                box-shadow: 0 0 10px ${neonColor},
-                            0 0 20px ${neonColor};
+            .vu-level {
+                background: linear-gradient(to top, 
+                    ${neonColor}, 
+                    ${neonColor}80);
+                box-shadow: 
+                    0 0 10px ${neonColor},
+                    0 0 20px ${neonColor};
             }
         `;
         
         // Удаляем старые стили перед добавлением новых
-        const oldStyle = document.getElementById('dynamic-neon-styles');
+        const oldStyle = document.getElementById('dynamic-vu-styles');
         if (oldStyle) oldStyle.remove();
         
-        style.id = 'dynamic-neon-styles';
+        style.id = 'dynamic-vu-styles';
         document.head.appendChild(style);
         
         // Обложка
@@ -255,16 +277,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Пересоздание частиц с новыми цветами
         createParticles();
         
-        // Сброс неоновых линий при смене трека
-        const edges = document.querySelectorAll('.neon-edge');
-        edges.forEach(edge => {
-            if (edge.classList.contains('top-edge') || edge.classList.contains('bottom-edge')) {
-                edge.style.width = '0%';
-            } else {
-                edge.style.height = '0%';
-            }
-            edge.style.opacity = '0.8';
-        });
+        // Сброс VU-метров при смене трека
+        if (leftLevel) leftLevel.style.height = '0%';
+        if (rightLevel) rightLevel.style.height = '0%';
+        leftPeak = 0;
+        rightPeak = 0;
     }
 
     // Форматирование времени
