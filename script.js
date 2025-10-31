@@ -19,87 +19,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const leftGlow = document.getElementById('leftGlow');
     const rightGlow = document.getElementById('rightGlow');
 
-    // Массив треков
-    const tracks = [
-        { 
-            name: 'Tangled Up', 
-            artist: 'Caro Emerald',
-            path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-            colors: {
-                primary: '#1a1a2e',
-                secondary: '#16213e',
-                accent: '#ff9a00'
-            },
-            cover: 'https://i.scdn.co/image/ab67616d0000b273cd30153be1ecdfea9b4abf52',
-            visualizer: ['#ff9a00', '#ff2e63'],
-            neonColor: '#ff9a00'
+// Массив треков
+const tracks = [
+    { 
+        name: 'Tangled Up', 
+        artist: 'Caro Emerald',
+        path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
+        colors: {
+            primary: '#1a1a2e',
+            secondary: '#16213e',
+            accent: '#ff9a00'
         },
-        { 
-            name: 'Valhalla Calling', 
-            artist: 'Miracle Of Sound',
-            path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-            colors: {
-                primary: '#0f1b2e',
-                secondary: '#1d2b64',
-                accent: '#4a90e2'
-            },
-            cover: 'https://i.ytimg.com/vi/7Pf6jY9t_1I/maxresdefault.jpg',
-            visualizer: ['#1d2b64', '#4a90e2'],
-            neonColor: '#4a90e2'
+        cover: 'picture/TangledUp.jpg',
+        visualizer: ['#ff9a00', '#ff2e63'],
+        neonColor: '#ff9a00'
+    },
+    { 
+        name: 'Valhalla Calling', 
+        artist: 'Miracle Of Sound',
+        path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
+        colors: {
+            primary: '#0f1b2e',
+            secondary: '#1d2b64',
+            accent: '#4a90e2'
         },
-        { 
-            name: 'Lust', 
-            artist: 'Marino ft. Alexandria',
-            path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-            colors: {
-                primary: '#1a0a0a',
-                secondary: '#330000',
-                accent: '#ff0000'
-            },
-            cover: 'https://i.scdn.co/image/ab67616d0000b273c10ff9923331db1916236dba',
-            visualizer: ['#870000', '#ff0000'],
-            neonColor: '#ff0000'
+        cover: 'picture/ValhallaCalling.jpeg',
+        visualizer: ['#1d2b64', '#4a90e2'],
+        neonColor: '#4a90e2'
+    },
+    { 
+        name: 'Lust', 
+        artist: 'Marino ft. Alexandria',
+        path: 'assets/Marino - Lust (feat. Alexandria).m4a',
+        colors: {
+            primary: '#1a0a0a',
+            secondary: '#330000',
+            accent: '#ff0000'
         },
-        { 
-            name: 'Puttin\' On The Ritz', 
-            artist: 'Taco',
-            path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-            colors: {
-                primary: '#0a0a14',
-                secondary: '#1a1a2e',
-                accent: '#ffd700'
-            },
-            cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/dc/d5/1d/dcd51dee-de60-400c-f97a-6d3cb5c92b60/cover.jpg/600x600bf-60.jpg',
-            visualizer: ['#141e30', '#ffd700'],
-            neonColor: '#ffd700'
+        cover: 'picture/Lust.jpeg',
+        visualizer: ['#870000', '#ff0000'],
+        neonColor: '#ff0000'
+    },
+    { 
+        name: 'Puttin\' On The Ritz', 
+        artist: 'Taco',
+        path: 'assets/Taco - Puttin\' On The Ritz.m4a',
+        colors: {
+            primary: '#0a0a14',
+            secondary: '#1a1a2e',
+            accent: '#ffd700'
         },
-        { 
-            name: 'The Cigarette Duet', 
-            artist: 'Princess Chelsea',
-            path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-            colors: {
-                primary: '#2d1b2e',
-                secondary: '#4a2c4d',
-                accent: '#e84178'
-            },
-            cover: 'https://i.discogs.com/nKwEjkfokl7jQ0lAVt0lS4nYL5-VIS9FCWXO7qrQXXA/rs:fit/g:sm/q:90/h:600/w:585/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY5MzEw/NjYtMTQ4OTY3NDIx/MS04MDU5LmpwZWc.jpeg',
-            visualizer: ['#6d214f', '#e84178'],
-            neonColor: '#e84178'
+        cover: 'picture/Puttin\' On The Ritz.jpg',
+        visualizer: ['#141e30', '#ffd700'],
+        neonColor: '#ffd700'
+    },
+    { 
+        name: 'The Cigarette Duet (Cover)', 
+        artist: 'Princess Chelsea',
+        path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
+        colors: {
+            primary: '#2d1b2e',
+            secondary: '#4a2c4d',
+            accent: '#e84178'
         },
-        { 
-            name: 'A Man Without Love', 
-            artist: 'Engelbert Humperdinck',
-            path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-            colors: {
-                primary: '#0f1c2e',
-                secondary: '#1f3a5c',
-                accent: '#4ca1af'
-            },
-            cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/15/8d/e3/158de33b-a496-56f7-c302-002978906503/00602557548259.rgb.jpg/600x600bf-60.jpg',
-            visualizer: ['#2c3e50', '#4ca1af'],
-            neonColor: '#4ca1af'
-        }
-    ];
+        cover: 'picture/The Cigarette Duet.jpg',
+        visualizer: ['#6d214f', '#e84178'],
+        neonColor: '#e84178'
+    },
+    { 
+        name: 'A Man Without Love', 
+        artist: 'Engelbert Humperdinck',
+        path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
+        colors: {
+            primary: '#0f1c2e',
+            secondary: '#1f3a5c',
+            accent: '#4ca1af'
+        },
+        cover: 'picture/A Man Without Love.jpg',
+        visualizer: ['#2c3e50', '#4ca1af'],
+        neonColor: '#4ca1af'
+    }
+];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
