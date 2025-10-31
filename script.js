@@ -69,7 +69,7 @@ const tracks = [
             secondary: '#1a1a2e',
             accent: '#ffd700'
         },
-        cover: 'picture/Puttin' On The Ritz.jpg',
+        cover: 'picture/Puttin On The Ritz.jpg',
         visualizer: ['#141e30', '#ffd700'],
         neonColor: '#ffd700'
     },
