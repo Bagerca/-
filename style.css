@@ -278,7 +278,7 @@ body {
 }
 
 .visualizer-container {
-    height: 100px; /* Увеличили высоту */
+    height: 120px; /* Увеличили высоту для большего пространства */
     display: flex;
     align-items: flex-end; /* Столбцы начинаются снизу */
     justify-content: center;
@@ -298,6 +298,7 @@ body {
     gap: 3px;
     width: 100%;
     height: 100%;
+    position: relative;
 }
 
 .visualizer-bar {
@@ -307,6 +308,10 @@ body {
     transition: height 0.1s ease;
     position: relative;
     overflow: hidden;
+    /* Убедимся, что столбец прижат ко дну */
+    align-self: flex-end;
+    /* Добавим тень для лучшего визуального эффекта */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .visualizer-bar::after {
