@@ -119,6 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let particleTransitionProgress = 0;
     let currentMusicIntensity = 0;
 
+    // Новые переменные для расширенного анализа
+    let energyHistory = [];
+    let energyAverage = 0;
+    let spectralCentroid = 0;
+    let isBeat = false;
+    let beatCooldown = 0;
+
     // Создание визуализатора
     function createVisualizer() {
         visualizer.innerHTML = '';
@@ -154,6 +161,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Функция для анализа спектральных характеристик
+    function analyzeSpectralFeatures() {
+        if (!analyser || !dataArray) return;
+        
+        // 1. Общая энергия (RMS)
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i] * dataArray[i];
+        }
+        const rms = Math.sqrt(sum / bufferLength) / 255;
+        
+        // Сохраняем историю энергии для вычисления среднего
+        energyHistory.push(rms);
+        if (energyHistory.length > 30) { // 30 кадров истории
+            energyHistory.shift();
+        }
+        
+        // Вычисляем среднюю энергию
+        energyAverage = energyHistory.reduce((a, b) => a + b) / energyHistory.length;
+        
+        // 2. Спектральный центроид (цветность звука)
+        let weightedSum = 0;
+        let energySum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            weightedSum += i * dataArray[i];
+            energySum += dataArray[i];
+        }
+        spectralCentroid = energySum > 0 ? weightedSum / energySum : 0;
+        
+        // 3. Детекция битов с улучшенной логикой
+        const bassEnergy = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10 / 255;
+        const currentTime = Date.now();
+        
+        // Усложненная детекция битов
+        isBeat = false;
+        if (beatCooldown <= 0) {
+            const threshold = energyAverage * 1.3 + 0.1; // Динамический порог
+            if (bassEnergy > threshold && (currentTime - lastBeatTime) > 200) {
+                isBeat = true;
+                lastBeatTime = currentTime;
+                currentPulseIntensity = 1.0;
+                beatCooldown = 10; // Задержка между битами
+            }
+        } else {
+            beatCooldown--;
+        }
+        
+        return {
+            rms,
+            bassEnergy,
+            spectralCentroid,
+            isBeat
+        };
+    }
+
     // Детектор битов (ритма)
     function detectBeat(bassIntensity, currentTime) {
         // Если интенсивность баса превышает порог и прошло достаточно времени с последнего бита
@@ -175,103 +237,86 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // Визуализация звука с ритмичным свечением
+    // Визуализация звука с расширенными триггерами
     function visualize() {
         if (!analyser || !isPlaying) return;
         
         try {
             analyser.getByteFrequencyData(dataArray);
-            const currentTime = Date.now();
+            const features = analyzeSpectralFeatures();
             
-            // Обновление визуализатора - УВЕЛИЧЕНА МАКСИМАЛЬНАЯ ВЫСОТА
+            // Обновление визуализатора с разными триггерами (без изменения цветов)
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
-                const height = Math.max(5, value * 110); // Увеличена максимальная высота до 110px
-                visualizerBars[i].style.height = `${height}px`;
                 
+                // Базовая высота от частот
+                let baseHeight = Math.max(5, value * 110);
+                
+                // ДОПОЛНИТЕЛЬНЫЕ ЭФФЕКТЫ БЕЗ ИЗМЕНЕНИЯ ЦВЕТА:
+                
+                // 1. Усиление на битах (для всех столбцов)
+                if (features.isBeat) {
+                    baseHeight *= (1 + currentPulseIntensity * 0.3);
+                }
+                
+                // 2. Разные эффекты для разных частотных диапазонов
+                if (i < 10) { // Низкие частоты - реагируют на бас
+                    const bassBoost = features.bassEnergy * 20;
+                    baseHeight += bassBoost;
+                } else if (i < 20) { // Средние частоты - реагируют на общую энергию
+                    const energyBoost = features.rms * 15;
+                    baseHeight += energyBoost;
+                } else { // Высокие частоты - реагируют на спектральный центроид
+                    const brightnessBoost = (spectralCentroid / bufferLength) * 25;
+                    baseHeight += brightnessBoost;
+                }
+                
+                visualizerBars[i].style.height = `${baseHeight}px`;
+                
+                // Сохраняем оригинальные цвета трека
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
-                
-                // Убедимся, что столбец всегда прижат ко дну
-                visualizerBars[i].style.alignSelf = 'flex-end';
             }
             
-            // Расчет общей интенсивности музыки
-            const overallIntensity = dataArray.reduce((a, b) => a + b) / (bufferLength * 255);
-            currentMusicIntensity = overallIntensity;
-            
-            // Логика для неоновых линий с ритмичным свечением
+            // Обновление неоновых линий с расширенной логикой (без изменения цвета)
             if (leftGlow && rightGlow) {
-                // Анализ низких частот для детекции битов
-                const bassFrequencies = dataArray.slice(0, 10);
-                const bass = bassFrequencies.reduce((a, b) => a + b) / bassFrequencies.length / 255;
-                
-                // Анализ средних частот для высоты линий
-                const midFrequencies = dataArray.slice(10, 30);
-                const mid = midFrequencies.reduce((a, b) => a + b) / midFrequencies.length / 255;
-                
-                // Детекция битов
-                detectBeat(bass, currentTime);
-                
-                // Обновление пульсации
-                updatePulseIntensity();
-                
-                // Вычисляем высоту линий
+                // Высота зависит от общей энергии
                 const minHeight = 15;
                 const maxHeight = 80;
-                const lineHeight = minHeight + (mid * (maxHeight - minHeight));
+                const lineHeight = minHeight + (features.rms * (maxHeight - minHeight));
                 
-                // Обновляем неоновые линии
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                // РИТМИЧНОЕ СВЕЧЕНИЕ - без мерцания, только пульсация на битах
-                const baseOpacity = 0.8; // Постоянная непрозрачность
-                const pulseOpacity = currentPulseIntensity * 0.2; // Легкая пульсация на битах
-                const totalOpacity = baseOpacity + pulseOpacity;
+                // Яркость зависит от спектрального центроида
+                const brightness = 0.6 + (spectralCentroid / bufferLength) * 0.4;
+                leftGlow.style.opacity = brightness;
+                rightGlow.style.opacity = brightness;
                 
-                leftGlow.style.opacity = Math.min(1, totalOpacity);
-                rightGlow.style.opacity = Math.min(1, totalOpacity);
+                // Сохраняем оригинальный цвет неона из трека
+                const neonColor = tracks[currentTrackIndex].neonColor;
                 
-                // Динамическое изменение свечения в такт (без постоянного мерцания)
+                // Свечение усиливается на битах
                 const baseBlur = 10;
-                const pulseBlur = currentPulseIntensity * 25; // Усиление свечения только на битах
+                const pulseBlur = currentPulseIntensity * 30;
                 const totalBlur = baseBlur + pulseBlur;
                 
-                const baseSpread = 3;
-                const pulseSpread = currentPulseIntensity * 10;
-                const totalSpread = baseSpread + pulseSpread;
-                
-                // Стабильное неоновое свечение с пульсацией на битах
                 leftGlow.style.boxShadow = 
-                    `0 0 ${totalBlur}px var(--neon-color),
-                     0 0 ${totalBlur * 1.5}px var(--neon-color),
-                     0 0 ${totalBlur * 2}px var(--neon-color),
-                     0 0 ${totalSpread}px var(--neon-color),
+                    `0 0 ${totalBlur}px ${neonColor},
+                     0 0 ${totalBlur * 1.5}px ${neonColor},
+                     0 0 ${totalBlur * 2}px ${neonColor},
                      inset 0 0 8px rgba(255, 255, 255, 0.2)`;
                 
                 rightGlow.style.boxShadow = 
-                    `0 0 ${totalBlur}px var(--neon-color),
-                     0 0 ${totalBlur * 1.5}px var(--neon-color),
-                     0 0 ${totalBlur * 2}px var(--neon-color),
-                     0 0 ${totalSpread}px var(--neon-color),
+                    `0 0 ${totalBlur}px ${neonColor},
+                     0 0 ${totalBlur * 1.5}px ${neonColor},
+                     0 0 ${totalBlur * 2}px ${neonColor},
                      inset 0 0 8px rgba(255, 255, 255, 0.2)`;
-                
-                // Легкое изменение цвета при сильных битах (без резких переходов)
-                if (currentPulseIntensity > 0.6) {
-                    const pulseColor = `rgba(255, 255, 255, ${currentPulseIntensity * 0.2})`;
-                    leftGlow.style.background = `linear-gradient(to top, var(--neon-color) 70%, ${pulseColor})`;
-                    rightGlow.style.background = `linear-gradient(to top, var(--neon-color) 70%, ${pulseColor})`;
-                } else {
-                    // Плавный возврат к основному цвету
-                    leftGlow.style.background = 'var(--neon-color)';
-                    rightGlow.style.background = 'var(--neon-color)';
-                }
             }
             
-            // Обновление движения частиц в зависимости от интенсивности музыки
-            updateParticlesMovement();
+            // Обновление движения частиц с расширенной логикой (без изменения цвета)
+            updateParticlesMovement(features);
             
             animationId = requestAnimationFrame(visualize);
         } catch (error) {
@@ -280,6 +325,79 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelAnimationFrame(animationId);
             }
         }
+    }
+
+    // Обновление движения частиц с расширенной логикой
+    function updateParticlesMovement(features) {
+        if (isParticlesTransitioning || particlesData.length === 0) return;
+        
+        const { rms, bassEnergy, spectralCentroid, isBeat } = features;
+        
+        // Разные типы движения для разных характеристик музыки
+        const energyMovement = rms * 1.5; // Общая энергия
+        const bassMovement = bassEnergy * 2.0; // Низкие частоты
+        const spectralMovement = (spectralCentroid / bufferLength) * 1.0; // Тональность
+        const beatBoost = isBeat ? 2.0 : 1.0; // Ударные
+        
+        particlesData.forEach((particleData, index) => {
+            const particle = particleData.element;
+            const time = Date.now() * 0.001;
+            const individualOffset = index * 0.1;
+            
+            // Разное поведение для разных частиц
+            let moveX, moveY;
+            
+            if (index % 3 === 0) {
+                // Частицы, реагирующие на бас
+                moveX = Math.sin(time * 0.5 + individualOffset) * bassMovement * 1.5;
+                moveY = Math.cos(time * 0.3 + individualOffset) * bassMovement * 1.2;
+            } else if (index % 3 === 1) {
+                // Частицы, реагирующие на общую энергию
+                moveX = Math.sin(time * 0.8 + individualOffset) * energyMovement;
+                moveY = Math.cos(time * 0.6 + individualOffset) * energyMovement;
+            } else {
+                // Частицы, реагирующие на тональность
+                moveX = Math.sin(time * 1.2 + individualOffset) * spectralMovement;
+                moveY = Math.cos(time * 0.9 + individualOffset) * spectralMovement;
+            }
+            
+            // Эффект "толчка" на битах
+            const beatPushX = isBeat ? (Math.random() - 0.5) * 8 : 0;
+            const beatPushY = isBeat ? (Math.random() - 0.5) * 6 : 0;
+            
+            // Размер частиц зависит от разных параметров
+            let sizeVariation = 0;
+            if (index % 4 === 0) {
+                sizeVariation = bassEnergy * 5;
+            } else if (index % 4 === 1) {
+                sizeVariation = rms * 4;
+            } else if (index % 4 === 2) {
+                sizeVariation = spectralMovement * 3;
+            } else {
+                sizeVariation = (bassEnergy + rms) * 2;
+            }
+            
+            const newSize = particleData.baseSize + sizeVariation * beatBoost;
+            const newOpacity = Math.min(1, particleData.baseOpacity + rms * 0.3);
+            
+            // Применяем изменения
+            const newLeft = particleData.baseLeft + moveX + beatPushX;
+            const newTop = particleData.baseTop + moveY + beatPushY;
+            
+            particle.style.left = `${newLeft}vw`;
+            particle.style.top = `${newTop}vh`;
+            particle.style.width = `${newSize}px`;
+            particle.style.height = `${newSize}px`;
+            particle.style.opacity = newOpacity;
+            
+            // Сохраняем оригинальный цвет частиц из трека
+            const currentColors = tracks[currentTrackIndex].colors;
+            particle.style.background = currentColors.accent;
+            
+            // Динамическая скорость анимации
+            const transitionTime = Math.max(0.05, 0.2 - rms * 0.15);
+            particle.style.transition = `all ${transitionTime}s ease-out`;
+        });
     }
 
     // Создание частиц с анимацией перехода
@@ -342,55 +460,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Запускаем анимацию перехода
         startParticleTransition();
-    }
-
-    // Обновление движения частиц в зависимости от интенсивности музыки
-    function updateParticlesMovement() {
-        if (isParticlesTransitioning || particlesData.length === 0) return;
-        
-        const intensity = currentMusicIntensity;
-        const beatBoost = currentPulseIntensity;
-        
-        // УМЕНЬШЕННАЯ интенсивность движения
-        const movementStrength = 0.2 + intensity * 0.8 + beatBoost * 1.2;
-        
-        particlesData.forEach((particleData, index) => {
-            const particle = particleData.element;
-            
-            // Случайные колебания вокруг базовой позиции
-            const time = Date.now() * 0.001;
-            const individualOffset = index * 0.1;
-            
-            // УМЕНЬШЕННАЯ амплитуда движения
-            const moveX = Math.sin(time * (0.3 + particleData.movementIntensity * 0.3) + individualOffset) * movementStrength * 0.8;
-            const moveY = Math.cos(time * (0.2 + particleData.movementIntensity * 0.4) + individualOffset) * movementStrength * 0.6;
-            
-            // УМЕНЬШЕННЫЙ эффект "толчка" на битах
-            const beatPushX = beatBoost * (Math.random() - 0.5) * 3;
-            const beatPushY = beatBoost * (Math.random() - 0.5) * 3;
-            
-            // УМЕНЬШЕННОЕ изменение размера
-            const sizeVariation = intensity * 2 + beatBoost * 3;
-            const newSize = particleData.baseSize + sizeVariation;
-            
-            // УМЕНЬШЕННОЕ изменение прозрачности
-            const opacityVariation = intensity * 0.1 + beatBoost * 0.15;
-            const newOpacity = Math.min(1, particleData.baseOpacity + opacityVariation);
-            
-            // Применяем изменения
-            const newLeft = particleData.baseLeft + moveX + beatPushX;
-            const newTop = particleData.baseTop + moveY + beatPushY;
-            
-            particle.style.left = `${newLeft}vw`;
-            particle.style.top = `${newTop}vh`;
-            particle.style.width = `${newSize}px`;
-            particle.style.height = `${newSize}px`;
-            particle.style.opacity = newOpacity;
-            
-            // БОЛЕЕ ПЛАВНЫЕ переходы
-            const transitionTime = Math.max(0.1, 0.3 - intensity * 0.2);
-            particle.style.transition = `all ${transitionTime}s ease-out`;
-        });
     }
 
     // Запуск анимации перехода частиц
