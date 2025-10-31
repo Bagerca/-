@@ -128,6 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const bar = document.createElement('div');
             bar.className = 'visualizer-bar';
             bar.style.height = '5px';
+            // Убедимся, что столбец прижат ко дну
+            bar.style.alignSelf = 'flex-end';
             visualizer.appendChild(bar);
             visualizerBars.push(bar);
         }
@@ -185,11 +187,14 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
-                const height = Math.max(5, value * 90); // Увеличена максимальная высота до 90px
+                const height = Math.max(5, value * 110); // Увеличена максимальная высота до 110px
                 visualizerBars[i].style.height = `${height}px`;
                 
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
+                
+                // Убедимся, что столбец всегда прижат ко дну
+                visualizerBars[i].style.alignSelf = 'flex-end';
             }
             
             // Расчет общей интенсивности музыки
