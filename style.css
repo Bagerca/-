@@ -278,22 +278,17 @@ body {
 }
 
 .visualizer-container {
-    height: 120px; /* Увеличили высоту для большего пространства */
-    display: flex;
-    align-items: flex-end; /* Столбцы начинаются снизу */
-    justify-content: center;
-    gap: 3px;
+    height: 120px;
+    position: relative;
     margin-bottom: 25px;
     border-radius: 12px;
     padding: 15px;
     background: rgba(0, 0, 0, 0.2);
-    position: relative;
     overflow: hidden;
 }
 
 .visualizer {
     display: flex;
-    align-items: flex-end; /* Столбцы выровнены по нижнему краю */
     justify-content: center;
     gap: 3px;
     width: 100%;
@@ -303,15 +298,11 @@ body {
 
 .visualizer-bar {
     width: 8px;
-    min-height: 5px;
+    height: 5px;
     border-radius: 4px 4px 0 0;
     transition: height 0.1s ease;
-    position: relative;
-    overflow: hidden;
-    /* Убедимся, что столбец прижат ко дну */
-    align-self: flex-end;
-    /* Добавим тень для лучшего визуального эффекта */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    bottom: 15px; /* Отступ от нижнего края контейнера */
 }
 
 .visualizer-bar::after {
