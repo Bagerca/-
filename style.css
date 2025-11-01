@@ -421,9 +421,21 @@ body {
     transform: scale(1.05);
 }
 
+/* Стили для SVG иконок */
+.control-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    transition: all 0.2s ease;
+}
+
+.play-pause-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
 /* Специальные стили для кнопки режима воспроизведения */
 #playbackModeBtn {
-    font-size: 16px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
@@ -436,7 +448,6 @@ body {
 .play-pause-btn {
     width: 70px;
     height: 70px;
-    font-size: 24px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     flex-shrink: 0;
@@ -736,17 +747,21 @@ body {
     .control-btn {
         width: 45px;
         height: 45px;
-        font-size: 16px;
+    }
+    
+    .control-btn svg {
+        width: 20px;
+        height: 20px;
     }
     
     .play-pause-btn {
         width: 60px;
         height: 60px;
-        font-size: 20px;
     }
     
-    #playbackModeBtn {
-        font-size: 14px;
+    .play-pause-btn svg {
+        width: 24px;
+        height: 24px;
     }
 }
 
@@ -767,13 +782,21 @@ body {
     .control-btn {
         width: 40px;
         height: 40px;
-        font-size: 14px;
+    }
+    
+    .control-btn svg {
+        width: 18px;
+        height: 18px;
     }
     
     .play-pause-btn {
         width: 55px;
         height: 55px;
-        font-size: 18px;
+    }
+    
+    .play-pause-btn svg {
+        width: 22px;
+        height: 22px;
     }
     
     .track-title {
@@ -801,10 +824,6 @@ body {
     .track-list-header h3 {
         font-size: 20px;
     }
-    
-    #playbackModeBtn {
-        font-size: 13px;
-    }
 }
 
 @media (max-width: 380px) {
@@ -815,16 +834,20 @@ body {
     .control-btn {
         width: 38px;
         height: 38px;
-        font-size: 13px;
+    }
+    
+    .control-btn svg {
+        width: 16px;
+        height: 16px;
     }
     
     .play-pause-btn {
         width: 50px;
         height: 50px;
-        font-size: 16px;
     }
     
-    #playbackModeBtn {
-        font-size: 12px;
+    .play-pause-btn svg {
+        width: 20px;
+        height: 20px;
     }
 }
