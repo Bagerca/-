@@ -97,7 +97,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 10%; /* Начальная высота */
+    height: 10%;
     background: var(--neon-color, #e94560);
     border-radius: 3px;
     transition: height 0.1s ease-out;
