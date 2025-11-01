@@ -133,6 +133,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let energySurgeActive = false;
     let energySurgeIntensity = 0;
 
+    // Частотные диапазоны
+    const FREQ_RANGES = {
+        BASS: { start: 0, end: 10 },      // Низкие частоты (0-10)
+        MID: { start: 10, end: 20 },      // Средние частоты (10-20)
+        HIGH: { start: 20, end: 30 }      // Высокие частоты (20-30)
+    };
+
     // Создание визуализатора
     function createVisualizer() {
         visualizer.innerHTML = '';
@@ -142,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const bar = document.createElement('div');
             bar.className = 'visualizer-bar';
             bar.style.height = '5px';
-            // Убедимся, что столбец прижат ко дну
             bar.style.alignSelf = 'flex-end';
             visualizer.appendChild(bar);
             visualizerBars.push(bar);
@@ -168,11 +174,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Получение энергии по частотным диапазонам
+    function getFrequencyEnergy(range) {
+        let sum = 0;
+        const count = range.end - range.start;
+        for (let i = range.start; i < range.end; i++) {
+            sum += dataArray[i];
+        }
+        return sum / count / 255;
+    }
+
     // Функция для анализа спектральных характеристик
     function analyzeSpectralFeatures() {
         if (!analyser || !dataArray) return;
         
-        // 1. Общая энергия (RMS)
+        // Получаем энергию по диапазонам
+        const bassEnergy = getFrequencyEnergy(FREQ_RANGES.BASS);
+        const midEnergy = getFrequencyEnergy(FREQ_RANGES.MID);
+        const highEnergy = getFrequencyEnergy(FREQ_RANGES.HIGH);
+        
+        // Общая энергия (RMS)
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
             sum += dataArray[i] * dataArray[i];
@@ -181,14 +202,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сохраняем историю энергии для вычисления среднего
         energyHistory.push(rms);
-        if (energyHistory.length > 30) { // 30 кадров истории
+        if (energyHistory.length > 30) {
             energyHistory.shift();
         }
         
         // Вычисляем среднюю энергию
         energyAverage = energyHistory.reduce((a, b) => a + b) / energyHistory.length;
         
-        // 2. Спектральный центроид (цветность звука)
+        // Спектральный центроид
         let weightedSum = 0;
         let energySum = 0;
         for (let i = 0; i < bufferLength; i++) {
@@ -197,19 +218,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         spectralCentroid = energySum > 0 ? weightedSum / energySum : 0;
         
-        // 3. Детекция битов с улучшенной логикой
-        const bassEnergy = dataArray.slice(0, 10).reduce((a, b) => a + b) / 10 / 255;
+        // Улучшенная детекция битов (только низкие частоты)
         const currentTime = Date.now();
-        
-        // Усложненная детекция битов
         isBeat = false;
         if (beatCooldown <= 0) {
-            const threshold = energyAverage * 1.3 + 0.1; // Динамический порог
+            const threshold = energyAverage * 1.4 + 0.15;
             if (bassEnergy > threshold && (currentTime - lastBeatTime) > 200) {
                 isBeat = true;
                 lastBeatTime = currentTime;
                 currentPulseIntensity = 1.0;
-                beatCooldown = 10; // Задержка между битами
+                beatCooldown = 8;
             }
         } else {
             beatCooldown--;
@@ -218,33 +236,23 @@ document.addEventListener('DOMContentLoaded', function() {
         return {
             rms,
             bassEnergy,
+            midEnergy,
+            highEnergy,
             spectralCentroid,
             isBeat
         };
     }
 
-    // Детектор битов (ритма)
-    function detectBeat(bassIntensity, currentTime) {
-        // Если интенсивность баса превышает порог и прошло достаточно времени с последнего бита
-        if (bassIntensity > beatThreshold && (currentTime - lastBeatTime) > 200) {
-            beatDetected = true;
-            lastBeatTime = currentTime;
-            currentPulseIntensity = 1.0; // Максимальная интенсивность пульсации
-            return true;
-        }
-        return false;
-    }
-
     // Плавное затухание пульсации
     function updatePulseIntensity() {
         if (currentPulseIntensity > 0) {
-            currentPulseIntensity -= 0.08; // Скорость затухания
+            currentPulseIntensity -= 0.08;
             if (currentPulseIntensity < 0) currentPulseIntensity = 0;
         }
         beatDetected = false;
     }
 
-    // Визуализация звука с расширенными триггерами
+    // Визуализация звука с новой системой триггеров
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -252,31 +260,30 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const features = analyzeSpectralFeatures();
             
-            // Обновление визуализатора с разными триггерами (без изменения цветов)
+            // Обновление визуализатора с новым распределением
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
                 
-                // Базовая высота от частот
                 let baseHeight = Math.max(5, value * 110);
                 
-                // ДОПОЛНИТЕЛЬНЫЕ ЭФФЕКТЫ БЕЗ ИЗМЕНЕНИЯ ЦВЕТА:
-                
-                // 1. Усиление на битах (для всех столбцов)
-                if (features.isBeat) {
-                    baseHeight *= (1 + currentPulseIntensity * 0.3);
-                }
-                
-                // 2. Разные эффекты для разных частотных диапазонов
-                if (i < 10) { // Низкие частоты - реагируют на бас
-                    const bassBoost = features.bassEnergy * 20;
-                    baseHeight += bassBoost;
-                } else if (i < 20) { // Средние частоты - реагируют на общую энергию
-                    const energyBoost = features.rms * 15;
-                    baseHeight += energyBoost;
-                } else { // Высокие частоты - реагируют на спектральный центроид
-                    const brightnessBoost = (spectralCentroid / bufferLength) * 25;
-                    baseHeight += brightnessBoost;
+                // РАСПРЕДЕЛЕНИЕ ПО ДИАПАЗОНАМ:
+                if (i < 10) { 
+                    // НИЗКИЕ ЧАСТОТЫ - бас + биты
+                    const bassBoost = features.bassEnergy * 25;
+                    const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
+                    baseHeight += bassBoost + beatBoost;
+                    
+                } else if (i < 20) { 
+                    // СРЕДНИЕ ЧАСТОТЫ - мелодия + общая энергия
+                    const midBoost = features.midEnergy * 18;
+                    const energyBoost = features.rms * 12;
+                    baseHeight += midBoost + energyBoost;
+                    
+                } else { 
+                    // ВЫСОКИЕ ЧАСТОТЫ - высокие + искры
+                    const highBoost = features.highEnergy * 20;
+                    baseHeight += highBoost;
                 }
                 
                 visualizerBars[i].style.height = `${baseHeight}px`;
@@ -286,9 +293,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Обновление неоновых линий с расширенной логикой (без изменения цвета)
+            // Неоновые линии (оставляем как было)
             if (leftGlow && rightGlow) {
-                // Высота зависит от общей энергии
                 const minHeight = 15;
                 const maxHeight = 80;
                 const lineHeight = minHeight + (features.rms * (maxHeight - minHeight));
@@ -296,15 +302,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                // Яркость зависит от спектрального центроида
                 const brightness = 0.6 + (spectralCentroid / bufferLength) * 0.4;
                 leftGlow.style.opacity = brightness;
                 rightGlow.style.opacity = brightness;
                 
-                // Сохраняем оригинальный цвет неона из трека
                 const neonColor = tracks[currentTrackIndex].neonColor;
-                
-                // Свечение усиливается на битах
                 const baseBlur = 10;
                 const pulseBlur = currentPulseIntensity * 30;
                 const totalBlur = baseBlur + pulseBlur;
@@ -322,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 8px rgba(255, 255, 255, 0.2)`;
             }
             
-            // Обновление движения частиц в зависимости от интенсивности музыки
+            // Обновление движения частиц с новой системой
             updateParticlesMovement(features);
             
             // Обновление эффектов краев экрана
@@ -381,7 +383,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         sparkParticles.push(sparkData);
         
-        // Автоматическое удаление через время
         setTimeout(() => {
             if (spark.parentNode) {
                 spark.parentNode.removeChild(spark);
@@ -410,13 +411,12 @@ document.addEventListener('DOMContentLoaded', function() {
             spark.element.style.top = `${newY}px`;
             spark.element.style.opacity = (spark.life * 0.8).toString();
             
-            // Уменьшение размера со временем
             const scale = spark.life * 0.7 + 0.3;
             spark.element.style.transform = `scale(${scale})`;
         });
     }
 
-    // Активация энергетических всплесков
+    // Активация энергетических всплесков (ТОЛЬКО на биты)
     function activateEnergySurge(intensity) {
         energySurgeActive = true;
         energySurgeIntensity = intensity;
@@ -436,11 +436,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 wave.classList.contains('top') || wave.classList.contains('bottom') ? '90deg' : '180deg'
             }, transparent, ${currentColors.accent}, transparent)`;
             
-            // Эффект свечения
             wave.style.boxShadow = `0 0 ${intensity * 30}px ${currentColors.accent}`;
         });
         
-        // Автоматическое отключение
         setTimeout(() => {
             energySurgeActive = false;
             waves.forEach(wave => {
@@ -469,97 +467,78 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Анализ триггеров для эффектов краев
+    // Анализ триггеров для эффектов краев с новым распределением
     function analyzeEdgeEffects(features) {
-        const { rms, bassEnergy, spectralCentroid, isBeat } = features;
+        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
-        // Анализ высоких частот для искр (индекс 20-30 в dataArray)
-        const highFrequencies = dataArray.slice(20, 30);
-        const highEnergy = highFrequencies.reduce((a, b) => a + b) / highFrequencies.length / 255;
-        
-        // Триггер для искр - высокие частоты и резкие атаки
-        if (highEnergy > 0.3 && sparkCooldown <= 0) {
+        // ИСКРЫ - только высокие частоты
+        if (highEnergy > 0.25 && sparkCooldown <= 0) {
             const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-            const sparkCount = Math.floor(highEnergy * 3) + 1;
+            const sparkCount = Math.floor(highEnergy * 4);
             
             for (let i = 0; i < sparkCount; i++) {
                 const randomCorner = corners[Math.floor(Math.random() * corners.length)];
                 createSparkParticle(randomCorner, highEnergy);
             }
             
-            sparkCooldown = 5;
+            sparkCooldown = 6;
         } else if (sparkCooldown > 0) {
             sparkCooldown--;
         }
         
-        // Триггер для энергетических всплесков - бас и пиковая энергия
-        if ((bassEnergy > 0.4 || rms > 0.6) && !energySurgeActive) {
-            const intensity = Math.max(bassEnergy, rms);
-            activateEnergySurge(intensity);
-        }
-        
-        // Дополнительный триггер на биты
+        // ЭНЕРГЕТИЧЕСКИЕ ВСПЛЕСКИ - только на биты
         if (isBeat && !energySurgeActive) {
-            activateEnergySurge(0.3 + currentPulseIntensity * 0.4);
+            const intensity = 0.4 + currentPulseIntensity * 0.3;
+            activateEnergySurge(intensity);
         }
     }
 
-    // Обновление движения частиц в зависимости от интенсивности музыки
+    // Обновление движения частиц с новой системой распределения
     function updateParticlesMovement(features) {
         if (isParticlesTransitioning || particlesData.length === 0) return;
         
-        const { rms, bassEnergy, spectralCentroid, isBeat } = features;
-        
-        // Разные типы движения для разных характеристик музыки
-        const energyMovement = rms * 1.5; // Общая энергия
-        const bassMovement = bassEnergy * 2.0; // Низкие частоты
-        const spectralMovement = (spectralCentroid / bufferLength) * 1.0; // Тональность
-        const beatBoost = isBeat ? 2.0 : 1.0; // Ударные
+        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
         particlesData.forEach((particleData, index) => {
             const particle = particleData.element;
             const time = Date.now() * 0.001;
             const individualOffset = index * 0.1;
             
-            // Разное поведение для разных частиц
             let moveX, moveY;
             
-            if (index % 3 === 0) {
-                // Частицы, реагирующие на бас
-                moveX = Math.sin(time * 0.5 + individualOffset) * bassMovement * 1.5;
-                moveY = Math.cos(time * 0.3 + individualOffset) * bassMovement * 1.2;
-            } else if (index % 3 === 1) {
-                // Частицы, реагирующие на общую энергию
-                moveX = Math.sin(time * 0.8 + individualOffset) * energyMovement;
-                moveY = Math.cos(time * 0.6 + individualOffset) * energyMovement;
-            } else {
-                // Частицы, реагирующие на тональность
-                moveX = Math.sin(time * 1.2 + individualOffset) * spectralMovement;
-                moveY = Math.cos(time * 0.9 + individualOffset) * spectralMovement;
+            // НОВОЕ РАСПРЕДЕЛЕНИЕ ЧАСТИЦ:
+            if (index % 10 < 3) { // 30% - НИЗКИЕ ЧАСТОТЫ (крупные волны)
+                moveX = Math.sin(time * 0.3 + individualOffset) * bassEnergy * 2.0;
+                moveY = Math.cos(time * 0.2 + individualOffset) * bassEnergy * 1.8;
+                
+            } else if (index % 10 < 7) { // 40% - СРЕДНИЕ ЧАСТОТЫ (плавное движение)
+                moveX = Math.sin(time * 0.7 + individualOffset) * midEnergy * 1.2;
+                moveY = Math.cos(time * 0.5 + individualOffset) * midEnergy * 1.0;
+                
+            } else if (index % 10 < 9) { // 20% - ВЫСОКИЕ ЧАСТОТЫ (быстрая дрожь)
+                moveX = Math.sin(time * 2.0 + individualOffset) * highEnergy * 0.8;
+                moveY = Math.cos(time * 1.8 + individualOffset) * highEnergy * 0.6;
+                
+            } else { // 10% - БИТЫ (импульсные толчки)
+                moveX = isBeat ? (Math.random() - 0.5) * 12 * currentPulseIntensity : 0;
+                moveY = isBeat ? (Math.random() - 0.5) * 10 * currentPulseIntensity : 0;
             }
             
-            // Эффект "толчка" на битах
-            const beatPushX = isBeat ? (Math.random() - 0.5) * 8 : 0;
-            const beatPushY = isBeat ? (Math.random() - 0.5) * 6 : 0;
-            
-            // Размер частиц зависит от разных параметров
+            // Размер частиц зависит от их типа
             let sizeVariation = 0;
-            if (index % 4 === 0) {
-                sizeVariation = bassEnergy * 5;
-            } else if (index % 4 === 1) {
-                sizeVariation = rms * 4;
-            } else if (index % 4 === 2) {
-                sizeVariation = spectralMovement * 3;
-            } else {
-                sizeVariation = (bassEnergy + rms) * 2;
+            if (index % 10 < 3) { // Бас - крупные частицы
+                sizeVariation = bassEnergy * 6;
+            } else if (index % 10 < 7) { // Средние - средний размер
+                sizeVariation = midEnergy * 4;
+            } else { // Высокие и биты - мелкие частицы
+                sizeVariation = highEnergy * 3;
             }
             
-            const newSize = particleData.baseSize + sizeVariation * beatBoost;
+            const newSize = particleData.baseSize + sizeVariation;
             const newOpacity = Math.min(1, particleData.baseOpacity + rms * 0.3);
             
-            // Применяем изменения
-            const newLeft = particleData.baseLeft + moveX + beatPushX;
-            const newTop = particleData.baseTop + moveY + beatPushY;
+            const newLeft = particleData.baseLeft + moveX;
+            const newTop = particleData.baseTop + moveY;
             
             particle.style.left = `${newLeft}vw`;
             particle.style.top = `${newTop}vh`;
@@ -567,11 +546,9 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.height = `${newSize}px`;
             particle.style.opacity = newOpacity;
             
-            // Сохраняем оригинальный цвет частиц из трека
             const currentColors = tracks[currentTrackIndex].colors;
             particle.style.background = currentColors.accent;
             
-            // Динамическая скорость анимации
             const transitionTime = Math.max(0.05, 0.2 - rms * 0.15);
             particle.style.transition = `all ${transitionTime}s ease-out`;
         });
@@ -589,13 +566,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const particle = document.createElement('div');
             particle.className = 'particle';
             
-            // Начальная позиция (случайная)
             const startLeft = Math.random() * 100;
             const startTop = Math.random() * 100;
             const startSize = Math.random() * 15 + 5;
             const startOpacity = Math.random() * 0.3 + 0.1;
             
-            // Конечная позиция (специфичная для трека)
             const endLeft = (Math.random() * 80 + 10) + (i % 3 - 1) * 20;
             const endTop = (Math.random() * 80 + 10) + (i % 2 - 0.5) * 30;
             const endSize = Math.random() * 15 + 5;
@@ -614,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             particles.appendChild(particle);
             
-            // Сохраняем данные частицы для анимации
             particlesData.push({
                 element: particle,
                 startLeft: startLeft,
@@ -635,7 +609,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Запускаем анимацию перехода
         startParticleTransition();
     }
 
@@ -644,12 +617,11 @@ document.addEventListener('DOMContentLoaded', function() {
         isParticlesTransitioning = true;
         particleTransitionProgress = 0;
         
-        const transitionDuration = 800; // 0.8 секунды
+        const transitionDuration = 800;
         
         particlesData.forEach(particleData => {
             const particle = particleData.element;
             
-            // Плавный переход к конечной позиции
             setTimeout(() => {
                 particle.style.left = `${particleData.endLeft}vw`;
                 particle.style.top = `${particleData.endTop}vh`;
@@ -658,15 +630,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 particle.style.opacity = particleData.endOpacity;
                 particle.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
-                // Обновляем базовые позиции
                 particleData.baseLeft = particleData.endLeft;
                 particleData.baseTop = particleData.endTop;
                 particleData.baseSize = particleData.endSize;
                 particleData.baseOpacity = particleData.endOpacity;
-            }, 50); // Небольшая задержка для красивого эффекта
+            }, 50);
         });
         
-        // Завершаем переход
         setTimeout(() => {
             isParticlesTransitioning = false;
         }, transitionDuration);
@@ -679,23 +649,19 @@ document.addEventListener('DOMContentLoaded', function() {
         particlesData.forEach(particleData => {
             const particle = particleData.element;
             
-            // Сохраняем текущую позицию как начальную
             particleData.startLeft = parseFloat(particle.style.left);
             particleData.startTop = parseFloat(particle.style.top);
             particleData.startSize = parseFloat(particle.style.width);
             particleData.startOpacity = parseFloat(particle.style.opacity);
             
-            // Устанавливаем новые конечные позиции
             particleData.endLeft = (Math.random() * 80 + 10) + (Math.random() * 40 - 20);
             particleData.endTop = (Math.random() * 80 + 10) + (Math.random() * 40 - 20);
             particleData.endSize = Math.random() * 15 + 5;
             particleData.endOpacity = Math.random() * 0.3 + 0.1;
             
-            // Меняем цвет
             particle.style.background = currentColors.accent;
         });
         
-        // Запускаем анимацию перехода
         startParticleTransition();
     }
 
@@ -704,20 +670,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentColors = tracks[currentTrackIndex].colors;
         const neonColor = tracks[currentTrackIndex].neonColor;
         
-        // Фон
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
-        
-        // Прогресс-бар
         progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
-        
-        // Кнопка play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
-        // Неоновые линии
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
         
-        // Динамическое обновление стилей
         const style = document.createElement('style');
         style.textContent = `
             .volume-slider::-webkit-slider-thumb {
@@ -725,24 +684,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         `;
         
-        // Удаляем старые стили перед добавлением новых
         const oldStyle = document.getElementById('dynamic-neon-styles');
         if (oldStyle) oldStyle.remove();
         
         style.id = 'dynamic-neon-styles';
         document.head.appendChild(style);
         
-        // Обложка
         albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
         
-        // Обновление частиц с новыми цветами и позициями
         if (particlesData.length === 0) {
             createParticles();
         } else {
             updateParticles();
         }
         
-        // Сброс неоновых линий при смене трека
         if (leftGlow && rightGlow) {
             leftGlow.style.height = '15%';
             rightGlow.style.height = '15%';
@@ -751,7 +706,6 @@ document.addEventListener('DOMContentLoaded', function() {
             leftGlow.style.background = 'var(--neon-color)';
             rightGlow.style.background = 'var(--neon-color)';
             
-            // Стабильное свечение без анимации мерцания
             leftGlow.style.boxShadow = 
                 `0 0 10px var(--neon-color),
                  0 0 20px var(--neon-color),
@@ -765,13 +719,11 @@ document.addEventListener('DOMContentLoaded', function() {
                  inset 0 0 8px rgba(255, 255, 255, 0.2)`;
         }
         
-        // Сброс детектора битов
         beatDetected = false;
         currentPulseIntensity = 0;
         lastBeatTime = 0;
         currentMusicIntensity = 0;
         
-        // Сброс эффектов краев при смене трека
         sparkParticles.forEach(spark => {
             if (spark.element.parentNode) {
                 spark.element.parentNode.removeChild(spark.element);
@@ -816,12 +768,10 @@ document.addEventListener('DOMContentLoaded', function() {
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
             
-            // Останавливаем текущее воспроизведение перед загрузкой нового трека
             audio.pause();
             isPlaying = false;
             playPauseBtn.textContent = '▶';
             
-            // Отменяем предыдущую анимацию
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
@@ -838,7 +788,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 duration.textContent = formatTime(audio.duration);
                 audio.removeEventListener('loadedmetadata', onLoaded);
                 
-                // Автоматически воспроизводим, если нужно
                 if (autoPlay) {
                     setTimeout(() => {
                         playTrack();
@@ -878,7 +827,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Попытка автовоспроизведения
     function attemptAutoplay() {
-        // Сбрасываем текущее время трека перед воспроизведением
         audio.currentTime = 0;
         
         const playPromise = audio.play();
@@ -1002,7 +950,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация
     createVisualizer();
-    createParticles(); // Создаем частицы при загрузке
+    createParticles();
     loadTrack(0);
     
     // Автовоспроизведение с задержкой
