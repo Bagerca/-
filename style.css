@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -15,6 +15,8 @@ body {
     overflow: hidden;
     position: relative;
     transition: background 1.5s ease;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
 }
 
 .particles {
@@ -136,17 +138,22 @@ body {
 }
 
 .track-title {
+    font-family: 'Montserrat', sans-serif;
     font-size: 22px;
     font-weight: 600;
     margin-bottom: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: 0.5px;
 }
 
 .track-artist {
+    font-family: 'Open Sans', sans-serif;
     font-size: 16px;
+    font-weight: 400;
     color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.3px;
 }
 
 .progress-container {
@@ -175,6 +182,8 @@ body {
     justify-content: space-between;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.7);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
 }
 
 .controls {
@@ -198,6 +207,8 @@ body {
     font-size: 18px;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 500;
 }
 
 .control-btn:hover {
@@ -239,6 +250,7 @@ body {
     outline: none;
     cursor: pointer;
     -webkit-appearance: none;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .volume-slider::-webkit-slider-thumb {
@@ -266,6 +278,8 @@ body {
     outline: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
 }
 
 .track-select:hover {
@@ -275,6 +289,7 @@ body {
 .track-select option {
     background: #1a1a2e;
     color: white;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .visualizer-container {
@@ -357,6 +372,7 @@ body {
     transition: all 0.3s ease;
     border: none;
     font-size: 14px;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .autoplay-message:hover {
@@ -544,5 +560,13 @@ body {
     .play-pause-btn {
         width: 60px;
         height: 60px;
+    }
+    
+    .track-title {
+        font-size: 20px;
+    }
+    
+    .track-artist {
+        font-size: 14px;
     }
 }
