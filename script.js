@@ -18,10 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const particles = document.getElementById('particles');
     const leftGlow = document.getElementById('leftGlow');
     const rightGlow = document.getElementById('rightGlow');
-    const leftSpotlight = document.getElementById('leftSpotlight');
-    const rightSpotlight = document.getElementById('rightSpotlight');
-    const leftBeamDust = document.querySelector('.left-beam-dust');
-    const rightBeamDust = document.querySelector('.right-beam-dust');
 
     // Массив треков
     const tracks = [
@@ -36,8 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cover: 'picture/TangledUp.jpg',
             visualizer: ['#ff9a00', '#ff2e63'],
-            neonColor: '#ff9a00',
-            spotlightColor: 'rgba(255, 154, 0, 0.9)'
+            neonColor: '#ff9a00'
         },
         { 
             name: 'Valhalla Calling', 
@@ -50,8 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cover: 'picture/ValhallaCalling.jpeg',
             visualizer: ['#1d2b64', '#4a90e2'],
-            neonColor: '#4a90e2',
-            spotlightColor: 'rgba(74, 144, 226, 0.9)'
+            neonColor: '#4a90e2'
         },
         { 
             name: 'Lust', 
@@ -64,8 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cover: 'picture/Lust.jpeg',
             visualizer: ['#870000', '#ff0000'],
-            neonColor: '#ff0000',
-            spotlightColor: 'rgba(255, 0, 0, 0.9)'
+            neonColor: '#ff0000'
         },
         { 
             name: 'Puttin\' On The Ritz', 
@@ -78,8 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cover: 'picture/Puttin On The Ritz.jpg',
             visualizer: ['#141e30', '#ffd700'],
-            neonColor: '#ffd700',
-            spotlightColor: 'rgba(255, 215, 0, 0.9)'
+            neonColor: '#ffd700'
         },
         { 
             name: 'The Cigarette Duet (Cover)', 
@@ -92,8 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cover: 'picture/The Cigarette Duet.jpg',
             visualizer: ['#6d214f', '#e84178'],
-            neonColor: '#e84178',
-            spotlightColor: 'rgba(232, 65, 120, 0.9)'
+            neonColor: '#e84178'
         },
         { 
             name: 'A Man Without Love', 
@@ -106,8 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cover: 'picture/A Man Without Love.jpg',
             visualizer: ['#2c3e50', '#4ca1af'],
-            neonColor: '#4ca1af',
-            spotlightColor: 'rgba(76, 161, 175, 0.9)'
+            neonColor: '#4ca1af'
         }
     ];
 
@@ -125,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Переменные для анимации частиц
     let particlesData = [];
+    let cornerParticlesData = [];
     let isParticlesTransitioning = false;
     let particleTransitionProgress = 0;
     let currentMusicIntensity = 0;
@@ -146,15 +137,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Переменные для краевого свечения
     let edgeGlowElements = {};
     let edgeGlowIntensity = 0;
-
-    // Переменные для усиленных прожекторов
-    let leftSpotlightAngle = -45;
-    let rightSpotlightAngle = 45;
-    let leftSpotlightTargetAngle = -45;
-    let rightSpotlightTargetAngle = 45;
-    let spotlightIntensity = 0.7;
-    let lastBeatIntensity = 0;
-    let lensFlareActive = false;
 
     // Частотные диапазоны
     const FREQ_RANGES = {
@@ -244,7 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 isBeat = true;
                 lastBeatTime = currentTime;
                 currentPulseIntensity = 1.0;
-                lastBeatIntensity = bassEnergy;
                 beatCooldown = 8;
             }
         } else {
@@ -270,144 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // Обновление усиленных театральных прожекторов
-    function updateSpotlights(features) {
-        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
-        const time = Date.now() * 0.001;
-        
-        // МОЩНЫЕ ДВИЖЕНИЯ ПРОЖЕКТОРОВ
-        
-        // Левый прожектор - бас и ритм (мощные, размашистые движения)
-        const leftBaseAngle = -45;
-        
-        // Бас создает мощные колебания
-        const leftBassSwing = Math.sin(time * 0.4) * bassEnergy * 40;
-        
-        // Резкие удары на битах
-        const leftBeatImpact = isBeat ? (Math.random() - 0.5) * 25 * currentPulseIntensity : 0;
-        
-        // Высокие частоты добавляют дрожание
-        const leftVibration = Math.sin(time * 8) * highEnergy * 8;
-        
-        // Плавное движение к целевой позиции с инерцией
-        leftSpotlightTargetAngle = leftBaseAngle + leftBassSwing + leftBeatImpact + leftVibration;
-        leftSpotlightAngle += (leftSpotlightTargetAngle - leftSpotlightAngle) * 0.3;
-        
-        // Правый прожектор - мелодия и высокие частоты (плавные, изящные движения)
-        const rightBaseAngle = 45;
-        
-        // Средние частоты создают плавные волны
-        const rightMelodyWave = Math.sin(time * 0.6 + 1) * midEnergy * 35;
-        
-        // Высокие частоты - быстрая вибрация
-        const rightHighVibration = Math.sin(time * 12) * highEnergy * 12;
-        
-        // Резкие движения на битах
-        const rightBeatSnap = isBeat ? (Math.random() - 0.5) * 20 * currentPulseIntensity : 0;
-        
-        rightSpotlightTargetAngle = rightBaseAngle + rightMelodyWave + rightHighVibration + rightBeatSnap;
-        rightSpotlightAngle += (rightSpotlightTargetAngle - rightSpotlightAngle) * 0.4;
-        
-        // ИНТЕНСИВНОСТЬ И ЭФФЕКТЫ
-        
-        // Базовая интенсивность
-        const baseIntensity = 0.5;
-        
-        // Энергия музыки усиливает интенсивность
-        const energyIntensity = rms * 0.6;
-        
-        // Биты создают вспышки
-        const beatIntensity = isBeat ? currentPulseIntensity * 0.4 : 0;
-        
-        // Общая интенсивность
-        const totalIntensity = Math.min(1, baseIntensity + energyIntensity + beatIntensity);
-        
-        // МАСШТАБИРОВАНИЕ И РАСШИРЕНИЕ
-        
-        // Базовый масштаб
-        const baseScale = 1.0;
-        
-        // Энергия увеличивает размер луча
-        const energyScale = rms * 1.2;
-        
-        // Биты создают резкое расширение
-        const beatScale = isBeat ? currentPulseIntensity * 0.8 : 0;
-        
-        const totalScale = baseScale + energyScale + beatScale;
-        
-        // ПРИМЕНЕНИЕ ИЗМЕНЕНИЙ К ЛЕВОМУ ПРОЖЕКТОРУ
-        if (leftSpotlight) {
-            const leftCore = leftSpotlight.querySelector('.spotlight-core');
-            const leftBeam = leftSpotlight.querySelector('.spotlight-beam');
-            const leftGlow = leftSpotlight.querySelector('.spotlight-glow');
-            const leftLensFlare = leftSpotlight.querySelector('.lens-flare');
-            
-            // Применяем поворот и масштаб
-            leftCore.style.transform = `rotate(${leftSpotlightAngle}deg) scaleY(${totalScale})`;
-            leftBeam.style.transform = `rotate(${leftSpotlightAngle}deg) scaleY(${totalScale * 1.1})`;
-            
-            // Интенсивность свечения
-            leftCore.style.opacity = (totalIntensity * 0.9).toString();
-            leftBeam.style.opacity = (totalIntensity * 0.7).toString();
-            leftGlow.style.opacity = (totalIntensity * 1.1).toString();
-            
-            // Эффекты на битах
-            if (isBeat) {
-                leftCore.style.animation = 'corePulse 0.3s ease-in-out';
-                leftBeam.style.animation = 'spotlightPulse 0.3s ease-in-out';
-                leftSpotlight.style.animation = 'shake 0.2s ease-in-out';
-                
-                // Активация линз-флера на сильных битах
-                if (bassEnergy > 0.3) {
-                    leftLensFlare.style.opacity = '0.8';
-                    setTimeout(() => {
-                        leftLensFlare.style.opacity = '0';
-                    }, 300);
-                }
-            }
-        }
-        
-        // ПРИМЕНЕНИЕ ИЗМЕНЕНИЙ К ПРАВОМУ ПРОЖЕКТОРУ
-        if (rightSpotlight) {
-            const rightCore = rightSpotlight.querySelector('.spotlight-core');
-            const rightBeam = rightSpotlight.querySelector('.spotlight-beam');
-            const rightGlow = rightSpotlight.querySelector('.spotlight-glow');
-            const rightLensFlare = rightSpotlight.querySelector('.lens-flare');
-            
-            // Применяем поворот и масштаб
-            rightCore.style.transform = `rotate(${rightSpotlightAngle}deg) scaleY(${totalScale})`;
-            rightBeam.style.transform = `rotate(${rightSpotlightAngle}deg) scaleY(${totalScale * 1.1})`;
-            
-            // Интенсивность свечения
-            rightCore.style.opacity = (totalIntensity * 0.9).toString();
-            rightBeam.style.opacity = (totalIntensity * 0.7).toString();
-            rightGlow.style.opacity = (totalIntensity * 1.1).toString();
-            
-            // Эффекты на битах
-            if (isBeat) {
-                rightCore.style.animation = 'corePulse 0.3s ease-in-out';
-                rightBeam.style.animation = 'spotlightPulse 0.3s ease-in-out';
-                rightSpotlight.style.animation = 'shakeRight 0.2s ease-in-out';
-                
-                // Активация линз-флера на сильных битах
-                if (midEnergy > 0.3) {
-                    rightLensFlare.style.opacity = '0.8';
-                    setTimeout(() => {
-                        rightLensFlare.style.opacity = '0';
-                    }, 300);
-                }
-            }
-        }
-        
-        // ОБНОВЛЕНИЕ ЧАСТИЦ ПЫЛИ В ЛУЧАХ
-        if (leftBeamDust && rightBeamDust) {
-            const dustIntensity = Math.min(1, rms * 2 + (isBeat ? 0.3 : 0));
-            leftBeamDust.style.opacity = dustIntensity.toString();
-            rightBeamDust.style.opacity = dustIntensity.toString();
-        }
-    }
-
-    // Визуализация звука с усиленными прожекторами
+    // Визуализация звука с увеличенной чувствительностью неоновых линий
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -443,23 +287,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // НЕОНОВЫЕ ЛИНИИ
+            // НЕОНОВЫЕ ЛИНИИ - ОТКАТ К ПРЕЖНЕМУ ПОВЕДЕНИЮ С УВЕЛИЧЕННОЙ ЧУВСТВИТЕЛЬНОСТЬЮ
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
-                const maxHeight = 85;
+                const maxHeight = 85; // Увеличена максимальная высота
+                // Увеличена чувствительность - множитель с 110 до 130
                 const lineHeight = minHeight + (features.rms * 130);
                 
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                const brightness = 0.7 + (features.spectralCentroid / bufferLength) * 0.5;
+                const brightness = 0.7 + (features.spectralCentroid / bufferLength) * 0.5; // Увеличена яркость
                 leftGlow.style.opacity = brightness;
                 rightGlow.style.opacity = brightness;
                 
                 const neonColor = tracks[currentTrackIndex].neonColor;
-                const baseBlur = 12;
-                const pulseBlur = currentPulseIntensity * 35;
+                const baseBlur = 12; // Увеличено базовое размытие
+                const pulseBlur = currentPulseIntensity * 35; // Увеличен эффект пульсации
                 
+                // Усилен неоновый эффект
                 leftGlow.style.boxShadow = 
                     `0 0 ${baseBlur + pulseBlur}px ${neonColor},
                      0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
@@ -473,11 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
-            // ОБНОВЛЕНИЕ УСИЛЕННЫХ ПРОЖЕКТОРОВ
-            updateSpotlights(features);
-            
-            // Обновление движения частиц
+            // Обновление движения частиц с новой системой
             updateParticlesMovement(features);
+            updateCornerParticles(features);
             
             // Обновление эффектов краев экрана
             analyzeEdgeEffects(features);
@@ -743,6 +587,113 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Обновленная функция создания угловых частиц
+    function createCornerParticles() {
+        const corners = [
+            { left: '5%', top: '5%' },     // top-left
+            { left: '95%', top: '5%' },    // top-right
+            { left: '5%', top: '95%' },    // bottom-left
+            { left: '95%', top: '95%' }    // bottom-right
+        ];
+        
+        cornerParticlesData = [];
+        const cornerParticlesContainer = document.getElementById('cornerParticles');
+        cornerParticlesContainer.innerHTML = '';
+        
+        const particlesPerCorner = 8;
+        
+        corners.forEach((corner, cornerIndex) => {
+            for (let i = 0; i < particlesPerCorner; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'corner-particle';
+                
+                const size = Math.random() * 8 + 3;
+                const opacity = Math.random() * 0.4 + 0.1;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.opacity = opacity.toString();
+                particle.style.left = corner.left;
+                particle.style.top = corner.top;
+                particle.style.position = 'fixed';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '3';
+                
+                const currentColors = tracks[currentTrackIndex].colors;
+                particle.style.background = currentColors.accent;
+                particle.style.boxShadow = `0 0 ${size * 2}px ${currentColors.accent}`;
+                
+                cornerParticlesContainer.appendChild(particle);
+                
+                // Новые свойства для орбитального движения
+                cornerParticlesData.push({
+                    element: particle,
+                    baseLeft: parseFloat(corner.left),
+                    baseTop: parseFloat(corner.top),
+                    baseSize: size,
+                    baseOpacity: opacity,
+                    cornerIndex: cornerIndex,
+                    particleIndex: i,
+                    angle: Math.random() * Math.PI * 2, // Начальный угол
+                    radius: Math.random() * 2 + 1, // Базовый радиус
+                    orbitSpeed: Math.random() * 0.03 + 0.01 // Скорость вращения
+                });
+            }
+        });
+    }
+
+    // Обновленная функция для угловых частиц с орбитальным движением
+    function updateCornerParticles(features) {
+        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
+        const time = Date.now() * 0.001;
+        
+        cornerParticlesData.forEach(particleData => {
+            const particle = particleData.element;
+            const { cornerIndex, angle, radius, orbitSpeed } = particleData;
+            
+            // ОРБИТАЛЬНОЕ ДВИЖЕНИЕ
+            // Радиус орбиты зависит от силы баса
+            const dynamicRadius = radius + (bassEnergy * 8);
+            
+            // Скорость вращения зависит от общей энергии (имитация темпа)
+            const dynamicSpeed = orbitSpeed * (0.5 + rms * 1.5);
+            
+            // Обновляем угол
+            particleData.angle += dynamicSpeed;
+            
+            // Вычисляем новую позицию на орбите
+            const orbitX = Math.cos(particleData.angle) * dynamicRadius;
+            const orbitY = Math.sin(particleData.angle) * dynamicRadius;
+            
+            const newX = particleData.baseLeft + orbitX;
+            const newY = particleData.baseTop + orbitY;
+            
+            // Размер зависит от энергии
+            const sizeVariation = (bassEnergy + highEnergy) * 6;
+            const newSize = particleData.baseSize + sizeVariation;
+            
+            // Прозрачность зависит от общей энергии
+            const newOpacity = Math.min(0.8, particleData.baseOpacity + rms * 0.4);
+            
+            // Усиление на битах
+            const beatBoost = isBeat ? currentPulseIntensity * 0.3 : 0;
+            
+            particle.style.left = `${newX}%`;
+            particle.style.top = `${newY}%`;
+            particle.style.width = `${newSize}px`;
+            particle.style.height = `${newSize}px`;
+            particle.style.opacity = (newOpacity + beatBoost).toString();
+            
+            const currentColors = tracks[currentTrackIndex].colors;
+            particle.style.background = currentColors.accent;
+            particle.style.boxShadow = `0 0 ${newSize * 2}px ${currentColors.accent}`;
+            
+            // Плавные переходы
+            particle.style.transition = `all 0.3s ease-out`;
+        });
+    }
+
     // Создание частиц с анимацией перехода
     function createParticles() {
         particles.innerHTML = '';
@@ -852,13 +803,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         startParticleTransition();
+        
+        // Обновляем угловые частицы
+        updateCornerParticlesColors();
+    }
+
+    // Обновление цветов угловых частиц
+    function updateCornerParticlesColors() {
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        cornerParticlesData.forEach(particleData => {
+            const particle = particleData.element;
+            particle.style.background = currentColors.accent;
+            particle.style.boxShadow = `0 0 ${particleData.baseSize * 2}px ${currentColors.accent}`;
+        });
     }
 
     // Обновление темы
     function updateTheme() {
         const currentColors = tracks[currentTrackIndex].colors;
         const neonColor = tracks[currentTrackIndex].neonColor;
-        const spotlightColor = tracks[currentTrackIndex].spotlightColor;
         
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
         progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
@@ -866,7 +830,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.documentElement.style.setProperty('--neon-color', neonColor);
         document.documentElement.style.setProperty('--accent-color', currentColors.accent);
-        document.documentElement.style.setProperty('--spotlight-color', spotlightColor);
         
         const style = document.createElement('style');
         style.textContent = `
@@ -889,6 +852,12 @@ document.addEventListener('DOMContentLoaded', function() {
             updateParticles();
         }
         
+        if (cornerParticlesData.length === 0) {
+            createCornerParticles();
+        } else {
+            updateCornerParticlesColors();
+        }
+        
         if (leftGlow && rightGlow) {
             leftGlow.style.height = '15%';
             rightGlow.style.height = '15%';
@@ -908,34 +877,6 @@ document.addEventListener('DOMContentLoaded', function() {
                  0 0 20px var(--neon-color),
                  0 0 30px var(--neon-color),
                  inset 0 0 8px rgba(255, 255, 255, 0.2)`;
-        }
-        
-        // Сброс прожекторов
-        if (leftSpotlight && rightSpotlight) {
-            const leftCore = leftSpotlight.querySelector('.spotlight-core');
-            const leftBeam = leftSpotlight.querySelector('.spotlight-beam');
-            const leftGlowEl = leftSpotlight.querySelector('.spotlight-glow');
-            const rightCore = rightSpotlight.querySelector('.spotlight-core');
-            const rightBeam = rightSpotlight.querySelector('.spotlight-beam');
-            const rightGlowEl = rightSpotlight.querySelector('.spotlight-glow');
-            
-            leftCore.style.transform = 'rotate(-45deg) scaleY(1)';
-            leftBeam.style.transform = 'rotate(-45deg) scaleY(1)';
-            leftCore.style.opacity = '0.8';
-            leftBeam.style.opacity = '0.6';
-            leftGlowEl.style.opacity = '0.7';
-            
-            rightCore.style.transform = 'rotate(45deg) scaleY(1)';
-            rightBeam.style.transform = 'rotate(45deg) scaleY(1)';
-            rightCore.style.opacity = '0.8';
-            rightBeam.style.opacity = '0.6';
-            rightGlowEl.style.opacity = '0.7';
-        }
-        
-        // Сброс частиц пыли
-        if (leftBeamDust && rightBeamDust) {
-            leftBeamDust.style.opacity = '0';
-            rightBeamDust.style.opacity = '0';
         }
         
         beatDetected = false;
@@ -1170,6 +1111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация
     createVisualizer();
     createParticles();
+    createCornerParticles();
     createEdgeGlow();
     loadTrack(0);
     
