@@ -19,87 +19,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const leftGlow = document.getElementById('leftGlow');
     const rightGlow = document.getElementById('rightGlow');
 
-// Массив треков
-const tracks = [
-    { 
-        name: 'Tangled Up', 
-        artist: 'Caro Emerald',
-        path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-        colors: {
-            primary: '#1a1a2e',
-            secondary: '#16213e',
-            accent: '#ff9a00'
+    // Массив треков
+    const tracks = [
+        { 
+            name: 'Tangled Up', 
+            artist: 'Caro Emerald',
+            path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
+            colors: {
+                primary: '#1a1a2e',
+                secondary: '#16213e',
+                accent: '#ff9a00'
+            },
+            cover: 'picture/TangledUp.jpg',
+            visualizer: ['#ff9a00', '#ff2e63'],
+            neonColor: '#ff9a00'
         },
-        cover: 'picture/TangledUp.jpg',
-        visualizer: ['#ff9a00', '#ff2e63'],
-        neonColor: '#ff9a00'
-    },
-    { 
-        name: 'Valhalla Calling', 
-        artist: 'Miracle Of Sound',
-        path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-        colors: {
-            primary: '#0f1b2e',
-            secondary: '#1d2b64',
-            accent: '#4a90e2'
+        { 
+            name: 'Valhalla Calling', 
+            artist: 'Miracle Of Sound',
+            path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
+            colors: {
+                primary: '#0f1b2e',
+                secondary: '#1d2b64',
+                accent: '#4a90e2'
+            },
+            cover: 'picture/ValhallaCalling.jpeg',
+            visualizer: ['#1d2b64', '#4a90e2'],
+            neonColor: '#4a90e2'
         },
-        cover: 'picture/ValhallaCalling.jpeg',
-        visualizer: ['#1d2b64', '#4a90e2'],
-        neonColor: '#4a90e2'
-    },
-    { 
-        name: 'Lust', 
-        artist: 'Marino ft. Alexandria',
-        path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-        colors: {
-            primary: '#1a0a0a',
-            secondary: '#330000',
-            accent: '#ff0000'
+        { 
+            name: 'Lust', 
+            artist: 'Marino ft. Alexandria',
+            path: 'assets/Marino - Lust (feat. Alexandria).m4a',
+            colors: {
+                primary: '#1a0a0a',
+                secondary: '#330000',
+                accent: '#ff0000'
+            },
+            cover: 'picture/Lust.jpeg',
+            visualizer: ['#870000', '#ff0000'],
+            neonColor: '#ff0000'
         },
-        cover: 'picture/Lust.jpeg',
-        visualizer: ['#870000', '#ff0000'],
-        neonColor: '#ff0000'
-    },
-    { 
-        name: 'Puttin\' On The Ritz', 
-        artist: 'Taco',
-        path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-        colors: {
-            primary: '#0a0a14',
-            secondary: '#1a1a2e',
-            accent: '#ffd700'
+        { 
+            name: 'Puttin\' On The Ritz', 
+            artist: 'Taco',
+            path: 'assets/Taco - Puttin\' On The Ritz.m4a',
+            colors: {
+                primary: '#0a0a14',
+                secondary: '#1a1a2e',
+                accent: '#ffd700'
+            },
+            cover: 'picture/Puttin\' On The Ritz.jpg',
+            visualizer: ['#141e30', '#ffd700'],
+            neonColor: '#ffd700'
         },
-        cover: 'picture/Puttin On The Ritz.jpg',
-        visualizer: ['#141e30', '#ffd700'],
-        neonColor: '#ffd700'
-    },
-    { 
-        name: 'The Cigarette Duet (Cover)', 
-        artist: 'Princess Chelsea',
-        path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-        colors: {
-            primary: '#2d1b2e',
-            secondary: '#4a2c4d',
-            accent: '#e84178'
+        { 
+            name: 'The Cigarette Duet (Cover)', 
+            artist: 'Princess Chelsea',
+            path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
+            colors: {
+                primary: '#2d1b2e',
+                secondary: '#4a2c4d',
+                accent: '#e84178'
+            },
+            cover: 'picture/The Cigarette Duet.jpg',
+            visualizer: ['#6d214f', '#e84178'],
+            neonColor: '#e84178'
         },
-        cover: 'picture/The Cigarette Duet.jpg',
-        visualizer: ['#6d214f', '#e84178'],
-        neonColor: '#e84178'
-    },
-    { 
-        name: 'A Man Without Love', 
-        artist: 'Engelbert Humperdinck',
-        path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-        colors: {
-            primary: '#0f1c2e',
-            secondary: '#1f3a5c',
-            accent: '#4ca1af'
-        },
-        cover: 'picture/A Man Without Love.jpg',
-        visualizer: ['#2c3e50', '#4ca1af'],
-        neonColor: '#4ca1af'
-    }
-];
+        { 
+            name: 'A Man Without Love', 
+            artist: 'Engelbert Humperdinck',
+            path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
+            colors: {
+                primary: '#0f1c2e',
+                secondary: '#1f3a5c',
+                accent: '#4ca1af'
+            },
+            cover: 'picture/A Man Without Love.jpg',
+            visualizer: ['#2c3e50', '#4ca1af'],
+            neonColor: '#4ca1af'
+        }
+    ];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
@@ -125,6 +125,13 @@ const tracks = [
     let spectralCentroid = 0;
     let isBeat = false;
     let beatCooldown = 0;
+
+    // Переменные для эффектов краев экрана
+    let sparkParticles = [];
+    let lastSparkTime = 0;
+    let sparkCooldown = 0;
+    let energySurgeActive = false;
+    let energySurgeIntensity = 0;
 
     // Создание визуализатора
     function createVisualizer() {
@@ -315,8 +322,13 @@ const tracks = [
                      inset 0 0 8px rgba(255, 255, 255, 0.2)`;
             }
             
-            // Обновление движения частиц с расширенной логикой (без изменения цвета)
+            // Обновление движения частиц в зависимости от интенсивности музыки
             updateParticlesMovement(features);
+            
+            // Обновление эффектов краев экрана
+            analyzeEdgeEffects(features);
+            updateSparkParticles();
+            updateEnergySurge();
             
             animationId = requestAnimationFrame(visualize);
         } catch (error) {
@@ -327,7 +339,172 @@ const tracks = [
         }
     }
 
-    // Обновление движения частиц с расширенной логикой
+    // Создание частиц-искр
+    function createSparkParticle(corner, intensity) {
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+        
+        const corners = {
+            'top-left': { x: 0, y: 0 },
+            'top-right': { x: window.innerWidth, y: 0 },
+            'bottom-left': { x: 0, y: window.innerHeight },
+            'bottom-right': { x: window.innerWidth, y: window.innerHeight }
+        };
+        
+        const startPos = corners[corner];
+        const angle = Math.random() * Math.PI / 2 + (Math.PI / 4 * ['top-left', 'top-right', 'bottom-right', 'bottom-left'].indexOf(corner));
+        const speed = 2 + Math.random() * 3;
+        const distance = 100 + Math.random() * 200;
+        
+        const size = 2 + Math.random() * 4 * intensity;
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        spark.style.width = `${size}px`;
+        spark.style.height = `${size}px`;
+        spark.style.background = currentColors.accent;
+        spark.style.boxShadow = `0 0 ${size * 2}px ${currentColors.accent}`;
+        spark.style.left = `${startPos.x}px`;
+        spark.style.top = `${startPos.y}px`;
+        spark.style.opacity = '0.8';
+        
+        document.getElementById('sparkParticles').appendChild(spark);
+        
+        const sparkData = {
+            element: spark,
+            startX: startPos.x,
+            startY: startPos.y,
+            velocityX: Math.cos(angle) * speed,
+            velocityY: Math.sin(angle) * speed,
+            life: 1.0,
+            maxLife: 1.0
+        };
+        
+        sparkParticles.push(sparkData);
+        
+        // Автоматическое удаление через время
+        setTimeout(() => {
+            if (spark.parentNode) {
+                spark.parentNode.removeChild(spark);
+            }
+            sparkParticles = sparkParticles.filter(s => s.element !== spark);
+        }, 1000);
+    }
+
+    // Обновление частиц-искр
+    function updateSparkParticles() {
+        sparkParticles.forEach((spark, index) => {
+            spark.life -= 0.02;
+            
+            if (spark.life <= 0) {
+                if (spark.element.parentNode) {
+                    spark.element.parentNode.removeChild(spark.element);
+                }
+                sparkParticles.splice(index, 1);
+                return;
+            }
+            
+            const newX = parseFloat(spark.element.style.left) + spark.velocityX;
+            const newY = parseFloat(spark.element.style.top) + spark.velocityY;
+            
+            spark.element.style.left = `${newX}px`;
+            spark.element.style.top = `${newY}px`;
+            spark.element.style.opacity = (spark.life * 0.8).toString();
+            
+            // Уменьшение размера со временем
+            const scale = spark.life * 0.7 + 0.3;
+            spark.element.style.transform = `scale(${scale})`;
+        });
+    }
+
+    // Активация энергетических всплесков
+    function activateEnergySurge(intensity) {
+        energySurgeActive = true;
+        energySurgeIntensity = intensity;
+        
+        const waves = [
+            document.getElementById('energyTop'),
+            document.getElementById('energyRight'),
+            document.getElementById('energyBottom'),
+            document.getElementById('energyLeft')
+        ];
+        
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        waves.forEach(wave => {
+            wave.style.opacity = intensity.toString();
+            wave.style.background = `linear-gradient(${
+                wave.classList.contains('top') || wave.classList.contains('bottom') ? '90deg' : '180deg'
+            }, transparent, ${currentColors.accent}, transparent)`;
+            
+            // Эффект свечения
+            wave.style.boxShadow = `0 0 ${intensity * 30}px ${currentColors.accent}`;
+        });
+        
+        // Автоматическое отключение
+        setTimeout(() => {
+            energySurgeActive = false;
+            waves.forEach(wave => {
+                wave.style.opacity = '0';
+                wave.style.boxShadow = 'none';
+            });
+        }, 300);
+    }
+
+    // Обновление энергетических всплесков
+    function updateEnergySurge() {
+        if (energySurgeActive && energySurgeIntensity > 0) {
+            energySurgeIntensity -= 0.1;
+            if (energySurgeIntensity < 0) energySurgeIntensity = 0;
+            
+            const waves = [
+                document.getElementById('energyTop'),
+                document.getElementById('energyRight'),
+                document.getElementById('energyBottom'),
+                document.getElementById('energyLeft')
+            ];
+            
+            waves.forEach(wave => {
+                wave.style.opacity = energySurgeIntensity.toString();
+            });
+        }
+    }
+
+    // Анализ триггеров для эффектов краев
+    function analyzeEdgeEffects(features) {
+        const { rms, bassEnergy, spectralCentroid, isBeat } = features;
+        
+        // Анализ высоких частот для искр (индекс 20-30 в dataArray)
+        const highFrequencies = dataArray.slice(20, 30);
+        const highEnergy = highFrequencies.reduce((a, b) => a + b) / highFrequencies.length / 255;
+        
+        // Триггер для искр - высокие частоты и резкие атаки
+        if (highEnergy > 0.3 && sparkCooldown <= 0) {
+            const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+            const sparkCount = Math.floor(highEnergy * 3) + 1;
+            
+            for (let i = 0; i < sparkCount; i++) {
+                const randomCorner = corners[Math.floor(Math.random() * corners.length)];
+                createSparkParticle(randomCorner, highEnergy);
+            }
+            
+            sparkCooldown = 5;
+        } else if (sparkCooldown > 0) {
+            sparkCooldown--;
+        }
+        
+        // Триггер для энергетических всплесков - бас и пиковая энергия
+        if ((bassEnergy > 0.4 || rms > 0.6) && !energySurgeActive) {
+            const intensity = Math.max(bassEnergy, rms);
+            activateEnergySurge(intensity);
+        }
+        
+        // Дополнительный триггер на биты
+        if (isBeat && !energySurgeActive) {
+            activateEnergySurge(0.3 + currentPulseIntensity * 0.4);
+        }
+    }
+
+    // Обновление движения частиц в зависимости от интенсивности музыки
     function updateParticlesMovement(features) {
         if (isParticlesTransitioning || particlesData.length === 0) return;
         
@@ -593,6 +770,27 @@ const tracks = [
         currentPulseIntensity = 0;
         lastBeatTime = 0;
         currentMusicIntensity = 0;
+        
+        // Сброс эффектов краев при смене трека
+        sparkParticles.forEach(spark => {
+            if (spark.element.parentNode) {
+                spark.element.parentNode.removeChild(spark.element);
+            }
+        });
+        sparkParticles = [];
+        
+        const energyWaves = [
+            document.getElementById('energyTop'),
+            document.getElementById('energyRight'),
+            document.getElementById('energyBottom'),
+            document.getElementById('energyLeft')
+        ];
+        
+        energyWaves.forEach(wave => {
+            wave.style.opacity = '0';
+            wave.style.boxShadow = 'none';
+        });
+        energySurgeActive = false;
     }
 
     // Форматирование времени
