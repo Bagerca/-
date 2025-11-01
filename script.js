@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const trackListBtn = document.getElementById('trackListBtn');
-    const playbackModeBtn = document.getElementById('playbackModeBtn'); // Новая кнопка
+    const playbackModeBtn = document.getElementById('playbackModeBtn');
     const volumeSlider = document.getElementById('volumeSlider');
     const currentTrack = document.getElementById('currentTrack');
     const currentArtist = document.getElementById('currentArtist');
@@ -112,9 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Режимы воспроизведения
     const PLAYBACK_MODES = {
-        PLAYLIST: 0,    // 🔄 Повтор плейлиста
-        SINGLE: 1,      // 🔂 Повтор одного трека
-        ONCE: 2         // ▶️ Один трек
+        PLAYLIST: 0,    // Повтор плейлиста
+        SINGLE: 1,      // Повтор одного трека
+        ONCE: 2         // Один трек
     };
     
     let playbackMode = PLAYBACK_MODES.PLAYLIST; // По умолчанию повтор плейлиста
@@ -163,26 +163,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция для обновления отображения кнопки режима воспроизведения
     function updatePlaybackModeButton() {
+        const icon = playbackModeBtn.querySelector('svg');
         switch(playbackMode) {
             case PLAYBACK_MODES.PLAYLIST:
-                playbackModeBtn.textContent = '🔁';
+                icon.innerHTML = '<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>';
                 playbackModeBtn.title = 'Режим повтора: Весь плейлист';
                 break;
             case PLAYBACK_MODES.SINGLE:
-                playbackModeBtn.textContent = '🔂';
+                icon.innerHTML = '<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/>';
                 playbackModeBtn.title = 'Режим повтора: Один трек';
                 break;
             case PLAYBACK_MODES.ONCE:
-                playbackModeBtn.textContent = '▶️';
+                icon.innerHTML = '<path d="M5.64 3.64l1.42-1.42L20.36 18.22l-1.42 1.42L5.64 3.64zM7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>';
                 playbackModeBtn.title = 'Режим воспроизведения: Один трек';
                 break;
         }
-    }
-
-    // Функция для переключения режима воспроизведения
-    function togglePlaybackMode() {
-        playbackMode = (playbackMode + 1) % 3;
-        updatePlaybackModeButton();
         
         // Визуальная обратная связь
         playbackModeBtn.style.transform = 'scale(1.1)';
@@ -191,7 +186,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200);
     }
 
-    // Остальной код без изменений до функции audio.addEventListener('ended', ...)
+    // Функция для переключения режима воспроизведения
+    function togglePlaybackMode() {
+        playbackMode = (playbackMode + 1) % 3;
+        updatePlaybackModeButton();
+    }
 
     // Создание визуализатора
     function createVisualizer() {
@@ -1054,7 +1053,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             audio.pause();
             isPlaying = false;
-            playPauseBtn.textContent = '▶';
+            // Устанавливаем иконку play
+            playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
             
             if (animationId) {
                 cancelAnimationFrame(animationId);
@@ -1090,7 +1090,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function playTrack() {
         audio.play().then(() => {
             isPlaying = true;
-            playPauseBtn.textContent = '⏸';
+            // Меняем на иконку паузы
+            playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
             if (!analyser) {
                 initAudioAnalyzer();
             }
@@ -1115,7 +1116,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 isPlaying = true;
-                playPauseBtn.textContent = '⏸';
+                // Меняем на иконку паузы
+                playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
@@ -1134,7 +1136,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isPlaying) {
             audio.pause();
             isPlaying = false;
-            playPauseBtn.textContent = '▶';
+            // Меняем на иконку play
+            playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
@@ -1228,7 +1231,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Один трек - останавливаем воспроизведение
                 audio.pause();
                 isPlaying = false;
-                playPauseBtn.textContent = '▶';
+                // Меняем на иконку play
+                playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
                 if (animationId) {
                     cancelAnimationFrame(animationId);
                     animationId = null;
