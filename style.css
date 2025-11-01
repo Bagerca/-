@@ -389,11 +389,12 @@ body {
     font-weight: 400;
 }
 
+/* Обновляем контейнер управления для 5 кнопок */
 .controls {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 25px;
 }
 
@@ -412,11 +413,24 @@ body {
     transition: all 0.2s ease;
     font-family: 'Open Sans', sans-serif;
     font-weight: 500;
+    flex-shrink: 0;
 }
 
 .control-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
+}
+
+/* Специальные стили для кнопки режима воспроизведения */
+#playbackModeBtn {
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#playbackModeBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .play-pause-btn {
@@ -425,6 +439,7 @@ body {
     font-size: 24px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .play-pause-btn:hover {
@@ -712,6 +727,27 @@ body {
         transform: translateX(-100%);
         opacity: 0.7;
     }
+    
+    /* Адаптация для мобильных устройств с 5 кнопками */
+    .controls {
+        gap: 10px;
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+    
+    .play-pause-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+    }
+    
+    #playbackModeBtn {
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -725,17 +761,19 @@ body {
     }
     
     .controls {
-        gap: 15px;
+        gap: 8px;
     }
     
     .control-btn {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
     }
     
     .play-pause-btn {
-        width: 60px;
-        height: 60px;
+        width: 55px;
+        height: 55px;
+        font-size: 18px;
     }
     
     .track-title {
@@ -762,5 +800,31 @@ body {
     
     .track-list-header h3 {
         font-size: 20px;
+    }
+    
+    #playbackModeBtn {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 380px) {
+    .controls {
+        gap: 5px;
+    }
+    
+    .control-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 13px;
+    }
+    
+    .play-pause-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 16px;
+    }
+    
+    #playbackModeBtn {
+        font-size: 12px;
     }
 }
