@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Переменные для анимации частиц
     let particlesData = [];
+    let cornerParticlesData = [];
     let isParticlesTransitioning = false;
     let particleTransitionProgress = 0;
     let currentMusicIntensity = 0;
@@ -133,11 +134,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let energySurgeActive = false;
     let energySurgeIntensity = 0;
 
+    // Переменные для краевого свечения
+    let edgeGlowElements = {};
+    let edgeGlowIntensity = 0;
+
     // Частотные диапазоны
     const FREQ_RANGES = {
-        BASS: { start: 0, end: 10 },      // Низкие частоты (0-10)
-        MID: { start: 10, end: 20 },      // Средние частоты (10-20)
-        HIGH: { start: 20, end: 30 }      // Высокие частоты (20-30)
+        BASS: { start: 0, end: 10 },
+        MID: { start: 10, end: 20 },
+        HIGH: { start: 20, end: 30 }
     };
 
     // Создание визуализатора
@@ -188,28 +193,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function analyzeSpectralFeatures() {
         if (!analyser || !dataArray) return;
         
-        // Получаем энергию по диапазонам
         const bassEnergy = getFrequencyEnergy(FREQ_RANGES.BASS);
         const midEnergy = getFrequencyEnergy(FREQ_RANGES.MID);
         const highEnergy = getFrequencyEnergy(FREQ_RANGES.HIGH);
         
-        // Общая энергия (RMS)
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
             sum += dataArray[i] * dataArray[i];
         }
         const rms = Math.sqrt(sum / bufferLength) / 255;
         
-        // Сохраняем историю энергии для вычисления среднего
         energyHistory.push(rms);
         if (energyHistory.length > 30) {
             energyHistory.shift();
         }
         
-        // Вычисляем среднюю энергию
         energyAverage = energyHistory.reduce((a, b) => a + b) / energyHistory.length;
         
-        // Спектральный центроид
         let weightedSum = 0;
         let energySum = 0;
         for (let i = 0; i < bufferLength; i++) {
@@ -218,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         spectralCentroid = energySum > 0 ? weightedSum / energySum : 0;
         
-        // Улучшенная детекция битов (только низкие частоты)
         const currentTime = Date.now();
         isBeat = false;
         if (beatCooldown <= 0) {
@@ -267,33 +266,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 let baseHeight = Math.max(5, value * 110);
                 
-                // РАСПРЕДЕЛЕНИЕ ПО ДИАПАЗОНАМ:
-                if (i < 10) { 
-                    // НИЗКИЕ ЧАСТОТЫ - бас + биты
+                if (i < 10) {
                     const bassBoost = features.bassEnergy * 25;
                     const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
                     baseHeight += bassBoost + beatBoost;
                     
-                } else if (i < 20) { 
-                    // СРЕДНИЕ ЧАСТОТЫ - мелодия + общая энергия
+                } else if (i < 20) {
                     const midBoost = features.midEnergy * 18;
                     const energyBoost = features.rms * 12;
                     baseHeight += midBoost + energyBoost;
                     
-                } else { 
-                    // ВЫСОКИЕ ЧАСТОТЫ - высокие + искры
+                } else {
                     const highBoost = features.highEnergy * 20;
                     baseHeight += highBoost;
                 }
                 
                 visualizerBars[i].style.height = `${baseHeight}px`;
                 
-                // Сохраняем оригинальные цвета трека
                 const currentColors = tracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Неоновые линии (оставляем как было)
+            // Неоновые линии
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 80;
@@ -326,11 +320,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Обновление движения частиц с новой системой
             updateParticlesMovement(features);
+            updateCornerParticles(features);
             
             // Обновление эффектов краев экрана
             analyzeEdgeEffects(features);
             updateSparkParticles();
             updateEnergySurge();
+            updateEdgeGlow(features);
             
             animationId = requestAnimationFrame(visualize);
         } catch (error) {
@@ -356,7 +352,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const startPos = corners[corner];
         const angle = Math.random() * Math.PI / 2 + (Math.PI / 4 * ['top-left', 'top-right', 'bottom-right', 'bottom-left'].indexOf(corner));
         const speed = 2 + Math.random() * 3;
-        const distance = 100 + Math.random() * 200;
         
         const size = 2 + Math.random() * 4 * intensity;
         const currentColors = tracks[currentTrackIndex].colors;
@@ -416,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Активация энергетических всплесков (ТОЛЬКО на биты)
+    // Активация энергетических всплесков
     function activateEnergySurge(intensity) {
         energySurgeActive = true;
         energySurgeIntensity = intensity;
@@ -467,28 +462,67 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Создание краевого свечения
+    function createEdgeGlow() {
+        const edges = ['top', 'right', 'bottom', 'left'];
+        const edgeGlowContainer = document.getElementById('edgeGlow');
+        
+        edges.forEach(edge => {
+            const glow = document.createElement('div');
+            glow.className = `edge-glow ${edge}-glow`;
+            edgeGlowContainer.appendChild(glow);
+            edgeGlowElements[edge] = glow;
+        });
+    }
+
+    // Обновление краевого свечения
+    function updateEdgeGlow(features) {
+        const { rms, bassEnergy, isBeat } = features;
+        
+        // Базовая интенсивность от общей энергии
+        let baseIntensity = rms * 0.3;
+        
+        // Усиление на битах
+        if (isBeat) {
+            baseIntensity += currentPulseIntensity * 0.4;
+        }
+        
+        // Дополнительное усиление от баса
+        baseIntensity += bassEnergy * 0.2;
+        
+        edgeGlowIntensity = Math.min(1, baseIntensity);
+        
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        Object.values(edgeGlowElements).forEach(glow => {
+            glow.style.opacity = edgeGlowIntensity.toString();
+            glow.style.boxShadow = `0 0 ${20 + edgeGlowIntensity * 30}px ${currentColors.accent}`;
+        });
+    }
+
     // Анализ триггеров для эффектов краев с новым распределением
     function analyzeEdgeEffects(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
-        // ИСКРЫ - только высокие частоты
-        if (highEnergy > 0.25 && sparkCooldown <= 0) {
+        // ИСКРЫ - больше частиц на высоких частотах и битах
+        if ((highEnergy > 0.2 || (isBeat && highEnergy > 0.1)) && sparkCooldown <= 0) {
             const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-            const sparkCount = Math.floor(highEnergy * 4);
+            // Увеличиваем количество искр
+            const sparkCount = Math.floor((highEnergy * 6) + (isBeat ? 3 : 0));
             
             for (let i = 0; i < sparkCount; i++) {
                 const randomCorner = corners[Math.floor(Math.random() * corners.length)];
                 createSparkParticle(randomCorner, highEnergy);
             }
             
-            sparkCooldown = 6;
+            sparkCooldown = 4; // Уменьшаем кулдаун для более частых искр
         } else if (sparkCooldown > 0) {
             sparkCooldown--;
         }
         
         // ЭНЕРГЕТИЧЕСКИЕ ВСПЛЕСКИ - только на биты
         if (isBeat && !energySurgeActive) {
-            const intensity = 0.4 + currentPulseIntensity * 0.3;
+            const intensity = 0.5 + currentPulseIntensity * 0.4;
             activateEnergySurge(intensity);
         }
     }
@@ -506,31 +540,29 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let moveX, moveY;
             
-            // НОВОЕ РАСПРЕДЕЛЕНИЕ ЧАСТИЦ:
-            if (index % 10 < 3) { // 30% - НИЗКИЕ ЧАСТОТЫ (крупные волны)
+            if (index % 10 < 3) {
                 moveX = Math.sin(time * 0.3 + individualOffset) * bassEnergy * 2.0;
                 moveY = Math.cos(time * 0.2 + individualOffset) * bassEnergy * 1.8;
                 
-            } else if (index % 10 < 7) { // 40% - СРЕДНИЕ ЧАСТОТЫ (плавное движение)
+            } else if (index % 10 < 7) {
                 moveX = Math.sin(time * 0.7 + individualOffset) * midEnergy * 1.2;
                 moveY = Math.cos(time * 0.5 + individualOffset) * midEnergy * 1.0;
                 
-            } else if (index % 10 < 9) { // 20% - ВЫСОКИЕ ЧАСТОТЫ (быстрая дрожь)
+            } else if (index % 10 < 9) {
                 moveX = Math.sin(time * 2.0 + individualOffset) * highEnergy * 0.8;
                 moveY = Math.cos(time * 1.8 + individualOffset) * highEnergy * 0.6;
                 
-            } else { // 10% - БИТЫ (импульсные толчки)
+            } else {
                 moveX = isBeat ? (Math.random() - 0.5) * 12 * currentPulseIntensity : 0;
                 moveY = isBeat ? (Math.random() - 0.5) * 10 * currentPulseIntensity : 0;
             }
             
-            // Размер частиц зависит от их типа
             let sizeVariation = 0;
-            if (index % 10 < 3) { // Бас - крупные частицы
+            if (index % 10 < 3) {
                 sizeVariation = bassEnergy * 6;
-            } else if (index % 10 < 7) { // Средние - средний размер
+            } else if (index % 10 < 7) {
                 sizeVariation = midEnergy * 4;
-            } else { // Высокие и биты - мелкие частицы
+            } else {
                 sizeVariation = highEnergy * 3;
             }
             
@@ -551,6 +583,97 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const transitionTime = Math.max(0.05, 0.2 - rms * 0.15);
             particle.style.transition = `all ${transitionTime}s ease-out`;
+        });
+    }
+
+    // Создание угловых частиц
+    function createCornerParticles() {
+        const corners = [
+            { left: '5%', top: '5%' },     // top-left
+            { left: '95%', top: '5%' },    // top-right
+            { left: '5%', top: '95%' },    // bottom-left
+            { left: '95%', top: '95%' }    // bottom-right
+        ];
+        
+        cornerParticlesData = [];
+        const cornerParticlesContainer = document.getElementById('cornerParticles');
+        cornerParticlesContainer.innerHTML = '';
+        
+        const particlesPerCorner = 8; // Увеличиваем количество частиц в углах
+        
+        corners.forEach((corner, cornerIndex) => {
+            for (let i = 0; i < particlesPerCorner; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'corner-particle';
+                
+                const size = Math.random() * 8 + 3;
+                const opacity = Math.random() * 0.4 + 0.1;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.opacity = opacity.toString();
+                particle.style.left = corner.left;
+                particle.style.top = corner.top;
+                particle.style.position = 'fixed';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '3';
+                
+                const currentColors = tracks[currentTrackIndex].colors;
+                particle.style.background = currentColors.accent;
+                particle.style.boxShadow = `0 0 ${size * 2}px ${currentColors.accent}`;
+                
+                cornerParticlesContainer.appendChild(particle);
+                
+                cornerParticlesData.push({
+                    element: particle,
+                    baseLeft: parseFloat(corner.left),
+                    baseTop: parseFloat(corner.top),
+                    baseSize: size,
+                    baseOpacity: opacity,
+                    cornerIndex: cornerIndex,
+                    particleIndex: i,
+                    timeOffset: Math.random() * Math.PI * 2
+                });
+            }
+        });
+    }
+
+    // Обновление угловых частиц
+    function updateCornerParticles(features) {
+        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
+        const time = Date.now() * 0.001;
+        
+        cornerParticlesData.forEach(particleData => {
+            const particle = particleData.element;
+            const { cornerIndex, particleIndex, timeOffset } = particleData;
+            
+            // Разное движение для разных углов и частиц
+            const moveX = Math.sin(time * 0.5 + timeOffset + cornerIndex) * (rms * 15 + bassEnergy * 10);
+            const moveY = Math.cos(time * 0.4 + timeOffset + cornerIndex) * (rms * 12 + midEnergy * 8);
+            
+            // Размер зависит от энергии
+            const sizeVariation = (bassEnergy + highEnergy) * 6;
+            const newSize = particleData.baseSize + sizeVariation;
+            
+            // Прозрачность зависит от общей энергии
+            const newOpacity = Math.min(0.8, particleData.baseOpacity + rms * 0.4);
+            
+            // Усиление на битах
+            const beatBoost = isBeat ? currentPulseIntensity * 0.3 : 0;
+            
+            const newLeft = particleData.baseLeft + moveX;
+            const newTop = particleData.baseTop + moveY;
+            
+            particle.style.left = `${newLeft}%`;
+            particle.style.top = `${newTop}%`;
+            particle.style.width = `${newSize}px`;
+            particle.style.height = `${newSize}px`;
+            particle.style.opacity = (newOpacity + beatBoost).toString();
+            
+            const currentColors = tracks[currentTrackIndex].colors;
+            particle.style.background = currentColors.accent;
+            particle.style.boxShadow = `0 0 ${newSize * 2}px ${currentColors.accent}`;
         });
     }
 
@@ -663,6 +786,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         startParticleTransition();
+        
+        // Обновляем угловые частицы
+        updateCornerParticlesColors();
+    }
+
+    // Обновление цветов угловых частиц
+    function updateCornerParticlesColors() {
+        const currentColors = tracks[currentTrackIndex].colors;
+        
+        cornerParticlesData.forEach(particleData => {
+            const particle = particleData.element;
+            particle.style.background = currentColors.accent;
+            particle.style.boxShadow = `0 0 ${particleData.baseSize * 2}px ${currentColors.accent}`;
+        });
     }
 
     // Обновление темы
@@ -696,6 +833,12 @@ document.addEventListener('DOMContentLoaded', function() {
             createParticles();
         } else {
             updateParticles();
+        }
+        
+        if (cornerParticlesData.length === 0) {
+            createCornerParticles();
+        } else {
+            updateCornerParticlesColors();
         }
         
         if (leftGlow && rightGlow) {
@@ -951,6 +1094,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация
     createVisualizer();
     createParticles();
+    createCornerParticles();
+    createEdgeGlow();
     loadTrack(0);
     
     // Автовоспроизведение с задержкой
