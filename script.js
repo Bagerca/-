@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // Визуализация звука с новой системой триггеров
+    // Визуализация звука с увеличенной чувствительностью неоновых линий
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -287,54 +287,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // ОБНОВЛЕННЫЕ НЕОНОВЫЕ ЛИНИИ С "ДЫХАНИЕМ"
+            // НЕОНОВЫЕ ЛИНИИ - ОТКАТ К ПРЕЖНЕМУ ПОВЕДЕНИЮ С УВЕЛИЧЕННОЙ ЧУВСТВИТЕЛЬНОСТЬЮ
             if (leftGlow && rightGlow) {
-                const { rms, bassEnergy, isBeat } = features;
-                
-                // Высота = общая громкость + бас
                 const minHeight = 15;
-                const maxHeight = 80;
-                const baseHeight = minHeight + (rms * (maxHeight - minHeight));
-                const bassHeight = bassEnergy * 20;
-                const totalHeight = Math.min(maxHeight, baseHeight + bassHeight);
+                const maxHeight = 85; // Увеличена максимальная высота
+                // Увеличена чувствительность - множитель с 110 до 130
+                const lineHeight = minHeight + (features.rms * 130);
                 
-                leftGlow.style.height = `${totalHeight}%`;
-                rightGlow.style.height = `${totalHeight}%`;
+                leftGlow.style.height = `${lineHeight}%`;
+                rightGlow.style.height = `${lineHeight}%`;
                 
-                // Плавное пульсирующее свечение в ритм
-                const time = Date.now() * 0.001;
-                const breathPulse = 0.6 + Math.sin(time * 2) * 0.2; // Медленное "дыхание"
-                const energyPulse = 0.3 + rms * 0.5;
-                const baseOpacity = Math.min(0.9, breathPulse * energyPulse);
-                
-                // Цветовые вспышки только на сильные биты
-                const beatFlash = isBeat ? currentPulseIntensity * 0.7 : 0;
-                const totalOpacity = Math.min(1, baseOpacity + beatFlash);
-                
-                leftGlow.style.opacity = totalOpacity;
-                rightGlow.style.opacity = totalOpacity;
+                const brightness = 0.7 + (features.spectralCentroid / bufferLength) * 0.5; // Увеличена яркость
+                leftGlow.style.opacity = brightness;
+                rightGlow.style.opacity = brightness;
                 
                 const neonColor = tracks[currentTrackIndex].neonColor;
-                const baseBlur = 10;
-                const pulseBlur = currentPulseIntensity * 30;
-                const breathBlur = Math.sin(time * 2) * 5; // Пульсация размытия
-                const totalBlur = baseBlur + pulseBlur + breathBlur;
+                const baseBlur = 12; // Увеличено базовое размытие
+                const pulseBlur = currentPulseIntensity * 35; // Увеличен эффект пульсации
                 
+                // Усилен неоновый эффект
                 leftGlow.style.boxShadow = 
-                    `0 0 ${totalBlur}px ${neonColor},
-                     0 0 ${totalBlur * 1.5}px ${neonColor},
-                     0 0 ${totalBlur * 2}px ${neonColor},
-                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
+                    `0 0 ${baseBlur + pulseBlur}px ${neonColor},
+                     0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
+                     0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColor},
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
                 
                 rightGlow.style.boxShadow = 
-                    `0 0 ${totalBlur}px ${neonColor},
-                     0 0 ${totalBlur * 1.5}px ${neonColor},
-                     0 0 ${totalBlur * 2}px ${neonColor},
-                     inset 0 0 8px rgba(255, 255, 255, 0.2)`;
-                
-                // Плавные переходы для "дыхания"
-                leftGlow.style.transition = `all 0.5s ease-out`;
-                rightGlow.style.transition = `all 0.5s ease-out`;
+                    `0 0 ${baseBlur + pulseBlur}px ${neonColor},
+                     0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
+                     0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColor},
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
             // Обновление движения частиц с новой системой
