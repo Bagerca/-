@@ -48,11 +48,31 @@
         </div>
         
         <div class="controls">
-            <button id="playbackModeBtn" class="control-btn" title="Режим повтора: Весь плейлист">🔁</button>
-            <button id="prevBtn" class="control-btn">⏮</button>
-            <button id="playPauseBtn" class="control-btn play-pause-btn">▶</button>
-            <button id="nextBtn" class="control-btn">⏭</button>
-            <button id="trackListBtn" class="control-btn">🎵</button>
+            <button id="playbackModeBtn" class="control-btn" title="Режим повтора: Весь плейлист">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                </svg>
+            </button>
+            <button id="prevBtn" class="control-btn" title="Предыдущий трек">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+            <button id="playPauseBtn" class="control-btn play-pause-btn" title="Воспроизвести/Пауза">
+                <svg viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
+            <button id="nextBtn" class="control-btn" title="Следующий трек">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+            </button>
+            <button id="trackListBtn" class="control-btn" title="Список треков">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/>
+                </svg>
+            </button>
         </div>
         
         <div class="volume-container">
