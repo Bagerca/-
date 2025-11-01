@@ -336,6 +336,11 @@ body {
     animation: float 6s infinite ease-in-out;
 }
 
+.corner-particle {
+    border-radius: 50%;
+    transition: all 0.2s ease-out;
+}
+
 .autoplay-message {
     position: fixed;
     top: 20px;
@@ -383,6 +388,62 @@ body {
     pointer-events: none;
     opacity: 0;
     transition: all 0.3s ease-out;
+}
+
+/* Угловые частицы */
+.corner-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Краевое свечение */
+.edge-glow-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.edge-glow {
+    position: absolute;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.3s ease, box-shadow 0.3s ease;
+}
+
+.top-glow {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+}
+
+.right-glow {
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, var(--accent-color), transparent);
+}
+
+.bottom-glow {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+}
+
+.left-glow {
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, var(--accent-color), transparent);
 }
 
 /* Энергетические всплески */
