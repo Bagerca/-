@@ -828,10 +828,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             trackItem.addEventListener('click', () => {
                 loadTrack(index, true);
-                // Закрываем панель после выбора трека на мобильных устройствах
-                if (window.innerWidth <= 768) {
-                    toggleTrackList();
-                }
             });
             
             trackList.appendChild(trackItem);
@@ -868,9 +864,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             trackItem.addEventListener('click', () => {
                 loadTrack(originalIndex, true);
-                if (window.innerWidth <= 768) {
-                    toggleTrackList();
-                }
             });
             
             trackList.appendChild(trackItem);
@@ -1182,11 +1175,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 playPauseBtn.click();
                 break;
-            case 'Escape':
-                if (isTrackListOpen) {
-                    toggleTrackList();
-                }
-                break;
         }
     });
 
@@ -1201,15 +1189,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка ошибок аудио
     audio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
-    });
-
-    // Закрытие панели при клике вне ее
-    document.addEventListener('click', (e) => {
-        if (isTrackListOpen && 
-            !trackListPanel.contains(e.target) && 
-            !trackListBtn.contains(e.target)) {
-            toggleTrackList();
-        }
     });
 
     // Инициализация
