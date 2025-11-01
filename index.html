@@ -13,12 +13,11 @@
 <body>
     <div class="particles" id="particles"></div>
     
-    <div class="player-container">
+    <div class="player-container" id="playerContainer">
         <audio id="audioPlayer"></audio>
         
         <div class="album-art" id="albumArt">
             <div class="album-image" id="albumImage"></div>
-            <!-- Упрощенные неоновые линии -->
             <div class="neon-lines-container">
                 <div class="neon-line left-line">
                     <div class="neon-glow" id="leftGlow"></div>
@@ -52,6 +51,7 @@
             <button id="prevBtn" class="control-btn">⏮</button>
             <button id="playPauseBtn" class="control-btn play-pause-btn">▶</button>
             <button id="nextBtn" class="control-btn">⏭</button>
+            <button id="trackListBtn" class="control-btn">🎵</button>
         </div>
         
         <div class="volume-container">
@@ -62,39 +62,33 @@
             </div>
             <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70">
         </div>
-        
-        <div class="track-selector">
-            <select id="trackSelect" class="track-select">
-                <option value="assets/Caro Emerald, Tangled Up (Lokee Remix).mp3">Caro Emerald - Tangled Up</option>
-                <option value="assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3">Miracle Of Sound - Valhalla Calling</option>
-                <option value="assets/Marino - Lust (feat. Alexandria).m4a">Marino - Lust (feat. Alexandria)</option>
-                <option value="assets/Taco - Puttin' On The Ritz.m4a">Taco - Puttin' On The Ritz</option>
-                <option value="assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a">Princess Chelsea - The Cigarette Duet (Cover)</option>
-                <option value="assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a">Engelbert Humperdinck - A Man Without Love</option>
-            </select>
+    </div>
+
+    <!-- Боковая панель списка треков -->
+    <div class="track-list-panel" id="trackListPanel">
+        <div class="track-list-header">
+            <h3>Библиотека треков</h3>
+            <div class="search-container">
+                <input type="text" id="trackSearch" placeholder="Поиск треков..." class="track-search">
+                <div class="search-icon">🔍</div>
+            </div>
+        </div>
+        <div class="track-list" id="trackList">
+            <!-- Треки будут добавляться через JS -->
         </div>
     </div>
 
     <!-- Эффекты для краев экрана -->
     <div class="edge-effects">
-        <!-- Частицы-искры -->
         <div class="spark-particles" id="sparkParticles"></div>
-        
-        <!-- Угловые частицы -->
         <div class="corner-particles" id="cornerParticles"></div>
-        
-        <!-- Краевое свечение -->
         <div class="edge-glow-container" id="edgeGlow"></div>
-        
-        <!-- Энергетические всплески -->
         <div class="energy-surges">
             <div class="energy-wave top" id="energyTop"></div>
             <div class="energy-wave right" id="energyRight"></div>
             <div class="energy-wave bottom" id="energyBottom"></div>
             <div class="energy-wave left" id="energyLeft"></div>
         </div>
-        
-        <!-- Угловые эмиттеры -->
         <div class="corner-emitter top-left"></div>
         <div class="corner-emitter top-right"></div>
         <div class="corner-emitter bottom-left"></div>
