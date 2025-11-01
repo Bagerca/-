@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const trackListBtn = document.getElementById('trackListBtn');
+    const playbackModeBtn = document.getElementById('playbackModeBtn'); // Новая кнопка
     const volumeSlider = document.getElementById('volumeSlider');
     const currentTrack = document.getElementById('currentTrack');
     const currentArtist = document.getElementById('currentArtist');
@@ -108,6 +109,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTrackIndex = 0;
     let isPlaying = false;
     let isTrackListOpen = false;
+    
+    // Режимы воспроизведения
+    const PLAYBACK_MODES = {
+        PLAYLIST: 0,    // 🔄 Повтор плейлиста
+        SINGLE: 1,      // 🔂 Повтор одного трека
+        ONCE: 2         // ▶️ Один трек
+    };
+    
+    let playbackMode = PLAYBACK_MODES.PLAYLIST; // По умолчанию повтор плейлиста
+    
     let audioContext, analyser, dataArray, bufferLength;
     let visualizerBars = [];
     let animationId = null;
@@ -149,6 +160,38 @@ document.addEventListener('DOMContentLoaded', function() {
         MID: { start: 10, end: 20 },
         HIGH: { start: 20, end: 30 }
     };
+
+    // Функция для обновления отображения кнопки режима воспроизведения
+    function updatePlaybackModeButton() {
+        switch(playbackMode) {
+            case PLAYBACK_MODES.PLAYLIST:
+                playbackModeBtn.textContent = '🔁';
+                playbackModeBtn.title = 'Режим повтора: Весь плейлист';
+                break;
+            case PLAYBACK_MODES.SINGLE:
+                playbackModeBtn.textContent = '🔂';
+                playbackModeBtn.title = 'Режим повтора: Один трек';
+                break;
+            case PLAYBACK_MODES.ONCE:
+                playbackModeBtn.textContent = '▶️';
+                playbackModeBtn.title = 'Режим воспроизведения: Один трек';
+                break;
+        }
+    }
+
+    // Функция для переключения режима воспроизведения
+    function togglePlaybackMode() {
+        playbackMode = (playbackMode + 1) % 3;
+        updatePlaybackModeButton();
+        
+        // Визуальная обратная связь
+        playbackModeBtn.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            playbackModeBtn.style.transform = 'scale(1)';
+        }, 200);
+    }
+
+    // Остальной код без изменений до функции audio.addEventListener('ended', ...)
 
     // Создание визуализатора
     function createVisualizer() {
@@ -1113,6 +1156,9 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex, true);
     });
 
+    // Обработчик для кнопки режима воспроизведения
+    playbackModeBtn.addEventListener('click', togglePlaybackMode);
+
     trackListBtn.addEventListener('click', toggleTrackList);
 
     trackSearch.addEventListener('input', (e) => {
@@ -1163,10 +1209,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     audio.addEventListener('timeupdate', updateProgress);
 
+    // Обработчик окончания трека с учетом режима воспроизведения
     audio.addEventListener('ended', () => {
-        let newIndex = currentTrackIndex + 1;
-        if (newIndex >= tracks.length) newIndex = 0;
-        loadTrack(newIndex, true);
+        switch(playbackMode) {
+            case PLAYBACK_MODES.PLAYLIST:
+                // Повтор плейлиста - переходим к следующему треку по кругу
+                let newIndex = currentTrackIndex + 1;
+                if (newIndex >= tracks.length) newIndex = 0;
+                loadTrack(newIndex, true);
+                break;
+                
+            case PLAYBACK_MODES.SINGLE:
+                // Повтор одного трека - снова загружаем текущий трек
+                loadTrack(currentTrackIndex, true);
+                break;
+                
+            case PLAYBACK_MODES.ONCE:
+                // Один трек - останавливаем воспроизведение
+                audio.pause();
+                isPlaying = false;
+                playPauseBtn.textContent = '▶';
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                break;
+        }
     });
 
     // Обработка ошибок аудио
@@ -1179,6 +1247,7 @@ document.addEventListener('DOMContentLoaded', function() {
     createParticles();
     createCornerParticles();
     createEdgeGlow();
+    updatePlaybackModeButton(); // Инициализируем кнопку режима воспроизведения
     loadTrack(0);
     
     // Автовоспроизведение УДАЛЕНО
