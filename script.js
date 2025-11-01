@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const playPauseBtn = document.getElementById('playPauseBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const trackListBtn = document.getElementById('trackListBtn');
     const volumeSlider = document.getElementById('volumeSlider');
-    const trackSelect = document.getElementById('trackSelect');
     const currentTrack = document.getElementById('currentTrack');
     const currentArtist = document.getElementById('currentArtist');
     const progressBar = document.getElementById('progressBar');
@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const particles = document.getElementById('particles');
     const leftGlow = document.getElementById('leftGlow');
     const rightGlow = document.getElementById('rightGlow');
+    const playerContainer = document.getElementById('playerContainer');
+    const trackListPanel = document.getElementById('trackListPanel');
+    const trackList = document.getElementById('trackList');
+    const trackSearch = document.getElementById('trackSearch');
 
     // Массив треков
     const tracks = [
@@ -103,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentTrackIndex = 0;
     let isPlaying = false;
+    let isTrackListOpen = false;
     let audioContext, analyser, dataArray, bufferLength;
     let visualizerBars = [];
     let animationId = null;
@@ -287,25 +292,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // НЕОНОВЫЕ ЛИНИИ - ОТКАТ К ПРЕЖНЕМУ ПОВЕДЕНИЮ С УВЕЛИЧЕННОЙ ЧУВСТВИТЕЛЬНОСТЬЮ
+            // НЕОНОВЫЕ ЛИНИИ
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
-                const maxHeight = 85; // Увеличена максимальная высота
-                // Увеличена чувствительность - множитель с 110 до 130
+                const maxHeight = 85;
                 const lineHeight = minHeight + (features.rms * 130);
                 
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                const brightness = 0.7 + (features.spectralCentroid / bufferLength) * 0.5; // Увеличена яркость
+                const brightness = 0.7 + (features.spectralCentroid / bufferLength) * 0.5;
                 leftGlow.style.opacity = brightness;
                 rightGlow.style.opacity = brightness;
                 
                 const neonColor = tracks[currentTrackIndex].neonColor;
-                const baseBlur = 12; // Увеличено базовое размытие
-                const pulseBlur = currentPulseIntensity * 35; // Увеличен эффект пульсации
+                const baseBlur = 12;
+                const pulseBlur = currentPulseIntensity * 35;
                 
-                // Усилен неоновый эффект
                 leftGlow.style.boxShadow = 
                     `0 0 ${baseBlur + pulseBlur}px ${neonColor},
                      0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
@@ -480,15 +483,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateEdgeGlow(features) {
         const { rms, bassEnergy, isBeat } = features;
         
-        // Базовая интенсивность от общей энергии
         let baseIntensity = rms * 0.3;
         
-        // Усиление на битах
         if (isBeat) {
             baseIntensity += currentPulseIntensity * 0.4;
         }
         
-        // Дополнительное усиление от баса
         baseIntensity += bassEnergy * 0.2;
         
         edgeGlowIntensity = Math.min(1, baseIntensity);
@@ -505,10 +505,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function analyzeEdgeEffects(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
-        // ИСКРЫ - больше частиц на высоких частотах и битах
         if ((highEnergy > 0.2 || (isBeat && highEnergy > 0.1)) && sparkCooldown <= 0) {
             const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-            // Увеличиваем количество искр
             const sparkCount = Math.floor((highEnergy * 6) + (isBeat ? 3 : 0));
             
             for (let i = 0; i < sparkCount; i++) {
@@ -516,12 +514,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 createSparkParticle(randomCorner, highEnergy);
             }
             
-            sparkCooldown = 4; // Уменьшаем кулдаун для более частых искр
+            sparkCooldown = 4;
         } else if (sparkCooldown > 0) {
             sparkCooldown--;
         }
         
-        // ЭНЕРГЕТИЧЕСКИЕ ВСПЛЕСКИ - только на биты
         if (isBeat && !energySurgeActive) {
             const intensity = 0.5 + currentPulseIntensity * 0.4;
             activateEnergySurge(intensity);
@@ -590,10 +587,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновленная функция создания угловых частиц
     function createCornerParticles() {
         const corners = [
-            { left: '5%', top: '5%' },     // top-left
-            { left: '95%', top: '5%' },    // top-right
-            { left: '5%', top: '95%' },    // bottom-left
-            { left: '95%', top: '95%' }    // bottom-right
+            { left: '5%', top: '5%' },
+            { left: '95%', top: '5%' },
+            { left: '5%', top: '95%' },
+            { left: '95%', top: '95%' }
         ];
         
         cornerParticlesData = [];
@@ -626,7 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 cornerParticlesContainer.appendChild(particle);
                 
-                // Новые свойства для орбитального движения
                 cornerParticlesData.push({
                     element: particle,
                     baseLeft: parseFloat(corner.left),
@@ -635,9 +631,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     baseOpacity: opacity,
                     cornerIndex: cornerIndex,
                     particleIndex: i,
-                    angle: Math.random() * Math.PI * 2, // Начальный угол
-                    radius: Math.random() * 2 + 1, // Базовый радиус
-                    orbitSpeed: Math.random() * 0.03 + 0.01 // Скорость вращения
+                    angle: Math.random() * Math.PI * 2,
+                    radius: Math.random() * 2 + 1,
+                    orbitSpeed: Math.random() * 0.03 + 0.01
                 });
             }
         });
@@ -652,31 +648,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const particle = particleData.element;
             const { cornerIndex, angle, radius, orbitSpeed } = particleData;
             
-            // ОРБИТАЛЬНОЕ ДВИЖЕНИЕ
-            // Радиус орбиты зависит от силы баса
             const dynamicRadius = radius + (bassEnergy * 8);
-            
-            // Скорость вращения зависит от общей энергии (имитация темпа)
             const dynamicSpeed = orbitSpeed * (0.5 + rms * 1.5);
             
-            // Обновляем угол
             particleData.angle += dynamicSpeed;
             
-            // Вычисляем новую позицию на орбите
             const orbitX = Math.cos(particleData.angle) * dynamicRadius;
             const orbitY = Math.sin(particleData.angle) * dynamicRadius;
             
             const newX = particleData.baseLeft + orbitX;
             const newY = particleData.baseTop + orbitY;
             
-            // Размер зависит от энергии
             const sizeVariation = (bassEnergy + highEnergy) * 6;
             const newSize = particleData.baseSize + sizeVariation;
             
-            // Прозрачность зависит от общей энергии
             const newOpacity = Math.min(0.8, particleData.baseOpacity + rms * 0.4);
             
-            // Усиление на битах
             const beatBoost = isBeat ? currentPulseIntensity * 0.3 : 0;
             
             particle.style.left = `${newX}%`;
@@ -689,7 +676,6 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.background = currentColors.accent;
             particle.style.boxShadow = `0 0 ${newSize * 2}px ${currentColors.accent}`;
             
-            // Плавные переходы
             particle.style.transition = `all 0.3s ease-out`;
         });
     }
@@ -804,7 +790,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         startParticleTransition();
         
-        // Обновляем угловые частицы
         updateCornerParticlesColors();
     }
 
@@ -817,6 +802,93 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.background = currentColors.accent;
             particle.style.boxShadow = `0 0 ${particleData.baseSize * 2}px ${currentColors.accent}`;
         });
+    }
+
+    // Функция для отображения списка треков
+    function renderTrackList() {
+        trackList.innerHTML = '';
+        
+        tracks.forEach((track, index) => {
+            const trackItem = document.createElement('div');
+            trackItem.className = `track-item ${index === currentTrackIndex ? 'active' : ''}`;
+            
+            const progressPercent = index === currentTrackIndex ? (audio.currentTime / audio.duration * 100) || 0 : 0;
+            
+            trackItem.innerHTML = `
+                <div class="track-item-cover" style="background-image: url('${track.cover}')"></div>
+                <div class="track-item-info">
+                    <div class="track-item-title">${track.name}</div>
+                    <div class="track-item-artist">${track.artist}</div>
+                    <div class="track-item-progress">
+                        <div class="track-item-progress-bar" style="width: ${progressPercent}%"></div>
+                    </div>
+                </div>
+                ${index === currentTrackIndex ? '<div class="now-playing-icon">▶</div>' : ''}
+            `;
+            
+            trackItem.addEventListener('click', () => {
+                loadTrack(index, true);
+                // Закрываем панель после выбора трека на мобильных устройствах
+                if (window.innerWidth <= 768) {
+                    toggleTrackList();
+                }
+            });
+            
+            trackList.appendChild(trackItem);
+        });
+    }
+
+    // Функция для фильтрации треков
+    function filterTracks(searchTerm) {
+        const filteredTracks = tracks.filter(track => 
+            track.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            track.artist.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        trackList.innerHTML = '';
+        
+        filteredTracks.forEach((track, index) => {
+            const originalIndex = tracks.findIndex(t => t.path === track.path);
+            const trackItem = document.createElement('div');
+            trackItem.className = `track-item ${originalIndex === currentTrackIndex ? 'active' : ''}`;
+            
+            const progressPercent = originalIndex === currentTrackIndex ? (audio.currentTime / audio.duration * 100) || 0 : 0;
+            
+            trackItem.innerHTML = `
+                <div class="track-item-cover" style="background-image: url('${track.cover}')"></div>
+                <div class="track-item-info">
+                    <div class="track-item-title">${track.name}</div>
+                    <div class="track-item-artist">${track.artist}</div>
+                    <div class="track-item-progress">
+                        <div class="track-item-progress-bar" style="width: ${progressPercent}%"></div>
+                    </div>
+                </div>
+                ${originalIndex === currentTrackIndex ? '<div class="now-playing-icon">▶</div>' : ''}
+            `;
+            
+            trackItem.addEventListener('click', () => {
+                loadTrack(originalIndex, true);
+                if (window.innerWidth <= 768) {
+                    toggleTrackList();
+                }
+            });
+            
+            trackList.appendChild(trackItem);
+        });
+    }
+
+    // Функция переключения панели треков
+    function toggleTrackList() {
+        isTrackListOpen = !isTrackListOpen;
+        
+        if (isTrackListOpen) {
+            playerContainer.classList.add('shifted');
+            trackListPanel.classList.add('active');
+            renderTrackList();
+        } else {
+            playerContainer.classList.remove('shifted');
+            trackListPanel.classList.remove('active');
+        }
     }
 
     // Обновление темы
@@ -879,6 +951,11 @@ document.addEventListener('DOMContentLoaded', function() {
                  inset 0 0 8px rgba(255, 255, 255, 0.2)`;
         }
         
+        // Обновляем список треков, если панель открыта
+        if (isTrackListOpen) {
+            renderTrackList();
+        }
+        
         beatDetected = false;
         currentPulseIntensity = 0;
         lastBeatTime = 0;
@@ -919,6 +996,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressPercent = (audio.currentTime / audio.duration) * 100;
             progress.style.width = `${progressPercent}%`;
             currentTime.textContent = formatTime(audio.currentTime);
+            
+            // Обновляем прогресс в списке треков, если панель открыта
+            if (isTrackListOpen) {
+                const activeTrackItem = trackList.querySelector('.track-item.active');
+                if (activeTrackItem) {
+                    const progressBar = activeTrackItem.querySelector('.track-item-progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = `${progressPercent}%`;
+                    }
+                }
+            }
         }
     }
 
@@ -940,7 +1028,6 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.src = track.path;
             currentTrack.textContent = track.name;
             currentArtist.textContent = track.artist;
-            trackSelect.value = track.path;
             
             updateTheme();
             
@@ -1050,11 +1137,14 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex, true);
     });
 
-    trackSelect.addEventListener('change', function() {
-        const selectedPath = this.value;
-        const trackIndex = tracks.findIndex(track => track.path === selectedPath);
-        if (trackIndex !== -1) {
-            loadTrack(trackIndex, true);
+    trackListBtn.addEventListener('click', toggleTrackList);
+
+    trackSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value;
+        if (searchTerm.trim() === '') {
+            renderTrackList();
+        } else {
+            filterTracks(searchTerm);
         }
     });
 
@@ -1092,6 +1182,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 playPauseBtn.click();
                 break;
+            case 'Escape':
+                if (isTrackListOpen) {
+                    toggleTrackList();
+                }
+                break;
         }
     });
 
@@ -1106,6 +1201,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка ошибок аудио
     audio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
+    });
+
+    // Закрытие панели при клике вне ее
+    document.addEventListener('click', (e) => {
+        if (isTrackListOpen && 
+            !trackListPanel.contains(e.target) && 
+            !trackListBtn.contains(e.target)) {
+            toggleTrackList();
+        }
     });
 
     // Инициализация
