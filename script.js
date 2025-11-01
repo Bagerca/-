@@ -1054,7 +1054,6 @@ document.addEventListener('DOMContentLoaded', function() {
             visualize();
         }).catch(error => {
             console.error('Playback failed:', error);
-            showPlayMessage();
         });
     }
 
@@ -1065,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Попытка автовоспроизведения
+    // Попытка автовоспроизведения (оставлена для совместимости, но не используется)
     function attemptAutoplay() {
         audio.currentTime = 0;
         
@@ -1077,30 +1076,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!analyser) initAudioAnalyzer();
                 visualize();
             }).catch(error => {
-                console.log('Autoplay blocked, showing message');
-                showPlayMessage();
+                console.log('Autoplay blocked');
             });
         }
     }
 
-    // Сообщение о необходимости запуска
+    // Сообщение о необходимости запуска (оставлено пустым)
     function showPlayMessage() {
-        const message = document.createElement('button');
-        message.className = 'autoplay-message';
-        message.textContent = 'Нажмите для запуска музыки';
-        
-        message.addEventListener('click', function() {
-            playTrack();
-            message.remove();
-        });
-        
-        document.body.appendChild(message);
-        
-        setTimeout(() => {
-            if (document.body.contains(message)) {
-                message.remove();
-            }
-        }, 8000);
+        // Функция оставлена для совместимости, но ничего не делает
     }
 
     // Обработчики событий
@@ -1198,17 +1181,5 @@ document.addEventListener('DOMContentLoaded', function() {
     createEdgeGlow();
     loadTrack(0);
     
-    // Автовоспроизведение с задержкой
-    setTimeout(() => {
-        attemptAutoplay();
-    }, 1000);
-
-    // Обработка первого клика для автовоспроизведения
-    const firstClickHandler = function() {
-        if (!isPlaying) {
-            attemptAutoplay();
-        }
-        document.removeEventListener('click', firstClickHandler);
-    };
-    document.addEventListener('click', firstClickHandler);
+    // Автовоспроизведение УДАЛЕНО
 });
