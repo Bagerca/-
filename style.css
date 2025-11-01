@@ -44,7 +44,7 @@ body {
 }
 
 .player-container.shifted {
-    transform: translateX(-200px);
+    transform: translateX(-250px);
     opacity: 0.9;
 }
 
@@ -54,33 +54,42 @@ body {
 }
 
 .player-container.shifted:hover {
-    transform: translateX(-200px) translateY(-5px);
+    transform: translateX(-250px) translateY(-5px);
 }
 
-/* Боковая панель списка треков */
+/* Боковая панель списка треков - стиль как у плеера */
 .track-list-panel {
     position: fixed;
-    top: 0;
-    right: -450px;
-    width: 400px;
-    height: 100%;
+    top: 50%;
+    right: -600px;
+    transform: translateY(-50%);
+    width: 500px;
+    max-height: 80vh;
     background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: -20px 0 40px rgba(0, 0, 0, 0.4);
-    transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    z-index: 15;
+    backdrop-filter: blur(15px);
+    border-radius: 24px;
     padding: 30px;
-    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 15;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .track-list-panel.active {
-    right: 0;
+    right: 50px;
+}
+
+.track-list-panel:hover {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
 }
 
 .track-list-header {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .track-list-header h3 {
@@ -128,7 +137,29 @@ body {
 .track-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 5px;
+}
+
+/* Стилизация скроллбара */
+.track-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.track-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.track-list::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 3px;
+}
+
+.track-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .track-item {
@@ -208,13 +239,6 @@ body {
     width: 0%;
 }
 
-.track-item-duration {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    margin-left: 10px;
-    flex-shrink: 0;
-}
-
 .now-playing-icon {
     margin-left: 10px;
     color: var(--accent-color);
@@ -228,6 +252,7 @@ body {
     50% { opacity: 1; }
 }
 
+/* Остальные стили остаются без изменений */
 .album-art {
     width: 250px;
     height: 250px;
@@ -682,14 +707,34 @@ body {
     right: 0;
 }
 
+@media (max-width: 1100px) {
+    .track-list-panel {
+        width: 450px;
+    }
+    
+    .track-list-panel.active {
+        right: 30px;
+    }
+    
+    .player-container.shifted {
+        transform: translateX(-200px);
+    }
+}
+
 @media (max-width: 768px) {
     .track-list-panel {
-        width: 100%;
+        width: 90%;
+        max-width: 400px;
         right: -100%;
+    }
+    
+    .track-list-panel.active {
+        right: 5%;
     }
     
     .player-container.shifted {
         transform: translateX(-100%);
+        opacity: 0.7;
     }
 }
 
@@ -737,5 +782,9 @@ body {
         width: 40px;
         height: 40px;
         margin-right: 12px;
+    }
+    
+    .track-list-header h3 {
+        font-size: 20px;
     }
 }
