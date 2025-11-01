@@ -531,30 +531,6 @@ body {
     will-change: transform, opacity;
 }
 
-.autoplay-message {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-weight: 500;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    font-size: 14px;
-    font-family: 'Open Sans', sans-serif;
-}
-
-.autoplay-message:hover {
-    background: white;
-    transform: translateX(-50%) scale(1.05);
-}
-
 .edge-effects {
     position: fixed;
     top: 0;
