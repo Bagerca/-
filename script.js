@@ -287,23 +287,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // Неоновые линии
+            // ОБНОВЛЕННЫЕ НЕОНОВЫЕ ЛИНИИ С "ДЫХАНИЕМ"
             if (leftGlow && rightGlow) {
+                const { rms, bassEnergy, isBeat } = features;
+                
+                // Высота = общая громкость + бас
                 const minHeight = 15;
                 const maxHeight = 80;
-                const lineHeight = minHeight + (features.rms * (maxHeight - minHeight));
+                const baseHeight = minHeight + (rms * (maxHeight - minHeight));
+                const bassHeight = bassEnergy * 20;
+                const totalHeight = Math.min(maxHeight, baseHeight + bassHeight);
                 
-                leftGlow.style.height = `${lineHeight}%`;
-                rightGlow.style.height = `${lineHeight}%`;
+                leftGlow.style.height = `${totalHeight}%`;
+                rightGlow.style.height = `${totalHeight}%`;
                 
-                const brightness = 0.6 + (spectralCentroid / bufferLength) * 0.4;
-                leftGlow.style.opacity = brightness;
-                rightGlow.style.opacity = brightness;
+                // Плавное пульсирующее свечение в ритм
+                const time = Date.now() * 0.001;
+                const breathPulse = 0.6 + Math.sin(time * 2) * 0.2; // Медленное "дыхание"
+                const energyPulse = 0.3 + rms * 0.5;
+                const baseOpacity = Math.min(0.9, breathPulse * energyPulse);
+                
+                // Цветовые вспышки только на сильные биты
+                const beatFlash = isBeat ? currentPulseIntensity * 0.7 : 0;
+                const totalOpacity = Math.min(1, baseOpacity + beatFlash);
+                
+                leftGlow.style.opacity = totalOpacity;
+                rightGlow.style.opacity = totalOpacity;
                 
                 const neonColor = tracks[currentTrackIndex].neonColor;
                 const baseBlur = 10;
                 const pulseBlur = currentPulseIntensity * 30;
-                const totalBlur = baseBlur + pulseBlur;
+                const breathBlur = Math.sin(time * 2) * 5; // Пульсация размытия
+                const totalBlur = baseBlur + pulseBlur + breathBlur;
                 
                 leftGlow.style.boxShadow = 
                     `0 0 ${totalBlur}px ${neonColor},
@@ -316,6 +331,10 @@ document.addEventListener('DOMContentLoaded', function() {
                      0 0 ${totalBlur * 1.5}px ${neonColor},
                      0 0 ${totalBlur * 2}px ${neonColor},
                      inset 0 0 8px rgba(255, 255, 255, 0.2)`;
+                
+                // Плавные переходы для "дыхания"
+                leftGlow.style.transition = `all 0.5s ease-out`;
+                rightGlow.style.transition = `all 0.5s ease-out`;
             }
             
             // Обновление движения частиц с новой системой
@@ -586,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Создание угловых частиц
+    // Обновленная функция создания угловых частиц
     function createCornerParticles() {
         const corners = [
             { left: '5%', top: '5%' },     // top-left
@@ -599,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cornerParticlesContainer = document.getElementById('cornerParticles');
         cornerParticlesContainer.innerHTML = '';
         
-        const particlesPerCorner = 8; // Увеличиваем количество частиц в углах
+        const particlesPerCorner = 8;
         
         corners.forEach((corner, cornerIndex) => {
             for (let i = 0; i < particlesPerCorner; i++) {
@@ -625,6 +644,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 cornerParticlesContainer.appendChild(particle);
                 
+                // Новые свойства для орбитального движения
                 cornerParticlesData.push({
                     element: particle,
                     baseLeft: parseFloat(corner.left),
@@ -633,24 +653,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     baseOpacity: opacity,
                     cornerIndex: cornerIndex,
                     particleIndex: i,
-                    timeOffset: Math.random() * Math.PI * 2
+                    angle: Math.random() * Math.PI * 2, // Начальный угол
+                    radius: Math.random() * 2 + 1, // Базовый радиус
+                    orbitSpeed: Math.random() * 0.03 + 0.01 // Скорость вращения
                 });
             }
         });
     }
 
-    // Обновление угловых частиц
+    // Обновленная функция для угловых частиц с орбитальным движением
     function updateCornerParticles(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         const time = Date.now() * 0.001;
         
         cornerParticlesData.forEach(particleData => {
             const particle = particleData.element;
-            const { cornerIndex, particleIndex, timeOffset } = particleData;
+            const { cornerIndex, angle, radius, orbitSpeed } = particleData;
             
-            // Разное движение для разных углов и частиц
-            const moveX = Math.sin(time * 0.5 + timeOffset + cornerIndex) * (rms * 15 + bassEnergy * 10);
-            const moveY = Math.cos(time * 0.4 + timeOffset + cornerIndex) * (rms * 12 + midEnergy * 8);
+            // ОРБИТАЛЬНОЕ ДВИЖЕНИЕ
+            // Радиус орбиты зависит от силы баса
+            const dynamicRadius = radius + (bassEnergy * 8);
+            
+            // Скорость вращения зависит от общей энергии (имитация темпа)
+            const dynamicSpeed = orbitSpeed * (0.5 + rms * 1.5);
+            
+            // Обновляем угол
+            particleData.angle += dynamicSpeed;
+            
+            // Вычисляем новую позицию на орбите
+            const orbitX = Math.cos(particleData.angle) * dynamicRadius;
+            const orbitY = Math.sin(particleData.angle) * dynamicRadius;
+            
+            const newX = particleData.baseLeft + orbitX;
+            const newY = particleData.baseTop + orbitY;
             
             // Размер зависит от энергии
             const sizeVariation = (bassEnergy + highEnergy) * 6;
@@ -662,11 +697,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Усиление на битах
             const beatBoost = isBeat ? currentPulseIntensity * 0.3 : 0;
             
-            const newLeft = particleData.baseLeft + moveX;
-            const newTop = particleData.baseTop + moveY;
-            
-            particle.style.left = `${newLeft}%`;
-            particle.style.top = `${newTop}%`;
+            particle.style.left = `${newX}%`;
+            particle.style.top = `${newY}%`;
             particle.style.width = `${newSize}px`;
             particle.style.height = `${newSize}px`;
             particle.style.opacity = (newOpacity + beatBoost).toString();
@@ -674,6 +706,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentColors = tracks[currentTrackIndex].colors;
             particle.style.background = currentColors.accent;
             particle.style.boxShadow = `0 0 ${newSize * 2}px ${currentColors.accent}`;
+            
+            // Плавные переходы
+            particle.style.transition = `all 0.3s ease-out`;
         });
     }
 
