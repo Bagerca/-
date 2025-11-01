@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const rightGlow = document.getElementById('rightGlow');
     const leftSpotlight = document.getElementById('leftSpotlight');
     const rightSpotlight = document.getElementById('rightSpotlight');
+    const leftBeamDust = document.querySelector('.left-beam-dust');
+    const rightBeamDust = document.querySelector('.right-beam-dust');
 
     // Массив треков
     const tracks = [
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/TangledUp.jpg',
             visualizer: ['#ff9a00', '#ff2e63'],
             neonColor: '#ff9a00',
-            spotlightColor: 'rgba(255, 154, 0, 0.7)'
+            spotlightColor: 'rgba(255, 154, 0, 0.9)'
         },
         { 
             name: 'Valhalla Calling', 
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/ValhallaCalling.jpeg',
             visualizer: ['#1d2b64', '#4a90e2'],
             neonColor: '#4a90e2',
-            spotlightColor: 'rgba(74, 144, 226, 0.7)'
+            spotlightColor: 'rgba(74, 144, 226, 0.9)'
         },
         { 
             name: 'Lust', 
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/Lust.jpeg',
             visualizer: ['#870000', '#ff0000'],
             neonColor: '#ff0000',
-            spotlightColor: 'rgba(255, 0, 0, 0.7)'
+            spotlightColor: 'rgba(255, 0, 0, 0.9)'
         },
         { 
             name: 'Puttin\' On The Ritz', 
@@ -77,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/Puttin On The Ritz.jpg',
             visualizer: ['#141e30', '#ffd700'],
             neonColor: '#ffd700',
-            spotlightColor: 'rgba(255, 215, 0, 0.7)'
+            spotlightColor: 'rgba(255, 215, 0, 0.9)'
         },
         { 
             name: 'The Cigarette Duet (Cover)', 
@@ -91,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/The Cigarette Duet.jpg',
             visualizer: ['#6d214f', '#e84178'],
             neonColor: '#e84178',
-            spotlightColor: 'rgba(232, 65, 120, 0.7)'
+            spotlightColor: 'rgba(232, 65, 120, 0.9)'
         },
         { 
             name: 'A Man Without Love', 
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/A Man Without Love.jpg',
             visualizer: ['#2c3e50', '#4ca1af'],
             neonColor: '#4ca1af',
-            spotlightColor: 'rgba(76, 161, 175, 0.7)'
+            spotlightColor: 'rgba(76, 161, 175, 0.9)'
         }
     ];
 
@@ -145,10 +147,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let edgeGlowElements = {};
     let edgeGlowIntensity = 0;
 
-    // Переменные для прожекторов
+    // Переменные для усиленных прожекторов
     let leftSpotlightAngle = -45;
     let rightSpotlightAngle = 45;
+    let leftSpotlightTargetAngle = -45;
+    let rightSpotlightTargetAngle = 45;
     let spotlightIntensity = 0.7;
+    let lastBeatIntensity = 0;
+    let lensFlareActive = false;
 
     // Частотные диапазоны
     const FREQ_RANGES = {
@@ -238,6 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 isBeat = true;
                 lastBeatTime = currentTime;
                 currentPulseIntensity = 1.0;
+                lastBeatIntensity = bassEnergy;
                 beatCooldown = 8;
             }
         } else {
@@ -263,56 +270,144 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // Обновление театральных прожекторов
+    // Обновление усиленных театральных прожекторов
     function updateSpotlights(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         const time = Date.now() * 0.001;
         
-        // Левый прожектор - бас и ритм
+        // МОЩНЫЕ ДВИЖЕНИЯ ПРОЖЕКТОРОВ
+        
+        // Левый прожектор - бас и ритм (мощные, размашистые движения)
         const leftBaseAngle = -45;
-        const leftBassSwing = Math.sin(time * 0.5) * bassEnergy * 25;
-        const leftBeatSwing = isBeat ? (Math.random() - 0.5) * 15 * currentPulseIntensity : 0;
-        const leftAngle = leftBaseAngle + leftBassSwing + leftBeatSwing;
         
-        // Правый прожектор - мелодия и высокие частоты
+        // Бас создает мощные колебания
+        const leftBassSwing = Math.sin(time * 0.4) * bassEnergy * 40;
+        
+        // Резкие удары на битах
+        const leftBeatImpact = isBeat ? (Math.random() - 0.5) * 25 * currentPulseIntensity : 0;
+        
+        // Высокие частоты добавляют дрожание
+        const leftVibration = Math.sin(time * 8) * highEnergy * 8;
+        
+        // Плавное движение к целевой позиции с инерцией
+        leftSpotlightTargetAngle = leftBaseAngle + leftBassSwing + leftBeatImpact + leftVibration;
+        leftSpotlightAngle += (leftSpotlightTargetAngle - leftSpotlightAngle) * 0.3;
+        
+        // Правый прожектор - мелодия и высокие частоты (плавные, изящные движения)
         const rightBaseAngle = 45;
-        const rightMelodySwing = Math.sin(time * 0.7 + 1) * midEnergy * 20;
-        const rightHighSwing = Math.sin(time * 2.0) * highEnergy * 10;
-        const rightAngle = rightBaseAngle + rightMelodySwing + rightHighSwing;
         
-        // Интенсивность прожекторов
-        const baseIntensity = 0.4;
-        const energyIntensity = rms * 0.5;
-        const beatIntensity = isBeat ? currentPulseIntensity * 0.3 : 0;
-        const totalIntensity = Math.min(0.9, baseIntensity + energyIntensity + beatIntensity);
+        // Средние частоты создают плавные волны
+        const rightMelodyWave = Math.sin(time * 0.6 + 1) * midEnergy * 35;
         
-        // Масштаб прожекторов (расширение под музыку)
+        // Высокие частоты - быстрая вибрация
+        const rightHighVibration = Math.sin(time * 12) * highEnergy * 12;
+        
+        // Резкие движения на битах
+        const rightBeatSnap = isBeat ? (Math.random() - 0.5) * 20 * currentPulseIntensity : 0;
+        
+        rightSpotlightTargetAngle = rightBaseAngle + rightMelodyWave + rightHighVibration + rightBeatSnap;
+        rightSpotlightAngle += (rightSpotlightTargetAngle - rightSpotlightAngle) * 0.4;
+        
+        // ИНТЕНСИВНОСТЬ И ЭФФЕКТЫ
+        
+        // Базовая интенсивность
+        const baseIntensity = 0.5;
+        
+        // Энергия музыки усиливает интенсивность
+        const energyIntensity = rms * 0.6;
+        
+        // Биты создают вспышки
+        const beatIntensity = isBeat ? currentPulseIntensity * 0.4 : 0;
+        
+        // Общая интенсивность
+        const totalIntensity = Math.min(1, baseIntensity + energyIntensity + beatIntensity);
+        
+        // МАСШТАБИРОВАНИЕ И РАСШИРЕНИЕ
+        
+        // Базовый масштаб
         const baseScale = 1.0;
-        const energyScale = rms * 0.8;
-        const totalScale = baseScale + energyScale;
         
-        // Применяем изменения к левому прожектору
+        // Энергия увеличивает размер луча
+        const energyScale = rms * 1.2;
+        
+        // Биты создают резкое расширение
+        const beatScale = isBeat ? currentPulseIntensity * 0.8 : 0;
+        
+        const totalScale = baseScale + energyScale + beatScale;
+        
+        // ПРИМЕНЕНИЕ ИЗМЕНЕНИЙ К ЛЕВОМУ ПРОЖЕКТОРУ
         if (leftSpotlight) {
+            const leftCore = leftSpotlight.querySelector('.spotlight-core');
             const leftBeam = leftSpotlight.querySelector('.spotlight-beam');
             const leftGlow = leftSpotlight.querySelector('.spotlight-glow');
+            const leftLensFlare = leftSpotlight.querySelector('.lens-flare');
             
-            leftBeam.style.transform = `rotate(${leftAngle}deg) scaleY(${totalScale})`;
-            leftBeam.style.opacity = totalIntensity.toString();
-            leftGlow.style.opacity = (totalIntensity * 1.2).toString();
+            // Применяем поворот и масштаб
+            leftCore.style.transform = `rotate(${leftSpotlightAngle}deg) scaleY(${totalScale})`;
+            leftBeam.style.transform = `rotate(${leftSpotlightAngle}deg) scaleY(${totalScale * 1.1})`;
+            
+            // Интенсивность свечения
+            leftCore.style.opacity = (totalIntensity * 0.9).toString();
+            leftBeam.style.opacity = (totalIntensity * 0.7).toString();
+            leftGlow.style.opacity = (totalIntensity * 1.1).toString();
+            
+            // Эффекты на битах
+            if (isBeat) {
+                leftCore.style.animation = 'corePulse 0.3s ease-in-out';
+                leftBeam.style.animation = 'spotlightPulse 0.3s ease-in-out';
+                leftSpotlight.style.animation = 'shake 0.2s ease-in-out';
+                
+                // Активация линз-флера на сильных битах
+                if (bassEnergy > 0.3) {
+                    leftLensFlare.style.opacity = '0.8';
+                    setTimeout(() => {
+                        leftLensFlare.style.opacity = '0';
+                    }, 300);
+                }
+            }
         }
         
-        // Применяем изменения к правому прожектору
+        // ПРИМЕНЕНИЕ ИЗМЕНЕНИЙ К ПРАВОМУ ПРОЖЕКТОРУ
         if (rightSpotlight) {
+            const rightCore = rightSpotlight.querySelector('.spotlight-core');
             const rightBeam = rightSpotlight.querySelector('.spotlight-beam');
             const rightGlow = rightSpotlight.querySelector('.spotlight-glow');
+            const rightLensFlare = rightSpotlight.querySelector('.lens-flare');
             
-            rightBeam.style.transform = `rotate(${rightAngle}deg) scaleY(${totalScale})`;
-            rightBeam.style.opacity = totalIntensity.toString();
-            rightGlow.style.opacity = (totalIntensity * 1.2).toString();
+            // Применяем поворот и масштаб
+            rightCore.style.transform = `rotate(${rightSpotlightAngle}deg) scaleY(${totalScale})`;
+            rightBeam.style.transform = `rotate(${rightSpotlightAngle}deg) scaleY(${totalScale * 1.1})`;
+            
+            // Интенсивность свечения
+            rightCore.style.opacity = (totalIntensity * 0.9).toString();
+            rightBeam.style.opacity = (totalIntensity * 0.7).toString();
+            rightGlow.style.opacity = (totalIntensity * 1.1).toString();
+            
+            // Эффекты на битах
+            if (isBeat) {
+                rightCore.style.animation = 'corePulse 0.3s ease-in-out';
+                rightBeam.style.animation = 'spotlightPulse 0.3s ease-in-out';
+                rightSpotlight.style.animation = 'shakeRight 0.2s ease-in-out';
+                
+                // Активация линз-флера на сильных битах
+                if (midEnergy > 0.3) {
+                    rightLensFlare.style.opacity = '0.8';
+                    setTimeout(() => {
+                        rightLensFlare.style.opacity = '0';
+                    }, 300);
+                }
+            }
+        }
+        
+        // ОБНОВЛЕНИЕ ЧАСТИЦ ПЫЛИ В ЛУЧАХ
+        if (leftBeamDust && rightBeamDust) {
+            const dustIntensity = Math.min(1, rms * 2 + (isBeat ? 0.3 : 0));
+            leftBeamDust.style.opacity = dustIntensity.toString();
+            rightBeamDust.style.opacity = dustIntensity.toString();
         }
     }
 
-    // Визуализация звука с театральными прожекторами
+    // Визуализация звука с усиленными прожекторами
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -378,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
-            // Обновление театральных прожекторов
+            // ОБНОВЛЕНИЕ УСИЛЕННЫХ ПРОЖЕКТОРОВ
             updateSpotlights(features);
             
             // Обновление движения частиц
@@ -817,17 +912,30 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сброс прожекторов
         if (leftSpotlight && rightSpotlight) {
+            const leftCore = leftSpotlight.querySelector('.spotlight-core');
             const leftBeam = leftSpotlight.querySelector('.spotlight-beam');
-            const rightBeam = rightSpotlight.querySelector('.spotlight-beam');
             const leftGlowEl = leftSpotlight.querySelector('.spotlight-glow');
+            const rightCore = rightSpotlight.querySelector('.spotlight-core');
+            const rightBeam = rightSpotlight.querySelector('.spotlight-beam');
             const rightGlowEl = rightSpotlight.querySelector('.spotlight-glow');
             
+            leftCore.style.transform = 'rotate(-45deg) scaleY(1)';
             leftBeam.style.transform = 'rotate(-45deg) scaleY(1)';
+            leftCore.style.opacity = '0.8';
+            leftBeam.style.opacity = '0.6';
+            leftGlowEl.style.opacity = '0.7';
+            
+            rightCore.style.transform = 'rotate(45deg) scaleY(1)';
             rightBeam.style.transform = 'rotate(45deg) scaleY(1)';
-            leftBeam.style.opacity = '0.7';
-            rightBeam.style.opacity = '0.7';
-            leftGlowEl.style.opacity = '0.6';
-            rightGlowEl.style.opacity = '0.6';
+            rightCore.style.opacity = '0.8';
+            rightBeam.style.opacity = '0.6';
+            rightGlowEl.style.opacity = '0.7';
+        }
+        
+        // Сброс частиц пыли
+        if (leftBeamDust && rightBeamDust) {
+            leftBeamDust.style.opacity = '0';
+            rightBeamDust.style.opacity = '0';
         }
         
         beatDetected = false;
