@@ -70,13 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Taco',
             path: 'audio/Taco_Puttin_On_The_Ritz.m4a',
             colors: {
-                primary: '#0a0a14',
-                secondary: '#1a1a2e',
-                accent: '#ffd700'
+                primary: '#080708',    // Глубокий почти черный
+                secondary: '#3c345a',  // Богатый фиолетово-синий
+                accent: '#86bbd6'      // Светлый голубой - цвет элегантности
             },
             cover: 'picture/Puttin_On_The_Ritz.jpg',
-            visualizer: ['#141e30', '#ffd700'],
-            neonColor: '#ffd700'
+            visualizer: ['#86bbd6', '#3d82a5', '#78afbc', '#92703f', '#b0ab8e'],
+            neonColor: '#86bbd6'
         },
         { 
             name: 'The Cigarette Duet', 
