@@ -106,20 +106,105 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
+    // === ОПТИМИЗАЦИЯ 1: Предварительная инициализация анализатора ===
+    let audioContext, analyser, dataArray, bufferLength, audioSource;
+    
+    // Инициализация аудио системы один раз
+    function initAudioSystem() {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            
+            // Создаем источник один раз и переиспользуем
+            audioSource = audioContext.createMediaElementSource(audio);
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            analyser.fftSize = 256;
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            
+            console.log('Audio system initialized');
+        } catch (error) {
+            console.error('Audio system initialization failed:', error);
+        }
+    }
+
+    // === ОПТИМИЗАЦИЯ 2: Предзагрузка треков ===
+    const preloadedTracks = new Map();
+    
+    function preloadTrack(index) {
+        return new Promise((resolve) => {
+            if (preloadedTracks.has(index)) {
+                resolve(preloadedTracks.get(index));
+                return;
+            }
+            
+            const track = tracks[index];
+            const audioEl = new Audio();
+            audioEl.src = track.path;
+            audioEl.preload = 'metadata';
+            
+            const onLoaded = () => {
+                preloadedTracks.set(index, {
+                    ...track,
+                    audioElement: audioEl,
+                    duration: audioEl.duration,
+                    ready: true
+                });
+                resolve(preloadedTracks.get(index));
+                audioEl.removeEventListener('loadedmetadata', onLoaded);
+            };
+            
+            if (audioEl.readyState >= 1) {
+                onLoaded();
+            } else {
+                audioEl.addEventListener('loadedmetadata', onLoaded);
+            }
+            
+            // Таймаут на случай ошибки
+            setTimeout(() => {
+                if (!preloadedTracks.has(index)) {
+                    preloadedTracks.set(index, {
+                        ...track,
+                        audioElement: audioEl,
+                        duration: 0,
+                        ready: false
+                    });
+                    resolve(preloadedTracks.get(index));
+                }
+            }, 1000);
+        });
+    }
+    
+    // Предзагрузка соседних треков
+    function preloadAdjacentTracks(currentIndex) {
+        const indicesToPreload = [
+            (currentIndex - 1 + tracks.length) % tracks.length,
+            (currentIndex + 1) % tracks.length,
+            (currentIndex + 2) % tracks.length
+        ];
+        
+        indicesToPreload.forEach(index => {
+            if (!preloadedTracks.has(index)) {
+                preloadTrack(index);
+            }
+        });
+    }
+
     let currentTrackIndex = 0;
     let isPlaying = false;
     let isTrackListOpen = false;
     
     // Режимы воспроизведения
     const PLAYBACK_MODES = {
-        PLAYLIST: 0,    // Повтор плейлиста
-        SINGLE: 1,      // Повтор одного трека
-        ONCE: 2         // Один трек
+        PLAYLIST: 0,
+        SINGLE: 1,
+        ONCE: 2
     };
     
-    let playbackMode = PLAYBACK_MODES.PLAYLIST; // По умолчанию повтор плейлиста
+    let playbackMode = PLAYBACK_MODES.PLAYLIST;
     
-    let audioContext, analyser, dataArray, bufferLength;
     let visualizerBars = [];
     let animationId = null;
     
@@ -129,14 +214,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let beatThreshold = 0.7;
     let currentPulseIntensity = 0;
 
-    // Переменные для анимации частиц
+    // === ОПТИМИЗАЦИЯ 4: Оптимизация частиц ===
     let particlesData = [];
     let cornerParticlesData = [];
     let isParticlesTransitioning = false;
-    let particleTransitionProgress = 0;
     let currentMusicIntensity = 0;
 
-    // Новые переменные для расширенного анализа
+    // Переменные для расширенного анализа
     let energyHistory = [];
     let energyAverage = 0;
     let spectralCentroid = 0;
@@ -179,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
         
-        // Визуальная обратная связь
         playbackModeBtn.style.transform = 'scale(1.1)';
         setTimeout(() => {
             playbackModeBtn.style.transform = 'scale(1)';
@@ -197,7 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const volumeValue = volumeSlider.value;
         const accentColor = tracks[currentTrackIndex].colors.accent;
         
-        // Обновляем градиент ползунка
         volumeSlider.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${volumeValue}%, rgba(255, 255, 255, 0.1) ${volumeValue}%, rgba(255, 255, 255, 0.1) 100%)`;
     }
 
@@ -213,25 +295,6 @@ document.addEventListener('DOMContentLoaded', function() {
             bar.style.alignSelf = 'flex-end';
             visualizer.appendChild(bar);
             visualizerBars.push(bar);
-        }
-    }
-
-    // Инициализация аудиоанализатора
-    function initAudioAnalyzer() {
-        try {
-            if (audioContext) return;
-            
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            const source = audioContext.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-            
-            analyser.fftSize = 256;
-            bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-        } catch (error) {
-            console.error('Audio analyzer initialization failed:', error);
         }
     }
 
@@ -307,7 +370,37 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // Визуализация звука с увеличенной чувствительностью неоновых линий
+    // === ОПТИМИЗАЦИЯ 3: Плавный переход визуализации ===
+    let isVisualizationTransitioning = false;
+    let targetColors = null;
+    let currentColors = null;
+    let colorTransitionProgress = 0;
+
+    function smoothColorTransition(startColor, endColor, progress) {
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : [0, 0, 0];
+        };
+
+        const rgbToHex = (r, g, b) => {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        };
+
+        const startRgb = hexToRgb(startColor);
+        const endRgb = hexToRgb(endColor);
+
+        const r = Math.round(startRgb[0] + (endRgb[0] - startRgb[0]) * progress);
+        const g = Math.round(startRgb[1] + (endRgb[1] - startRgb[1]) * progress);
+        const b = Math.round(startRgb[2] + (endRgb[2] - startRgb[2]) * progress);
+
+        return rgbToHex(r, g, b);
+    }
+
+    // Визуализация звука с плавными переходами
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -315,35 +408,73 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const features = analyzeSpectralFeatures();
             
-            // Обновление визуализатора с новым распределением
-            for (let i = 0; i < visualizerBars.length; i++) {
-                const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
-                const value = dataArray[barIndex] / 255;
-                
-                let baseHeight = Math.max(5, value * 110);
-                
-                if (i < 10) {
-                    const bassBoost = features.bassEnergy * 25;
-                    const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
-                    baseHeight += bassBoost + beatBoost;
-                    
-                } else if (i < 20) {
-                    const midBoost = features.midEnergy * 18;
-                    const energyBoost = features.rms * 12;
-                    baseHeight += midBoost + energyBoost;
-                    
-                } else {
-                    const highBoost = features.highEnergy * 20;
-                    baseHeight += highBoost;
+            // Плавный переход цветов
+            if (isVisualizationTransitioning && targetColors) {
+                colorTransitionProgress += 0.05;
+                if (colorTransitionProgress >= 1) {
+                    colorTransitionProgress = 1;
+                    isVisualizationTransitioning = false;
+                    currentColors = targetColors;
+                    targetColors = null;
                 }
                 
-                visualizerBars[i].style.height = `${baseHeight}px`;
+                const transitionColors = [
+                    smoothColorTransition(currentColors[0], targetColors[0], colorTransitionProgress),
+                    smoothColorTransition(currentColors[1], targetColors[1], colorTransitionProgress)
+                ];
                 
-                const currentColors = tracks[currentTrackIndex].visualizer;
-                visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
+                // Обновление визуализатора с переходом цветов
+                for (let i = 0; i < visualizerBars.length; i++) {
+                    const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
+                    const value = dataArray[barIndex] / 255;
+                    
+                    let baseHeight = Math.max(5, value * 110);
+                    
+                    if (i < 10) {
+                        const bassBoost = features.bassEnergy * 25;
+                        const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
+                        baseHeight += bassBoost + beatBoost;
+                    } else if (i < 20) {
+                        const midBoost = features.midEnergy * 18;
+                        const energyBoost = features.rms * 12;
+                        baseHeight += midBoost + energyBoost;
+                    } else {
+                        const highBoost = features.highEnergy * 20;
+                        baseHeight += highBoost;
+                    }
+                    
+                    visualizerBars[i].style.height = `${baseHeight}px`;
+                    visualizerBars[i].style.background = `linear-gradient(to top, ${transitionColors[0]}, ${transitionColors[1]})`;
+                }
+            } else {
+                // Стандартное обновление
+                for (let i = 0; i < visualizerBars.length; i++) {
+                    const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
+                    const value = dataArray[barIndex] / 255;
+                    
+                    let baseHeight = Math.max(5, value * 110);
+                    
+                    if (i < 10) {
+                        const bassBoost = features.bassEnergy * 25;
+                        const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
+                        baseHeight += bassBoost + beatBoost;
+                    } else if (i < 20) {
+                        const midBoost = features.midEnergy * 18;
+                        const energyBoost = features.rms * 12;
+                        baseHeight += midBoost + energyBoost;
+                    } else {
+                        const highBoost = features.highEnergy * 20;
+                        baseHeight += highBoost;
+                    }
+                    
+                    visualizerBars[i].style.height = `${baseHeight}px`;
+                    
+                    const currentVizColors = tracks[currentTrackIndex].visualizer;
+                    visualizerBars[i].style.background = `linear-gradient(to top, ${currentVizColors[0]}, ${currentVizColors[1]})`;
+                }
             }
             
-            // НЕОНОВЫЕ ЛИНИИ
+            // НЕОНОВЫЕ ЛИНИИ с плавным переходом
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 85;
@@ -373,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
-            // Обновление движения частиц с новой системой
+            // Обновление движения частиц
             updateParticlesMovement(features);
             updateCornerParticles(features);
             
@@ -382,6 +513,8 @@ document.addEventListener('DOMContentLoaded', function() {
             updateSparkParticles();
             updateEnergySurge();
             updateEdgeGlow(features);
+            
+            updatePulseIntensity();
             
             animationId = requestAnimationFrame(visualize);
         } catch (error) {
@@ -552,7 +685,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Анализ триггеров для эффектов краев с новым распределением
+    // Анализ триггеров для эффектов краев
     function analyzeEdgeEffects(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
@@ -576,7 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обновление движения частиц с новой системой распределения
+    // Обновление движения частиц
     function updateParticlesMovement(features) {
         if (isParticlesTransitioning || particlesData.length === 0) return;
         
@@ -592,15 +725,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (index % 10 < 3) {
                 moveX = Math.sin(time * 0.3 + individualOffset) * bassEnergy * 2.0;
                 moveY = Math.cos(time * 0.2 + individualOffset) * bassEnergy * 1.8;
-                
             } else if (index % 10 < 7) {
                 moveX = Math.sin(time * 0.7 + individualOffset) * midEnergy * 1.2;
                 moveY = Math.cos(time * 0.5 + individualOffset) * midEnergy * 1.0;
-                
             } else if (index % 10 < 9) {
                 moveX = Math.sin(time * 2.0 + individualOffset) * highEnergy * 0.8;
                 moveY = Math.cos(time * 1.8 + individualOffset) * highEnergy * 0.6;
-                
             } else {
                 moveX = isBeat ? (Math.random() - 0.5) * 12 * currentPulseIntensity : 0;
                 moveY = isBeat ? (Math.random() - 0.5) * 10 * currentPulseIntensity : 0;
@@ -635,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновленная функция создания угловых частиц
+    // Создание угловых частиц
     function createCornerParticles() {
         const corners = [
             { left: '5%', top: '5%' },
@@ -690,7 +820,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновленная функция для угловых частиц с орбитальным движением
+    // Обновление угловых частиц
     function updateCornerParticles(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         const time = Date.now() * 0.001;
@@ -731,7 +861,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Создание частиц с анимацией перехода
+    // === ОПТИМИЗАЦИЯ 4: Создание частиц с пулом объектов ===
     function createParticles() {
         particles.innerHTML = '';
         particlesData = [];
@@ -935,13 +1065,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обновление темы
+    // === ОПТИМИЗАЦИЯ 5: Асинхронная загрузка с плавными переходами ===
+    let isTrackLoading = false;
+    let nextTrackIndex = null;
+
+    // Обновление темы с плавными переходами
     function updateTheme() {
         const currentColors = tracks[currentTrackIndex].colors;
         const neonColor = tracks[currentTrackIndex].neonColor;
+        const visualizerColors = tracks[currentTrackIndex].visualizer;
         
+        // Плавный переход фона
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
+        
+        // Плавный переход прогресс-бара
         progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
+        
+        // Плавный переход кнопки play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
         document.documentElement.style.setProperty('--neon-color', neonColor);
@@ -963,11 +1103,19 @@ document.addEventListener('DOMContentLoaded', function() {
         style.id = 'dynamic-neon-styles';
         document.head.appendChild(style);
         
+        // Плавное обновление изображения альбома
         albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
+        
+        // Запуск плавного перехода цветов визуализатора
+        isVisualizationTransitioning = true;
+        colorTransitionProgress = 0;
+        targetColors = visualizerColors;
+        currentColors = visualizerColors; // Начальные цвета для перехода
         
         // Обновляем ползунок громкости
         updateVolumeSlider();
         
+        // Обновляем частицы без полного пересоздания
         if (particlesData.length === 0) {
             createParticles();
         } else {
@@ -1060,60 +1208,85 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Загрузка трека
-    function loadTrack(index, autoPlay = false) {
-        if (index >= 0 && index < tracks.length) {
-            currentTrackIndex = index;
-            const track = tracks[currentTrackIndex];
-            
-            audio.pause();
-            isPlaying = false;
-            // Устанавливаем иконку play
-            playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
-            
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-            
-            audio.src = track.path;
-            currentTrack.textContent = track.name;
-            currentArtist.textContent = track.artist;
-            
-            updateTheme();
-            
-            const onLoaded = function() {
-                duration.textContent = formatTime(audio.duration);
-                audio.removeEventListener('loadedmetadata', onLoaded);
+    // === ОПТИМИЗАЦИЯ 5: Асинхронная загрузка треков ===
+    async function loadTrack(index, autoPlay = false) {
+        if (isTrackLoading || index < 0 || index >= tracks.length) return;
+        
+        isTrackLoading = true;
+        currentTrackIndex = index;
+        const track = tracks[currentTrackIndex];
+        
+        // Предзагрузка соседних треков
+        preloadAdjacentTracks(index);
+        
+        // Быстрое обновление UI
+        audio.pause();
+        isPlaying = false;
+        playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
+        currentTrack.textContent = track.name;
+        currentArtist.textContent = track.artist;
+        
+        // Немедленное обновление темы
+        updateTheme();
+        
+        try {
+            // Используем предзагруженный трек если доступен
+            const preloaded = preloadedTracks.get(index);
+            if (preloaded && preloaded.ready) {
+                audio.src = track.path;
+                
+                // Быстрая установка длительности если доступна
+                if (preloaded.duration > 0) {
+                    duration.textContent = formatTime(preloaded.duration);
+                }
                 
                 if (autoPlay) {
-                    setTimeout(() => {
-                        playTrack();
-                    }, 100);
+                    await playTrack();
                 }
-            };
-            
-            if (audio.readyState >= 1) {
-                onLoaded();
             } else {
-                audio.addEventListener('loadedmetadata', onLoaded);
+                // Стандартная загрузка
+                audio.src = track.path;
+                
+                const onLoaded = function() {
+                    duration.textContent = formatTime(audio.duration);
+                    audio.removeEventListener('loadedmetadata', onLoaded);
+                    
+                    if (autoPlay) {
+                        playTrack();
+                    }
+                };
+                
+                if (audio.readyState >= 1) {
+                    onLoaded();
+                } else {
+                    audio.addEventListener('loadedmetadata', onLoaded);
+                }
             }
+        } catch (error) {
+            console.error('Track loading error:', error);
+        } finally {
+            isTrackLoading = false;
         }
     }
 
     // Воспроизведение трека
-    function playTrack() {
-        audio.play().then(() => {
-            isPlaying = true;
-            // Меняем на иконку паузы
-            playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-            if (!analyser) {
-                initAudioAnalyzer();
+    async function playTrack() {
+        try {
+            // Возобновляем аудиоконтекст если нужно
+            if (audioContext && audioContext.state === 'suspended') {
+                await audioContext.resume();
             }
-            visualize();
-        }).catch(error => {
+            
+            await audio.play();
+            isPlaying = true;
+            playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+            
+            if (!animationId) {
+                visualize();
+            }
+        } catch (error) {
             console.error('Playback failed:', error);
-        });
+        }
     }
 
     // Перемотка вперед/назад
@@ -1123,40 +1296,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Попытка автовоспроизведения (оставлена для совместимости, но не используется)
-    function attemptAutoplay() {
-        audio.currentTime = 0;
-        
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                // Меняем на иконку паузы
-                playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                if (!analyser) initAudioAnalyzer();
-                visualize();
-            }).catch(error => {
-                console.log('Autoplay blocked');
-            });
-        }
-    }
-
-    // Сообщение о необходимости запуска (оставлено пустым)
-    function showPlayMessage() {
-        // Функция оставлена для совместимости, но ничего не делает
-    }
-
     // Обработчики событий
     playPauseBtn.addEventListener('click', () => {
         if (isPlaying) {
             audio.pause();
             isPlaying = false;
-            // Меняем на иконку play
             playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
         } else {
             playTrack();
         }
@@ -1174,7 +1319,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrack(newIndex, true);
     });
 
-    // Обработчик для кнопки режима воспроизведения
     playbackModeBtn.addEventListener('click', togglePlaybackMode);
 
     trackListBtn.addEventListener('click', toggleTrackList);
@@ -1190,7 +1334,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     volumeSlider.addEventListener('input', () => {
         audio.volume = volumeSlider.value / 100;
-        updateVolumeSlider(); // Обновляем внешний вид ползунка
+        updateVolumeSlider();
     });
 
     progressBar.addEventListener('click', (e) => {
@@ -1234,27 +1378,19 @@ document.addEventListener('DOMContentLoaded', function() {
     audio.addEventListener('ended', () => {
         switch(playbackMode) {
             case PLAYBACK_MODES.PLAYLIST:
-                // Повтор плейлиста - переходим к следующему треку по кругу
                 let newIndex = currentTrackIndex + 1;
                 if (newIndex >= tracks.length) newIndex = 0;
                 loadTrack(newIndex, true);
                 break;
                 
             case PLAYBACK_MODES.SINGLE:
-                // Повтор одного трека - снова загружаем текущий трек
                 loadTrack(currentTrackIndex, true);
                 break;
                 
             case PLAYBACK_MODES.ONCE:
-                // Один трек - останавливаем воспроизведение
                 audio.pause();
                 isPlaying = false;
-                // Меняем на иконку play
                 playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                    animationId = null;
-                }
                 break;
         }
     });
@@ -1262,16 +1398,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка ошибок аудио
     audio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
+        isTrackLoading = false;
     });
 
     // Инициализация
-    createVisualizer();
-    createParticles();
-    createCornerParticles();
-    createEdgeGlow();
-    updatePlaybackModeButton(); // Инициализируем кнопку режима воспроизведения
-    updateVolumeSlider(); // Инициализируем ползунок громкости
-    loadTrack(0);
-    
-    // Автовоспроизведение УДАЛЕНО
+    function init() {
+        createVisualizer();
+        createParticles();
+        createCornerParticles();
+        createEdgeGlow();
+        initAudioSystem();
+        updatePlaybackModeButton();
+        updateVolumeSlider();
+        
+        // Предзагрузка первого трека и соседних
+        preloadTrack(0).then(() => {
+            loadTrack(0);
+            preloadAdjacentTracks(0);
+        });
+    }
+
+    // Запуск инициализации
+    init();
 });
