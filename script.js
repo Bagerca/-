@@ -29,7 +29,7 @@ const tracks = [
     { 
         name: 'Tangled Up', 
         artist: 'Caro Emerald',
-        path: 'https://drive.google.com/file/d/1SvAf6kRJ-t0AuHj_QPdyhwb0hneijfML/view?usp=drive_link',
+        path: 'assets/Caro_Emerald_Tangled_Up.mp3',
         colors: {
             primary: '#1a1a2e',
             secondary: '#16213e',
@@ -42,7 +42,7 @@ const tracks = [
     { 
         name: 'Valhalla Calling', 
         artist: 'Miracle Of Sound',
-        path: 'https://drive.google.com/uc?export=download&id=ТВОЙ_ID_VALHALLA',
+        path: 'assets/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
         colors: {
             primary: '#0f1b2e',
             secondary: '#1d2b64',
@@ -55,7 +55,7 @@ const tracks = [
     { 
         name: 'Lust', 
         artist: 'Marino ft. Alexandria',
-        path: 'assets/Marino_Lust.m4a', // Оставляем локальный, раз он работает
+        path: 'assets/Marino_Lust.mp3',
         colors: {
             primary: '#1a0a0a',
             secondary: '#330000',
@@ -68,7 +68,7 @@ const tracks = [
     { 
         name: 'Puttin On The Ritz', 
         artist: 'Taco',
-        path: 'https://drive.google.com/uc?export=download&id=ТВОЙ_ID_RITZ',
+        path: 'assets/Taco_Puttin_On_The_Ritz.mp3',
         colors: {
             primary: '#0a0a14',
             secondary: '#1a1a2e',
@@ -81,7 +81,7 @@ const tracks = [
     { 
         name: 'The Cigarette Duet', 
         artist: 'Princess Chelsea',
-        path: 'https://drive.google.com/uc?export=download&id=ТВОЙ_ID_CIGARETTE',
+        path: 'assets/Princess_Chelsea_Cigarette_Duet.mp3',
         colors: {
             primary: '#2d1b2e',
             secondary: '#4a2c4d',
@@ -94,7 +94,7 @@ const tracks = [
     { 
         name: 'A Man Without Love', 
         artist: 'Engelbert Humperdinck',
-        path: 'https://drive.google.com/uc?export=download&id=ТВОЙ_ID_MAN_WITHOUT_LOVE',
+        path: 'assets/Engelbert_Humperdinck_Man_Without_Love.mp3',
         colors: {
             primary: '#0f1c2e',
             secondary: '#1f3a5c',
@@ -104,10 +104,11 @@ const tracks = [
         visualizer: ['#2c3e50', '#4ca1af'],
         neonColor: '#4ca1af'
     },
+    // Новые треки в формате MP3
     { 
         name: 'IRIS OUT', 
         artist: 'Kenshi Yonezu',
-        path: 'https://drive.google.com/uc?export=download&id=ТВОЙ_ID_IRIS_OUT',
+        path: 'assets/Kenshi_Yonezu_IRIS_OUT.mp3',
         colors: {
             primary: '#1a0f2e',
             secondary: '#2d1a4a', 
@@ -120,7 +121,7 @@ const tracks = [
     { 
         name: 'God Rest Ye Merry Gentlemen', 
         artist: 'Pentatonix',
-        path: 'https://drive.google.com/uc?export=download&id=ТВОЙ_ID_PENTATONIX',
+        path: 'assets/Pentatonix_God_Rest_Ye_Merry_Gentlemen.mp3',
         colors: {
             primary: '#0f2e1a',
             secondary: '#1a4a2d',
