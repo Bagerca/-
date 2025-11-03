@@ -42,7 +42,7 @@ const tracks = [
     { 
         name: 'Valhalla Calling', 
         artist: 'Miracle Of Sound',
-        path: 'assets/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
+        path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
         colors: {
             primary: '#0f1b2e',
             secondary: '#1d2b64',
@@ -55,7 +55,7 @@ const tracks = [
     { 
         name: 'Lust', 
         artist: 'Marino ft. Alexandria',
-        path: 'assets/Marino_Lust.mp3',
+        path: 'audio/Marino_Lust.mp3',
         colors: {
             primary: '#1a0a0a',
             secondary: '#330000',
@@ -68,7 +68,7 @@ const tracks = [
     { 
         name: 'Puttin On The Ritz', 
         artist: 'Taco',
-        path: 'assets/Taco_Puttin_On_The_Ritz.mp3',
+        path: 'audio/Taco_Puttin_On_The_Ritz.mp3',
         colors: {
             primary: '#0a0a14',
             secondary: '#1a1a2e',
@@ -81,7 +81,7 @@ const tracks = [
     { 
         name: 'The Cigarette Duet', 
         artist: 'Princess Chelsea',
-        path: 'assets/Princess_Chelsea_Cigarette_Duet.mp3',
+        path: 'audio/Princess_Chelsea_Cigarette_Duet.mp3',
         colors: {
             primary: '#2d1b2e',
             secondary: '#4a2c4d',
@@ -94,7 +94,7 @@ const tracks = [
     { 
         name: 'A Man Without Love', 
         artist: 'Engelbert Humperdinck',
-        path: 'assets/Engelbert_Humperdinck_Man_Without_Love.mp3',
+        path: 'audio/Engelbert_Humperdinck_Man_Without_Love.mp3',
         colors: {
             primary: '#0f1c2e',
             secondary: '#1f3a5c',
@@ -108,7 +108,7 @@ const tracks = [
     { 
         name: 'IRIS OUT', 
         artist: 'Kenshi Yonezu',
-        path: 'assets/Kenshi_Yonezu_IRIS_OUT.mp3',
+        path: 'audio/Kenshi_Yonezu_IRIS_OUT.mp3',
         colors: {
             primary: '#1a0f2e',
             secondary: '#2d1a4a', 
@@ -121,7 +121,7 @@ const tracks = [
     { 
         name: 'God Rest Ye Merry Gentlemen', 
         artist: 'Pentatonix',
-        path: 'assets/Pentatonix_God_Rest_Ye_Merry_Gentlemen.mp3',
+        path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.mp3',
         colors: {
             primary: '#0f2e1a',
             secondary: '#1a4a2d',
