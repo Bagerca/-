@@ -44,13 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Miracle Of Sound',
             path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
             colors: {
-                primary: '#0f1b2e',
-                secondary: '#1d2b64',
-                accent: '#4a90e2'
+                primary: '#122a34',    // Глубокий сине-зеленый, как океанские глубины
+                secondary: '#1b4c4b',  // Богатый изумрудно-зеленый
+                accent: '#44bba8'      // Яркий бирюзовый - цвет северного сияния
             },
             cover: 'picture/ValhallaCalling.jpeg',
-            visualizer: ['#1d2b64', '#4a90e2'],
-            neonColor: '#4a90e2'
+            visualizer: ['#44bba8', '#d8e2e4', '#286869', '#2a5c6c', '#1e5258'],
+            neonColor: '#44bba8'
         },
         { 
             name: 'Lust', 
