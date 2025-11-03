@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Массив треков с исправленными путями
 const tracks = [
-    { 
+        { 
         name: 'Tangled Up', 
         artist: 'Caro Emerald',
-        path: 'assets/Caro_Emerald_Tangled_Up.mp3',
+        path: 'https://drive.google.com/uc?export=download&id=1SvAf6kRJ-t0AuHj_QPdyhwb0hneijfML',
         colors: {
             primary: '#1a1a2e',
             secondary: '#16213e',
