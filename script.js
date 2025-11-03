@@ -192,6 +192,15 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePlaybackModeButton();
     }
 
+    // Функция для обновления ползунка громкости
+    function updateVolumeSlider() {
+        const volumeValue = volumeSlider.value;
+        const accentColor = tracks[currentTrackIndex].colors.accent;
+        
+        // Обновляем градиент ползунка
+        volumeSlider.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${volumeValue}%, rgba(255, 255, 255, 0.1) ${volumeValue}%, rgba(255, 255, 255, 0.1) 100%)`;
+    }
+
     // Создание визуализатора
     function createVisualizer() {
         visualizer.innerHTML = '';
@@ -943,6 +952,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .volume-slider::-webkit-slider-thumb {
                 background: ${currentColors.accent};
             }
+            .volume-slider::-moz-range-thumb {
+                background: ${currentColors.accent};
+            }
         `;
         
         const oldStyle = document.getElementById('dynamic-neon-styles');
@@ -952,6 +964,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(style);
         
         albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
+        
+        // Обновляем ползунок громкости
+        updateVolumeSlider();
         
         if (particlesData.length === 0) {
             createParticles();
@@ -1175,6 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     volumeSlider.addEventListener('input', () => {
         audio.volume = volumeSlider.value / 100;
+        updateVolumeSlider(); // Обновляем внешний вид ползунка
     });
 
     progressBar.addEventListener('click', (e) => {
@@ -1198,10 +1214,12 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'ArrowUp':
                 volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 10);
                 audio.volume = volumeSlider.value / 100;
+                updateVolumeSlider();
                 break;
             case 'ArrowDown':
                 volumeSlider.value = Math.max(0, parseInt(volumeSlider.value) - 10);
                 audio.volume = volumeSlider.value / 100;
+                updateVolumeSlider();
                 break;
             case ' ':
                 e.preventDefault();
@@ -1252,6 +1270,7 @@ document.addEventListener('DOMContentLoaded', function() {
     createCornerParticles();
     createEdgeGlow();
     updatePlaybackModeButton(); // Инициализируем кнопку режима воспроизведения
+    updateVolumeSlider(); // Инициализируем ползунок громкости
     loadTrack(0);
     
     // Автовоспроизведение УДАЛЕНО
