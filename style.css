@@ -471,14 +471,16 @@ body {
     transition: color 0.5s ease;
 }
 
+/* ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ ПОЛЗУНКА ГРОМКОСТИ */
 .volume-slider {
     flex: 1;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     outline: none;
     cursor: pointer;
     -webkit-appearance: none;
+    background: linear-gradient(to right, var(--accent-color) 0%, var(--accent-color) 70%, rgba(255, 255, 255, 0.1) 70%, rgba(255, 255, 255, 0.1) 100%);
+    transition: background 0.3s ease;
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -489,7 +491,36 @@ body {
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: var(--accent-color, #e94560);
+    background: var(--accent-color);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px var(--accent-color);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--accent-color);
+    border: none;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px var(--accent-color);
+}
+
+.volume-slider::-moz-range-track {
+    background: transparent;
+    border: none;
+    height: 4px;
+    border-radius: 10px;
 }
 
 .visualizer-container {
