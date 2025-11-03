@@ -24,87 +24,114 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackList = document.getElementById('trackList');
     const trackSearch = document.getElementById('trackSearch');
 
-    // Массив треков
-    const tracks = [
-        { 
-            name: 'Tangled Up', 
-            artist: 'Caro Emerald',
-            path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-            colors: {
-                primary: '#1a1a2e',
-                secondary: '#16213e',
-                accent: '#ff9a00'
-            },
-            cover: 'picture/TangledUp.jpg',
-            visualizer: ['#ff9a00', '#ff2e63'],
-            neonColor: '#ff9a00'
+ // В массиве tracks добавляем новые треки:
+
+const tracks = [
+    { 
+        name: 'Tangled Up', 
+        artist: 'Caro Emerald',
+        path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
+        colors: {
+            primary: '#1a1a2e',
+            secondary: '#16213e',
+            accent: '#ff9a00'
         },
-        { 
-            name: 'Valhalla Calling', 
-            artist: 'Miracle Of Sound',
-            path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-            colors: {
-                primary: '#0f1b2e',
-                secondary: '#1d2b64',
-                accent: '#4a90e2'
-            },
-            cover: 'picture/ValhallaCalling.jpeg',
-            visualizer: ['#1d2b64', '#4a90e2'],
-            neonColor: '#4a90e2'
+        cover: 'picture/TangledUp.jpg',
+        visualizer: ['#ff9a00', '#ff2e63'],
+        neonColor: '#ff9a00'
+    },
+    { 
+        name: 'Valhalla Calling', 
+        artist: 'Miracle Of Sound',
+        path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
+        colors: {
+            primary: '#0f1b2e',
+            secondary: '#1d2b64',
+            accent: '#4a90e2'
         },
-        { 
-            name: 'Lust', 
-            artist: 'Marino ft. Alexandria',
-            path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-            colors: {
-                primary: '#1a0a0a',
-                secondary: '#330000',
-                accent: '#ff0000'
-            },
-            cover: 'picture/Lust.jpeg',
-            visualizer: ['#870000', '#ff0000'],
-            neonColor: '#ff0000'
+        cover: 'picture/ValhallaCalling.jpeg',
+        visualizer: ['#1d2b64', '#4a90e2'],
+        neonColor: '#4a90e2'
+    },
+    { 
+        name: 'Lust', 
+        artist: 'Marino ft. Alexandria',
+        path: 'assets/Marino - Lust (feat. Alexandria).m4a',
+        colors: {
+            primary: '#1a0a0a',
+            secondary: '#330000',
+            accent: '#ff0000'
         },
-        { 
-            name: 'Puttin\' On The Ritz', 
-            artist: 'Taco',
-            path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-            colors: {
-                primary: '#0a0a14',
-                secondary: '#1a1a2e',
-                accent: '#ffd700'
-            },
-            cover: 'picture/Puttin On The Ritz.jpg',
-            visualizer: ['#141e30', '#ffd700'],
-            neonColor: '#ffd700'
+        cover: 'picture/Lust.jpeg',
+        visualizer: ['#870000', '#ff0000'],
+        neonColor: '#ff0000'
+    },
+    { 
+        name: 'Puttin\' On The Ritz', 
+        artist: 'Taco',
+        path: 'assets/Taco - Puttin\' On The Ritz.m4a',
+        colors: {
+            primary: '#0a0a14',
+            secondary: '#1a1a2e',
+            accent: '#ffd700'
         },
-        { 
-            name: 'The Cigarette Duet (Cover)', 
-            artist: 'Princess Chelsea',
-            path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-            colors: {
-                primary: '#2d1b2e',
-                secondary: '#4a2c4d',
-                accent: '#e84178'
-            },
-            cover: 'picture/The Cigarette Duet.jpg',
-            visualizer: ['#6d214f', '#e84178'],
-            neonColor: '#e84178'
+        cover: 'picture/Puttin On The Ritz.jpg',
+        visualizer: ['#141e30', '#ffd700'],
+        neonColor: '#ffd700'
+    },
+    { 
+        name: 'The Cigarette Duet (Cover)', 
+        artist: 'Princess Chelsea',
+        path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
+        colors: {
+            primary: '#2d1b2e',
+            secondary: '#4a2c4d',
+            accent: '#e84178'
         },
-        { 
-            name: 'A Man Without Love', 
-            artist: 'Engelbert Humperdinck',
-            path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-            colors: {
-                primary: '#0f1c2e',
-                secondary: '#1f3a5c',
-                accent: '#4ca1af'
-            },
-            cover: 'picture/A Man Without Love.jpg',
-            visualizer: ['#2c3e50', '#4ca1af'],
-            neonColor: '#4ca1af'
-        }
-    ];
+        cover: 'picture/The Cigarette Duet.jpg',
+        visualizer: ['#6d214f', '#e84178'],
+        neonColor: '#e84178'
+    },
+    { 
+        name: 'A Man Without Love', 
+        artist: 'Engelbert Humperdinck',
+        path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
+        colors: {
+            primary: '#0f1c2e',
+            secondary: '#1f3a5c',
+            accent: '#4ca1af'
+        },
+        cover: 'picture/A Man Without Love.jpg',
+        visualizer: ['#2c3e50', '#4ca1af'],
+        neonColor: '#4ca1af'
+    },
+    { 
+        name: 'IRIS OUT', 
+        artist: 'Kenshi Yonezu',
+        path: 'assets/米津玄師 Kenshi Yonezu - IRIS OUT.m4a',
+        colors: {
+            primary: '#1a0f2e',
+            secondary: '#2d1a4a',
+            accent: '#9d4edd'
+        },
+        cover: 'picture/米津玄師 Kenshi Yonezu - IRIS OUT.jpeg',
+        visualizer: ['#7b2cbf', '#e0aaff'],
+        neonColor: '#9d4edd'
+    },
+    { 
+        name: 'God Rest Ye Merry Gentlemen', 
+        artist: 'Pentatonix',
+        path: 'assets/Pentatonix - God Rest Ye Merry Gentlemen.m4a',
+        colors: {
+            primary: '#0f2e1a',
+            secondary: '#1a4a2d',
+            accent: '#2a9d47'
+        },
+        cover: 'picture/Pentatonix - God Rest Ye Merry Gentlemen.jpg',
+        visualizer: ['#1b4332', '#52b788'],
+        neonColor: '#2a9d47'
+    }
+];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
