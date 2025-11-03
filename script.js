@@ -83,13 +83,13 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Princess Chelsea',
             path: 'audio/Princess_Chelsea_Cigarette_Duet.m4a',
             colors: {
-                primary: '#2d1b2e',
-                secondary: '#4a2c4d',
-                accent: '#e84178'
+                primary: '#701d1e',    // Глубокий винный
+                secondary: '#821318',  // Насыщенный бордовый
+                accent: '#e0a494'      // Нежный персиковый
             },
             cover: 'picture/Cigarette_Duet.jpg',
-            visualizer: ['#6d214f', '#e84178'],
-            neonColor: '#e84178'
+            visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
+            neonColor: '#e0a494'
         },
         { 
             name: 'A Man Without Love', 
