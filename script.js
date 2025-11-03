@@ -31,13 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Caro Emerald',
             path: 'audio/Caro_Emerald_Tangled_Up.mp3',
             colors: {
-                primary: '#1a1a2e',
-                secondary: '#16213e',
-                accent: '#ff9a00'
+                primary: '#333b25',    // Глубокий оливково-зеленый
+                secondary: '#745c18',  // Богатый золотисто-коричневый
+                accent: '#efdc31'      // Яркий солнечно-желтый
             },
             cover: 'picture/TangledUp.jpg',
-            visualizer: ['#ff9a00', '#ff2e63'],
-            neonColor: '#ff9a00'
+            visualizer: ['#efdc31', '#ead772', '#e4c51c', '#a0951a', '#817a44'],
+            neonColor: '#efdc31'
         },
         { 
             name: 'Valhalla Calling', 
