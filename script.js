@@ -29,7 +29,7 @@ const tracks = [
     { 
         name: 'Tangled Up', 
         artist: 'Caro Emerald',
-        path: 'https://drive.google.com/uc?export=download&id=1SvAf6kRJ-t0AuHj_QPdyhwb0hneijfML',
+        path: 'https://drive.google.com/file/d/1SvAf6kRJ-t0AuHj_QPdyhwb0hneijfML/view?usp=drive_link',
         colors: {
             primary: '#1a1a2e',
             secondary: '#16213e',
