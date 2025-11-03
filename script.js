@@ -57,13 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Marino ft. Alexandria',
             path: 'audio/Marino_Lust.m4a',
             colors: {
-                primary: '#1a0a0a',
-                secondary: '#330000',
-                accent: '#ff0000'
+                primary: '#230b10',    // Глубокий винно-черный
+                secondary: '#5c1723',  // Насыщенный темно-бордовый
+                accent: '#e1212c'      // Яркий кроваво-красный
             },
             cover: 'picture/Lust.jpeg',
-            visualizer: ['#870000', '#ff0000'],
-            neonColor: '#ff0000'
+            visualizer: ['#e1212c', '#e48494', '#ddadb0', '#7b212b', '#5c1723'],
+            neonColor: '#e1212c'
         },
         { 
             name: 'Puttin On The Ritz', 
