@@ -109,26 +109,26 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Kenshi Yonezu',
             path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
             colors: {
-                primary: '#1a0f2e',
-                secondary: '#2d1a4a', 
-                accent: '#9d4edd'
+                primary: '#0a0a14',
+                secondary: '#1a0f2e',
+                accent: '#e00705'
             },
             cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
-            visualizer: ['#7b2cbf', '#e0aaff'],
-            neonColor: '#9d4edd'
+            visualizer: ['#e00705', '#10a3a9', '#d88c3b'],
+              neonColor: '#e00705'
         },
         { 
             name: 'God Rest Ye Merry Gentlemen', 
             artist: 'Pentatonix',
             path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
-            colors: {
-                primary: '#0f2e1a',
-                secondary: '#1a4a2d',
-                accent: '#2a9d47'
+            colors: {   
+                primary: '#0f1c15',
+                secondary: '#1a2a1e',
+                accent: '#dad7cf'
             },
             cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
-            visualizer: ['#1b4332', '#52b788'],
-            neonColor: '#2a9d47'
+            visualizer: ['#dad7cf', '#bcaf9c', '#94794d'],
+            neonColor: '#bcaf9c'
         }
     ];
 
