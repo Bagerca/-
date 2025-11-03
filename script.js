@@ -24,16 +24,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackList = document.getElementById('trackList');
     const trackSearch = document.getElementById('trackSearch');
 
-    // Массив треков с обновленными путями
+    // Массив треков с обновленными цветовыми схемами
     const tracks = [
         { 
             name: 'Tangled Up', 
             artist: 'Caro Emerald',
             path: 'audio/Caro_Emerald_Tangled_Up.mp3',
             colors: {
-                primary: '#333b25',    // Глубокий оливково-зеленый
-                secondary: '#745c18',  // Богатый золотисто-коричневый
-                accent: '#efdc31'      // Яркий солнечно-желтый
+                primary: '#333b25',
+                secondary: '#745c18',
+                accent: '#efdc31'
             },
             cover: 'picture/TangledUp.jpg',
             visualizer: ['#efdc31', '#ead772', '#e4c51c', '#a0951a', '#817a44'],
@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Miracle Of Sound',
             path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
             colors: {
-                primary: '#122a34',    // Глубокий сине-зеленый, как океанские глубины
-                secondary: '#1b4c4b',  // Богатый изумрудно-зеленый
-                accent: '#44bba8'      // Яркий бирюзовый - цвет северного сияния
+                primary: '#122a34',
+                secondary: '#1b4c4b',
+                accent: '#44bba8'
             },
             cover: 'picture/ValhallaCalling.jpeg',
             visualizer: ['#44bba8', '#d8e2e4', '#286869', '#2a5c6c', '#1e5258'],
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Marino ft. Alexandria',
             path: 'audio/Marino_Lust.m4a',
             colors: {
-                primary: '#230b10',    // Глубокий винно-черный
-                secondary: '#5c1723',  // Насыщенный темно-бордовый
-                accent: '#e1212c'      // Яркий кроваво-красный
+                primary: '#230b10',
+                secondary: '#5c1723',
+                accent: '#e1212c'
             },
             cover: 'picture/Lust.jpeg',
             visualizer: ['#e1212c', '#e48494', '#ddadb0', '#7b212b', '#5c1723'],
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Taco',
             path: 'audio/Taco_Puttin_On_The_Ritz.m4a',
             colors: {
-                primary: '#080708',    // Глубокий почти черный
-                secondary: '#3c345a',  // Богатый фиолетово-синий
-                accent: '#86bbd6'      // Светлый голубой - цвет элегантности
+                primary: '#080708',
+                secondary: '#3c345a',
+                accent: '#86bbd6'
             },
             cover: 'picture/Puttin_On_The_Ritz.jpg',
             visualizer: ['#86bbd6', '#3d82a5', '#78afbc', '#92703f', '#b0ab8e'],
@@ -83,9 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Princess Chelsea',
             path: 'audio/Princess_Chelsea_Cigarette_Duet.m4a',
             colors: {
-                primary: '#701d1e',    // Глубокий винный
-                secondary: '#821318',  // Насыщенный бордовый
-                accent: '#e0a494'      // Нежный персиковый
+                primary: '#701d1e',
+                secondary: '#821318',
+                accent: '#e0a494'
             },
             cover: 'picture/Cigarette_Duet.jpg',
             visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
@@ -96,9 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Engelbert Humperdinck',
             path: 'audio/Engelbert_Humperdinck_Man_Without_Love.m4a',
             colors: {
-                primary: '#18101d',    // Глубокий темно-фиолетовый
-                secondary: '#463138',  // Бордово-коричневый
-                accent: '#5fabba'      // Мягкий бирюзовый
+                primary: '#18101d',
+                secondary: '#463138',
+                accent: '#5fabba'
             },
             cover: 'picture/Man_Without_Love.jpg',
             visualizer: ['#5fabba', '#d1aba2', '#8a8295', '#994144'],
@@ -109,22 +109,23 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Kenshi Yonezu',
             path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
             colors: {
-                primary: '#0b0405',    // Самый темный, почти черный
-                secondary: '#3d255a',  // Глубокий фиолетовый
-                accent: '#e00705'      // Ярко-красный
+                primary: '#0b0405',
+                secondary: '#3d255a',
+                accent: '#e00705'
             },
             cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
             visualizer: ['#e00705', '#d88c3b', '#10a3a9', '#66578d'],
-            neonColor: '#e00705'
+            neonColor: '#e00705',
+            neonColorRight: '#10a3a9'
         },
         { 
             name: 'God Rest Ye Merry Gentlemen', 
             artist: 'Pentatonix',
             path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
             colors: {
-                primary: '#231c15',    // Самый темный, глубокий коричневый
-                secondary: '#79573f',  // Теплый средне-коричневый
-                accent: '#dad7cf'      // Светлый кремовый для контраста
+                primary: '#231c15',
+                secondary: '#79573f',
+                accent: '#dad7cf'
             },
             cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
             visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
@@ -378,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // НЕОНОВЫЕ ЛИНИИ
+            // НЕОНОВЫЕ ЛИНИИ с поддержкой разных цветов
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 85;
@@ -392,6 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 rightGlow.style.opacity = brightness;
                 
                 const neonColor = tracks[currentTrackIndex].neonColor;
+                const neonColorRight = tracks[currentTrackIndex].neonColorRight || neonColor;
                 const baseBlur = 12;
                 const pulseBlur = currentPulseIntensity * 35;
                 
@@ -402,9 +404,9 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
                 
                 rightGlow.style.boxShadow = 
-                    `0 0 ${baseBlur + pulseBlur}px ${neonColor},
-                     0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
-                     0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColor},
+                    `0 0 ${baseBlur + pulseBlur}px ${neonColorRight},
+                     0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColorRight},
+                     0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColorRight},
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
@@ -973,6 +975,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTheme() {
         const currentColors = tracks[currentTrackIndex].colors;
         const neonColor = tracks[currentTrackIndex].neonColor;
+        const neonColorRight = tracks[currentTrackIndex].neonColorRight || neonColor;
         
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
         progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
@@ -1018,19 +1021,19 @@ document.addEventListener('DOMContentLoaded', function() {
             rightGlow.style.height = '15%';
             leftGlow.style.opacity = '0.8';
             rightGlow.style.opacity = '0.8';
-            leftGlow.style.background = 'var(--neon-color)';
-            rightGlow.style.background = 'var(--neon-color)';
+            leftGlow.style.background = neonColor;
+            rightGlow.style.background = neonColorRight;
             
             leftGlow.style.boxShadow = 
-                `0 0 10px var(--neon-color),
-                 0 0 20px var(--neon-color),
-                 0 0 30px var(--neon-color),
+                `0 0 10px ${neonColor},
+                 0 0 20px ${neonColor},
+                 0 0 30px ${neonColor},
                  inset 0 0 8px rgba(255, 255, 255, 0.2)`;
             
             rightGlow.style.boxShadow = 
-                `0 0 10px var(--neon-color),
-                 0 0 20px var(--neon-color),
-                 0 0 30px var(--neon-color),
+                `0 0 10px ${neonColorRight},
+                 0 0 20px ${neonColorRight},
+                 0 0 30px ${neonColorRight},
                  inset 0 0 8px rgba(255, 255, 255, 0.2)`;
         }
         
