@@ -108,26 +108,26 @@ const tracks = [
     { 
         name: 'IRIS OUT', 
         artist: 'Kenshi Yonezu',
-        path: 'assets/米津玄師 Kenshi Yonezu - IRIS OUT.m4a',
+        path: 'assets/Kenshi_Yonezu_IRIS_OUT.m4a',
         colors: {
             primary: '#1a0f2e',
-            secondary: '#2d1a4a',
+            secondary: '#2d1a4a', 
             accent: '#9d4edd'
         },
-        cover: 'picture/米津玄師 Kenshi Yonezu - IRIS OUT.jpeg',
+        cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
         visualizer: ['#7b2cbf', '#e0aaff'],
         neonColor: '#9d4edd'
     },
     { 
         name: 'God Rest Ye Merry Gentlemen', 
         artist: 'Pentatonix',
-        path: 'assets/Pentatonix - God Rest Ye Merry Gentlemen.m4a',
+        path: 'assets/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
         colors: {
             primary: '#0f2e1a',
             secondary: '#1a4a2d',
             accent: '#2a9d47'
         },
-        cover: 'picture/Pentatonix - God Rest Ye Merry Gentlemen.jpg',
+        cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
         visualizer: ['#1b4332', '#52b788'],
         neonColor: '#2a9d47'
     }
