@@ -130,6 +130,19 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
             visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
             neonColor: '#bcaf9c'
+        },
+        { 
+            name: 'Песня смертника', 
+            artist: '2rbina 2rista',
+            path: 'audio/2rbina_2rista_Песня_смертника.m4a',
+            colors: {
+                primary: '#0d1313',    // Глубокий почти черный
+                secondary: '#3b3c3c',  // Темно-серый
+                accent: '#c2312e'      // Ярко-красный
+            },
+            cover: 'picture/Песня_смертника.jpg',
+            visualizer: ['#c2312e', '#684241', '#94949c', '#83848c', '#44544c'],
+            neonColor: '#c2312e'
         }
     ];
 
