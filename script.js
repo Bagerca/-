@@ -143,6 +143,19 @@ document.addEventListener('DOMContentLoaded', function() {
             cover: 'picture/Песня_смертника.jpg',
             visualizer: ['#c2312e', '#684241', '#94949c', '#83848c', '#44544c'],
             neonColor: '#c2312e'
+        },
+        { 
+            name: '2 Phút Hơn - Electric Guitar Version', 
+            artist: 'Pháo',
+            path: 'audio/2_Phút_Hơn_Pháo_Electric_Guitar_Version.m4a',
+            colors: {
+                primary: '#171715',    // Глубокий почти черный
+                secondary: '#9f1310',  // Насыщенный темно-красный
+                accent: '#fb7b7c'      // Нежный розово-красный
+            },
+            cover: 'picture/Pháo_Electric_Guitar_Version.jpeg',
+            visualizer: ['#fb7b7c', '#f4b3eb', '#f4cac3', '#ec7469', '#e6958d'],
+            neonColor: '#fb7b7c'
         }
     ];
 
