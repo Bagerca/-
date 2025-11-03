@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // НЕОНОВЫЕ ЛИНИИ с поддержкой разных цветов
+            // НЕОНОВЫЕ ЛИНИИ с раздельными цветами
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 85;
@@ -397,12 +397,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const baseBlur = 12;
                 const pulseBlur = currentPulseIntensity * 35;
                 
+                // ЛЕВАЯ линия - основной цвет
+                leftGlow.style.background = neonColor;
                 leftGlow.style.boxShadow = 
                     `0 0 ${baseBlur + pulseBlur}px ${neonColor},
                      0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
                      0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColor},
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
                 
+                // ПРАВАЯ линия - правый цвет (или основной, если не задан)
+                rightGlow.style.background = neonColorRight;
                 rightGlow.style.boxShadow = 
                     `0 0 ${baseBlur + pulseBlur}px ${neonColorRight},
                      0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColorRight},
@@ -1021,6 +1025,8 @@ document.addEventListener('DOMContentLoaded', function() {
             rightGlow.style.height = '15%';
             leftGlow.style.opacity = '0.8';
             rightGlow.style.opacity = '0.8';
+            
+            // Устанавливаем разные цвета для левой и правой линии
             leftGlow.style.background = neonColor;
             rightGlow.style.background = neonColorRight;
             
