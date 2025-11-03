@@ -121,13 +121,13 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'God Rest Ye Merry Gentlemen', 
             artist: 'Pentatonix',
             path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
-            colors: {   
-                primary: '#0f1c15',
-                secondary: '#1a2a1e',
-                accent: '#dad7cf'
+            colors: {
+                primary: '#231c15',    // Самый темный, глубокий коричневый
+                secondary: '#79573f',  // Теплый средне-коричневый
+                accent: '#dad7cf'      // Светлый кремовый для контраста
             },
             cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
-            visualizer: ['#dad7cf', '#bcaf9c', '#94794d'],
+            visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
             neonColor: '#bcaf9c'
         }
     ];
