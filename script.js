@@ -24,114 +24,113 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackList = document.getElementById('trackList');
     const trackSearch = document.getElementById('trackSearch');
 
-    // Массив треков с исправленными путями
-const tracks = [
-    { 
-        name: 'Tangled Up', 
-        artist: 'Caro Emerald',
-        path: 'https://corsproxy.io/?https://raw.githubusercontent.com/Bagerca/Music-Storage/main/audio/Caro_Emerald_Tangled_Up.mp3',
-        colors: {
-            primary: '#1a1a2e',
-            secondary: '#16213e',
-            accent: '#ff9a00'
+    // Массив треков с обновленными путями
+    const tracks = [
+        { 
+            name: 'Tangled Up', 
+            artist: 'Caro Emerald',
+            path: 'audio/Caro_Emerald_Tangled_Up.mp3',
+            colors: {
+                primary: '#1a1a2e',
+                secondary: '#16213e',
+                accent: '#ff9a00'
+            },
+            cover: 'picture/TangledUp.jpg',
+            visualizer: ['#ff9a00', '#ff2e63'],
+            neonColor: '#ff9a00'
         },
-        cover: 'picture/TangledUp.jpg',
-        visualizer: ['#ff9a00', '#ff2e63'],
-        neonColor: '#ff9a00'
-    },
-    { 
-        name: 'Valhalla Calling', 
-        artist: 'Miracle Of Sound',
-        path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
-        colors: {
-            primary: '#0f1b2e',
-            secondary: '#1d2b64',
-            accent: '#4a90e2'
+        { 
+            name: 'Valhalla Calling', 
+            artist: 'Miracle Of Sound',
+            path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
+            colors: {
+                primary: '#0f1b2e',
+                secondary: '#1d2b64',
+                accent: '#4a90e2'
+            },
+            cover: 'picture/ValhallaCalling.jpeg',
+            visualizer: ['#1d2b64', '#4a90e2'],
+            neonColor: '#4a90e2'
         },
-        cover: 'picture/ValhallaCalling.jpeg',
-        visualizer: ['#1d2b64', '#4a90e2'],
-        neonColor: '#4a90e2'
-    },
-    { 
-        name: 'Lust', 
-        artist: 'Marino ft. Alexandria',
-        path: 'audio/Marino_Lust.mp3',
-        colors: {
-            primary: '#1a0a0a',
-            secondary: '#330000',
-            accent: '#ff0000'
+        { 
+            name: 'Lust', 
+            artist: 'Marino ft. Alexandria',
+            path: 'audio/Marino_Lust.m4a',
+            colors: {
+                primary: '#1a0a0a',
+                secondary: '#330000',
+                accent: '#ff0000'
+            },
+            cover: 'picture/Lust.jpeg',
+            visualizer: ['#870000', '#ff0000'],
+            neonColor: '#ff0000'
         },
-        cover: 'picture/Lust.jpeg',
-        visualizer: ['#870000', '#ff0000'],
-        neonColor: '#ff0000'
-    },
-    { 
-        name: 'Puttin On The Ritz', 
-        artist: 'Taco',
-        path: 'audio/Taco_Puttin_On_The_Ritz.mp3',
-        colors: {
-            primary: '#0a0a14',
-            secondary: '#1a1a2e',
-            accent: '#ffd700'
+        { 
+            name: 'Puttin On The Ritz', 
+            artist: 'Taco',
+            path: 'audio/Taco_Puttin_On_The_Ritz.m4a',
+            colors: {
+                primary: '#0a0a14',
+                secondary: '#1a1a2e',
+                accent: '#ffd700'
+            },
+            cover: 'picture/Puttin_On_The_Ritz.jpg',
+            visualizer: ['#141e30', '#ffd700'],
+            neonColor: '#ffd700'
         },
-        cover: 'picture/Puttin_On_The_Ritz.jpg',
-        visualizer: ['#141e30', '#ffd700'],
-        neonColor: '#ffd700'
-    },
-    { 
-        name: 'The Cigarette Duet', 
-        artist: 'Princess Chelsea',
-        path: 'audio/Princess_Chelsea_Cigarette_Duet.mp3',
-        colors: {
-            primary: '#2d1b2e',
-            secondary: '#4a2c4d',
-            accent: '#e84178'
+        { 
+            name: 'The Cigarette Duet', 
+            artist: 'Princess Chelsea',
+            path: 'audio/Princess_Chelsea_Cigarette_Duet.m4a',
+            colors: {
+                primary: '#2d1b2e',
+                secondary: '#4a2c4d',
+                accent: '#e84178'
+            },
+            cover: 'picture/Cigarette_Duet.jpg',
+            visualizer: ['#6d214f', '#e84178'],
+            neonColor: '#e84178'
         },
-        cover: 'picture/Cigarette_Duet.jpg',
-        visualizer: ['#6d214f', '#e84178'],
-        neonColor: '#e84178'
-    },
-    { 
-        name: 'A Man Without Love', 
-        artist: 'Engelbert Humperdinck',
-        path: 'audio/Engelbert_Humperdinck_Man_Without_Love.mp3',
-        colors: {
-            primary: '#0f1c2e',
-            secondary: '#1f3a5c',
-            accent: '#4ca1af'
+        { 
+            name: 'A Man Without Love', 
+            artist: 'Engelbert Humperdinck',
+            path: 'audio/Engelbert_Humperdinck_Man_Without_Love.m4a',
+            colors: {
+                primary: '#0f1c2e',
+                secondary: '#1f3a5c',
+                accent: '#4ca1af'
+            },
+            cover: 'picture/Man_Without_Love.jpg',
+            visualizer: ['#2c3e50', '#4ca1af'],
+            neonColor: '#4ca1af'
         },
-        cover: 'picture/Man_Without_Love.jpg',
-        visualizer: ['#2c3e50', '#4ca1af'],
-        neonColor: '#4ca1af'
-    },
-    // Новые треки в формате MP3
-    { 
-        name: 'IRIS OUT', 
-        artist: 'Kenshi Yonezu',
-        path: 'audio/Kenshi_Yonezu_IRIS_OUT.mp3',
-        colors: {
-            primary: '#1a0f2e',
-            secondary: '#2d1a4a', 
-            accent: '#9d4edd'
+        { 
+            name: 'IRIS OUT', 
+            artist: 'Kenshi Yonezu',
+            path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
+            colors: {
+                primary: '#1a0f2e',
+                secondary: '#2d1a4a', 
+                accent: '#9d4edd'
+            },
+            cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
+            visualizer: ['#7b2cbf', '#e0aaff'],
+            neonColor: '#9d4edd'
         },
-        cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
-        visualizer: ['#7b2cbf', '#e0aaff'],
-        neonColor: '#9d4edd'
-    },
-    { 
-        name: 'God Rest Ye Merry Gentlemen', 
-        artist: 'Pentatonix',
-        path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.mp3',
-        colors: {
-            primary: '#0f2e1a',
-            secondary: '#1a4a2d',
-            accent: '#2a9d47'
-        },
-        cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
-        visualizer: ['#1b4332', '#52b788'],
-        neonColor: '#2a9d47'
-    }
-];
+        { 
+            name: 'God Rest Ye Merry Gentlemen', 
+            artist: 'Pentatonix',
+            path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
+            colors: {
+                primary: '#0f2e1a',
+                secondary: '#1a4a2d',
+                accent: '#2a9d47'
+            },
+            cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
+            visualizer: ['#1b4332', '#52b788'],
+            neonColor: '#2a9d47'
+        }
+    ];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
@@ -1092,13 +1091,13 @@ const tracks = [
         }
     }
 
-    // Загрузка трека с улучшенной обработкой ошибок
+    // Загрузка трека
     function loadTrack(index, autoPlay = false) {
         if (index >= 0 && index < tracks.length) {
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
             
-            console.log('Loading track:', track.path); // Лог для отладки
+            console.log('Loading track:', track.path);
             
             audio.pause();
             isPlaying = false;
@@ -1109,46 +1108,39 @@ const tracks = [
                 animationId = null;
             }
             
-            // Сбрасываем src и загружаем заново
-            audio.src = '';
-            audio.load();
+            audio.src = track.path;
+            currentTrack.textContent = track.name;
+            currentArtist.textContent = track.artist;
             
-            setTimeout(() => {
-                audio.src = track.path;
-                currentTrack.textContent = track.name;
-                currentArtist.textContent = track.artist;
+            updateTheme();
+            
+            const onLoaded = function() {
+                console.log('Track loaded successfully:', track.name);
+                duration.textContent = formatTime(audio.duration);
+                audio.removeEventListener('loadedmetadata', onLoaded);
                 
-                updateTheme();
-                
-                const onLoaded = function() {
-                    console.log('Track loaded successfully:', track.name);
-                    duration.textContent = formatTime(audio.duration);
-                    audio.removeEventListener('loadedmetadata', onLoaded);
-                    
-                    if (autoPlay) {
-                        setTimeout(() => {
-                            playTrack();
-                        }, 100);
-                    }
-                };
-                
-                const onError = function(e) {
-                    console.error('Error loading track:', track.path, e);
-                    console.error('Audio error details:', audio.error);
-                    audio.removeEventListener('error', onError);
-                };
-                
-                audio.addEventListener('loadedmetadata', onLoaded);
-                audio.addEventListener('error', onError);
-                
-                // Принудительная загрузка
-                audio.load();
-                
-            }, 50);
+                if (autoPlay) {
+                    setTimeout(() => {
+                        playTrack();
+                    }, 100);
+                }
+            };
+            
+            const onError = function(e) {
+                console.error('Error loading track:', track.path, e);
+                console.error('Audio error details:', audio.error);
+                audio.removeEventListener('error', onError);
+            };
+            
+            audio.addEventListener('loadedmetadata', onLoaded);
+            audio.addEventListener('error', onError);
+            
+            // Принудительная загрузка
+            audio.load();
         }
     }
 
-    // Воспроизведение трека с улучшенной обработкой ошибок
+    // Воспроизведение трека
     function playTrack() {
         console.log('Attempting to play track...');
         
