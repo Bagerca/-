@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 accent: '#e00705'
             },
             cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
-            visualizer: ['#e00705', '#d88c3b', '#10a3a9', '#66578d'],
+            visualizer: ['#e00705', '#10a3a9'],
             neonColor: '#e00705',
             neonColorRight: '#10a3a9'
         },
