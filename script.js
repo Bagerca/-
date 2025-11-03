@@ -24,114 +24,114 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackList = document.getElementById('trackList');
     const trackSearch = document.getElementById('trackSearch');
 
- // В массиве tracks добавляем новые треки:
-
-const tracks = [
-    { 
-        name: 'Tangled Up', 
-        artist: 'Caro Emerald',
-        path: 'assets/Caro Emerald, Tangled Up (Lokee Remix).mp3',
-        colors: {
-            primary: '#1a1a2e',
-            secondary: '#16213e',
-            accent: '#ff9a00'
+    // Массив треков с исправленными путями
+    const tracks = [
+        { 
+            name: 'Tangled Up', 
+            artist: 'Caro Emerald',
+            path: 'assets/Caro_Emerald_Tangled_Up.mp3',
+            colors: {
+                primary: '#1a1a2e',
+                secondary: '#16213e',
+                accent: '#ff9a00'
+            },
+            cover: 'picture/TangledUp.jpg',
+            visualizer: ['#ff9a00', '#ff2e63'],
+            neonColor: '#ff9a00'
         },
-        cover: 'picture/TangledUp.jpg',
-        visualizer: ['#ff9a00', '#ff2e63'],
-        neonColor: '#ff9a00'
-    },
-    { 
-        name: 'Valhalla Calling', 
-        artist: 'Miracle Of Sound',
-        path: 'assets/VALHALLA_CALLING_by_Miracle_Of_Sound_ft_Peyton_Parrish_DUET_VERSION.mp3',
-        colors: {
-            primary: '#0f1b2e',
-            secondary: '#1d2b64',
-            accent: '#4a90e2'
+        { 
+            name: 'Valhalla Calling', 
+            artist: 'Miracle Of Sound',
+            path: 'assets/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
+            colors: {
+                primary: '#0f1b2e',
+                secondary: '#1d2b64',
+                accent: '#4a90e2'
+            },
+            cover: 'picture/ValhallaCalling.jpeg',
+            visualizer: ['#1d2b64', '#4a90e2'],
+            neonColor: '#4a90e2'
         },
-        cover: 'picture/ValhallaCalling.jpeg',
-        visualizer: ['#1d2b64', '#4a90e2'],
-        neonColor: '#4a90e2'
-    },
-    { 
-        name: 'Lust', 
-        artist: 'Marino ft. Alexandria',
-        path: 'assets/Marino - Lust (feat. Alexandria).m4a',
-        colors: {
-            primary: '#1a0a0a',
-            secondary: '#330000',
-            accent: '#ff0000'
+        { 
+            name: 'Lust', 
+            artist: 'Marino ft. Alexandria',
+            path: 'assets/Marino_Lust.m4a',
+            colors: {
+                primary: '#1a0a0a',
+                secondary: '#330000',
+                accent: '#ff0000'
+            },
+            cover: 'picture/Lust.jpeg',
+            visualizer: ['#870000', '#ff0000'],
+            neonColor: '#ff0000'
         },
-        cover: 'picture/Lust.jpeg',
-        visualizer: ['#870000', '#ff0000'],
-        neonColor: '#ff0000'
-    },
-    { 
-        name: 'Puttin\' On The Ritz', 
-        artist: 'Taco',
-        path: 'assets/Taco - Puttin\' On The Ritz.m4a',
-        colors: {
-            primary: '#0a0a14',
-            secondary: '#1a1a2e',
-            accent: '#ffd700'
+        { 
+            name: 'Puttin On The Ritz', 
+            artist: 'Taco',
+            path: 'assets/Taco_Puttin_On_The_Ritz.m4a',
+            colors: {
+                primary: '#0a0a14',
+                secondary: '#1a1a2e',
+                accent: '#ffd700'
+            },
+            cover: 'picture/Puttin_On_The_Ritz.jpg',
+            visualizer: ['#141e30', '#ffd700'],
+            neonColor: '#ffd700'
         },
-        cover: 'picture/Puttin On The Ritz.jpg',
-        visualizer: ['#141e30', '#ffd700'],
-        neonColor: '#ffd700'
-    },
-    { 
-        name: 'The Cigarette Duet (Cover)', 
-        artist: 'Princess Chelsea',
-        path: 'assets/The Cigarette Duet  Дуэт сигарет [Princess Chelsea] (Russian cover with ‪IgorCoolikov‬).m4a',
-        colors: {
-            primary: '#2d1b2e',
-            secondary: '#4a2c4d',
-            accent: '#e84178'
+        { 
+            name: 'The Cigarette Duet', 
+            artist: 'Princess Chelsea',
+            path: 'assets/Princess_Chelsea_Cigarette_Duet.m4a',
+            colors: {
+                primary: '#2d1b2e',
+                secondary: '#4a2c4d',
+                accent: '#e84178'
+            },
+            cover: 'picture/Cigarette_Duet.jpg',
+            visualizer: ['#6d214f', '#e84178'],
+            neonColor: '#e84178'
         },
-        cover: 'picture/The Cigarette Duet.jpg',
-        visualizer: ['#6d214f', '#e84178'],
-        neonColor: '#e84178'
-    },
-    { 
-        name: 'A Man Without Love', 
-        artist: 'Engelbert Humperdinck',
-        path: 'assets/A Man Without Love LYRICS Video Engelbert Humperdinck 1968 🌙 Moon Knight Episode 1.m4a',
-        colors: {
-            primary: '#0f1c2e',
-            secondary: '#1f3a5c',
-            accent: '#4ca1af'
+        { 
+            name: 'A Man Without Love', 
+            artist: 'Engelbert Humperdinck',
+            path: 'assets/Engelbert_Humperdinck_Man_Without_Love.m4a',
+            colors: {
+                primary: '#0f1c2e',
+                secondary: '#1f3a5c',
+                accent: '#4ca1af'
+            },
+            cover: 'picture/Man_Without_Love.jpg',
+            visualizer: ['#2c3e50', '#4ca1af'],
+            neonColor: '#4ca1af'
         },
-        cover: 'picture/A Man Without Love.jpg',
-        visualizer: ['#2c3e50', '#4ca1af'],
-        neonColor: '#4ca1af'
-    },
-    { 
-        name: 'IRIS OUT', 
-        artist: 'Kenshi Yonezu',
-        path: 'assets/Kenshi_Yonezu_IRIS_OUT.m4a',
-        colors: {
-            primary: '#1a0f2e',
-            secondary: '#2d1a4a', 
-            accent: '#9d4edd'
+        // Новые треки
+        { 
+            name: 'IRIS OUT', 
+            artist: 'Kenshi Yonezu',
+            path: 'assets/Kenshi_Yonezu_IRIS_OUT.m4a',
+            colors: {
+                primary: '#1a0f2e',
+                secondary: '#2d1a4a', 
+                accent: '#9d4edd'
+            },
+            cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
+            visualizer: ['#7b2cbf', '#e0aaff'],
+            neonColor: '#9d4edd'
         },
-        cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
-        visualizer: ['#7b2cbf', '#e0aaff'],
-        neonColor: '#9d4edd'
-    },
-    { 
-        name: 'God Rest Ye Merry Gentlemen', 
-        artist: 'Pentatonix',
-        path: 'assets/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
-        colors: {
-            primary: '#0f2e1a',
-            secondary: '#1a4a2d',
-            accent: '#2a9d47'
-        },
-        cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
-        visualizer: ['#1b4332', '#52b788'],
-        neonColor: '#2a9d47'
-    }
-];
+        { 
+            name: 'God Rest Ye Merry Gentlemen', 
+            artist: 'Pentatonix',
+            path: 'assets/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
+            colors: {
+                primary: '#0f2e1a',
+                secondary: '#1a4a2d',
+                accent: '#2a9d47'
+            },
+            cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
+            visualizer: ['#1b4332', '#52b788'],
+            neonColor: '#2a9d47'
+        }
+    ];
 
     let currentTrackIndex = 0;
     let isPlaying = false;
@@ -1092,11 +1092,13 @@ const tracks = [
         }
     }
 
-    // Загрузка трека
+    // Загрузка трека с улучшенной обработкой ошибок
     function loadTrack(index, autoPlay = false) {
         if (index >= 0 && index < tracks.length) {
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
+            
+            console.log('Loading track:', track.path); // Лог для отладки
             
             audio.pause();
             isPlaying = false;
@@ -1107,57 +1109,83 @@ const tracks = [
                 animationId = null;
             }
             
-            audio.src = track.path;
-            currentTrack.textContent = track.name;
-            currentArtist.textContent = track.artist;
+            // Сбрасываем src и загружаем заново
+            audio.src = '';
+            audio.load();
             
-            updateTheme();
-            
-            const onLoaded = function() {
-                duration.textContent = formatTime(audio.duration);
-                audio.removeEventListener('loadedmetadata', onLoaded);
+            setTimeout(() => {
+                audio.src = track.path;
+                currentTrack.textContent = track.name;
+                currentArtist.textContent = track.artist;
                 
-                if (autoPlay) {
-                    playTrack();
-                }
-            };
-            
-            if (audio.readyState >= 1) {
-                onLoaded();
-            } else {
+                updateTheme();
+                
+                const onLoaded = function() {
+                    console.log('Track loaded successfully:', track.name);
+                    duration.textContent = formatTime(audio.duration);
+                    audio.removeEventListener('loadedmetadata', onLoaded);
+                    
+                    if (autoPlay) {
+                        setTimeout(() => {
+                            playTrack();
+                        }, 100);
+                    }
+                };
+                
+                const onError = function(e) {
+                    console.error('Error loading track:', track.path, e);
+                    console.error('Audio error details:', audio.error);
+                    audio.removeEventListener('error', onError);
+                };
+                
                 audio.addEventListener('loadedmetadata', onLoaded);
-            }
+                audio.addEventListener('error', onError);
+                
+                // Принудительная загрузка
+                audio.load();
+                
+            }, 50);
         }
     }
 
-    // Воспроизведение трека - ИСПРАВЛЕННАЯ ВЕРСИЯ
+    // Воспроизведение трека с улучшенной обработкой ошибок
     function playTrack() {
+        console.log('Attempting to play track...');
+        
         // Инициализируем анализатор перед воспроизведением
         initAudioAnalyzer();
         
-        audio.play().then(() => {
-            isPlaying = true;
-            playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-            
-            // Запускаем визуализацию
-            if (!animationId) {
-                visualize();
-            }
-        }).catch(error => {
-            console.error('Playback failed:', error);
-            // Если произошла ошибка, пробуем возобновить аудиоконтекст
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    audio.play().then(() => {
-                        isPlaying = true;
-                        playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                        if (!animationId) {
-                            visualize();
-                        }
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('Playback started successfully');
+                isPlaying = true;
+                playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                
+                // Запускаем визуализацию
+                if (!animationId) {
+                    visualize();
+                }
+            }).catch(error => {
+                console.error('Playback failed:', error);
+                
+                // Пробуем возобновить аудиоконтекст
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                            if (!animationId) {
+                                visualize();
+                            }
+                        }).catch(e => {
+                            console.error('Second playback attempt failed:', e);
+                        });
                     });
-                });
-            }
-        });
+                }
+            });
+        }
     }
 
     // Перемотка вперед/назад
@@ -1274,9 +1302,11 @@ const tracks = [
         }
     });
 
-    // Обработка ошибок аудио
-    audio.addEventListener('error', (e) => {
-        console.error('Audio error:', e);
+    // Улучшенная обработка ошибок аудио
+    audio.addEventListener('error', function(e) {
+        console.error('Audio element error:', e);
+        console.error('Audio error code:', audio.error ? audio.error.code : 'unknown');
+        console.error('Audio error message:', audio.error ? audio.error.message : 'unknown');
     });
 
     // Инициализация
@@ -1286,5 +1316,9 @@ const tracks = [
     createEdgeGlow();
     updatePlaybackModeButton();
     updateVolumeSlider();
-    loadTrack(0);
+    
+    // Загружаем первый трек с задержкой для стабильности
+    setTimeout(() => {
+        loadTrack(0);
+    }, 500);
 });
