@@ -92,19 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
             neonColor: '#e84178'
         },
         { 
-            name: 'A Man Without Love', 
-            artist: 'Engelbert Humperdinck',
-            path: 'audio/Engelbert_Humperdinck_Man_Without_Love.m4a',
-            colors: {
-                primary: '#0f1c2e',
-                secondary: '#1f3a5c',
-                accent: '#4ca1af'
-            },
-            cover: 'picture/Man_Without_Love.jpg',
-            visualizer: ['#2c3e50', '#4ca1af'],
-            neonColor: '#4ca1af'
-        },
-        { 
             name: 'IRIS OUT', 
             artist: 'Kenshi Yonezu',
             path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
