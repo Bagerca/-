@@ -109,13 +109,13 @@ document.addEventListener('DOMContentLoaded', function() {
             artist: 'Kenshi Yonezu',
             path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
             colors: {
-                primary: '#0a0a14',
-                secondary: '#1a0f2e',
-                accent: '#e00705'
+                primary: '#0b0405',    // Самый темный, почти черный
+                secondary: '#3d255a',  // Глубокий фиолетовый
+                accent: '#e00705'      // Ярко-красный
             },
             cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
-            visualizer: ['#e00705', '#10a3a9', '#d88c3b'],
-              neonColor: '#e00705'
+            visualizer: ['#e00705', '#d88c3b', '#10a3a9', '#66578d'],
+            neonColor: '#e00705'
         },
         { 
             name: 'God Rest Ye Merry Gentlemen', 
