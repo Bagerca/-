@@ -434,13 +434,13 @@ body {
     height: 28px;
 }
 
-/* Специальные стили для кнопки режима воспроизведения */
-#playbackModeBtn {
+/* Специальные стили для кнопок с обводкой */
+#playbackModeBtn, #trackListBtn {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-#playbackModeBtn:hover {
+#playbackModeBtn:hover, #trackListBtn:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.25);
 }
