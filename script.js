@@ -106,92 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // === ОПТИМИЗАЦИЯ 1: Предварительная инициализация анализатора ===
-    let audioContext, analyser, dataArray, bufferLength, audioSource;
-    
-    // Инициализация аудио системы один раз
-    function initAudioSystem() {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            
-            // Создаем источник один раз и переиспользуем
-            audioSource = audioContext.createMediaElementSource(audio);
-            audioSource.connect(analyser);
-            analyser.connect(audioContext.destination);
-            
-            analyser.fftSize = 256;
-            bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            
-            console.log('Audio system initialized');
-        } catch (error) {
-            console.error('Audio system initialization failed:', error);
-        }
-    }
-
-    // === ОПТИМИЗАЦИЯ 2: Предзагрузка треков ===
-    const preloadedTracks = new Map();
-    
-    function preloadTrack(index) {
-        return new Promise((resolve) => {
-            if (preloadedTracks.has(index)) {
-                resolve(preloadedTracks.get(index));
-                return;
-            }
-            
-            const track = tracks[index];
-            const audioEl = new Audio();
-            audioEl.src = track.path;
-            audioEl.preload = 'metadata';
-            
-            const onLoaded = () => {
-                preloadedTracks.set(index, {
-                    ...track,
-                    audioElement: audioEl,
-                    duration: audioEl.duration,
-                    ready: true
-                });
-                resolve(preloadedTracks.get(index));
-                audioEl.removeEventListener('loadedmetadata', onLoaded);
-            };
-            
-            if (audioEl.readyState >= 1) {
-                onLoaded();
-            } else {
-                audioEl.addEventListener('loadedmetadata', onLoaded);
-            }
-            
-            // Таймаут на случай ошибки
-            setTimeout(() => {
-                if (!preloadedTracks.has(index)) {
-                    preloadedTracks.set(index, {
-                        ...track,
-                        audioElement: audioEl,
-                        duration: 0,
-                        ready: false
-                    });
-                    resolve(preloadedTracks.get(index));
-                }
-            }, 1000);
-        });
-    }
-    
-    // Предзагрузка соседних треков
-    function preloadAdjacentTracks(currentIndex) {
-        const indicesToPreload = [
-            (currentIndex - 1 + tracks.length) % tracks.length,
-            (currentIndex + 1) % tracks.length,
-            (currentIndex + 2) % tracks.length
-        ];
-        
-        indicesToPreload.forEach(index => {
-            if (!preloadedTracks.has(index)) {
-                preloadTrack(index);
-            }
-        });
-    }
-
     let currentTrackIndex = 0;
     let isPlaying = false;
     let isTrackListOpen = false;
@@ -205,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let playbackMode = PLAYBACK_MODES.PLAYLIST;
     
+    // Аудио система
+    let audioContext, analyser, dataArray, bufferLength, audioSource;
+    
     let visualizerBars = [];
     let animationId = null;
     
@@ -214,10 +131,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let beatThreshold = 0.7;
     let currentPulseIntensity = 0;
 
-    // === ОПТИМИЗАЦИЯ 4: Оптимизация частиц ===
+    // Переменные для анимации частиц
     let particlesData = [];
     let cornerParticlesData = [];
     let isParticlesTransitioning = false;
+    let particleTransitionProgress = 0;
     let currentMusicIntensity = 0;
 
     // Переменные для расширенного анализа
@@ -298,6 +216,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Инициализация аудиоанализатора
+    function initAudioAnalyzer() {
+        try {
+            if (audioContext) {
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                return;
+            }
+            
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            
+            // Создаем источник только если его нет
+            if (!audioSource) {
+                audioSource = audioContext.createMediaElementSource(audio);
+                audioSource.connect(analyser);
+                analyser.connect(audioContext.destination);
+            }
+            
+            analyser.fftSize = 256;
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            
+            console.log('Audio analyzer initialized successfully');
+        } catch (error) {
+            console.error('Audio analyzer initialization failed:', error);
+        }
+    }
+
     // Получение энергии по частотным диапазонам
     function getFrequencyEnergy(range) {
         let sum = 0;
@@ -370,37 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // === ОПТИМИЗАЦИЯ 3: Плавный переход визуализации ===
-    let isVisualizationTransitioning = false;
-    let targetColors = null;
-    let currentColors = null;
-    let colorTransitionProgress = 0;
-
-    function smoothColorTransition(startColor, endColor, progress) {
-        const hexToRgb = (hex) => {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? [
-                parseInt(result[1], 16),
-                parseInt(result[2], 16),
-                parseInt(result[3], 16)
-            ] : [0, 0, 0];
-        };
-
-        const rgbToHex = (r, g, b) => {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        };
-
-        const startRgb = hexToRgb(startColor);
-        const endRgb = hexToRgb(endColor);
-
-        const r = Math.round(startRgb[0] + (endRgb[0] - startRgb[0]) * progress);
-        const g = Math.round(startRgb[1] + (endRgb[1] - startRgb[1]) * progress);
-        const b = Math.round(startRgb[2] + (endRgb[2] - startRgb[2]) * progress);
-
-        return rgbToHex(r, g, b);
-    }
-
-    // Визуализация звука с плавными переходами
+    // Визуализация звука
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -408,73 +326,33 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const features = analyzeSpectralFeatures();
             
-            // Плавный переход цветов
-            if (isVisualizationTransitioning && targetColors) {
-                colorTransitionProgress += 0.05;
-                if (colorTransitionProgress >= 1) {
-                    colorTransitionProgress = 1;
-                    isVisualizationTransitioning = false;
-                    currentColors = targetColors;
-                    targetColors = null;
+            // Обновление визуализатора
+            for (let i = 0; i < visualizerBars.length; i++) {
+                const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
+                const value = dataArray[barIndex] / 255;
+                
+                let baseHeight = Math.max(5, value * 110);
+                
+                if (i < 10) {
+                    const bassBoost = features.bassEnergy * 25;
+                    const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
+                    baseHeight += bassBoost + beatBoost;
+                } else if (i < 20) {
+                    const midBoost = features.midEnergy * 18;
+                    const energyBoost = features.rms * 12;
+                    baseHeight += midBoost + energyBoost;
+                } else {
+                    const highBoost = features.highEnergy * 20;
+                    baseHeight += highBoost;
                 }
                 
-                const transitionColors = [
-                    smoothColorTransition(currentColors[0], targetColors[0], colorTransitionProgress),
-                    smoothColorTransition(currentColors[1], targetColors[1], colorTransitionProgress)
-                ];
+                visualizerBars[i].style.height = `${baseHeight}px`;
                 
-                // Обновление визуализатора с переходом цветов
-                for (let i = 0; i < visualizerBars.length; i++) {
-                    const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
-                    const value = dataArray[barIndex] / 255;
-                    
-                    let baseHeight = Math.max(5, value * 110);
-                    
-                    if (i < 10) {
-                        const bassBoost = features.bassEnergy * 25;
-                        const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
-                        baseHeight += bassBoost + beatBoost;
-                    } else if (i < 20) {
-                        const midBoost = features.midEnergy * 18;
-                        const energyBoost = features.rms * 12;
-                        baseHeight += midBoost + energyBoost;
-                    } else {
-                        const highBoost = features.highEnergy * 20;
-                        baseHeight += highBoost;
-                    }
-                    
-                    visualizerBars[i].style.height = `${baseHeight}px`;
-                    visualizerBars[i].style.background = `linear-gradient(to top, ${transitionColors[0]}, ${transitionColors[1]})`;
-                }
-            } else {
-                // Стандартное обновление
-                for (let i = 0; i < visualizerBars.length; i++) {
-                    const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
-                    const value = dataArray[barIndex] / 255;
-                    
-                    let baseHeight = Math.max(5, value * 110);
-                    
-                    if (i < 10) {
-                        const bassBoost = features.bassEnergy * 25;
-                        const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
-                        baseHeight += bassBoost + beatBoost;
-                    } else if (i < 20) {
-                        const midBoost = features.midEnergy * 18;
-                        const energyBoost = features.rms * 12;
-                        baseHeight += midBoost + energyBoost;
-                    } else {
-                        const highBoost = features.highEnergy * 20;
-                        baseHeight += highBoost;
-                    }
-                    
-                    visualizerBars[i].style.height = `${baseHeight}px`;
-                    
-                    const currentVizColors = tracks[currentTrackIndex].visualizer;
-                    visualizerBars[i].style.background = `linear-gradient(to top, ${currentVizColors[0]}, ${currentVizColors[1]})`;
-                }
+                const currentColors = tracks[currentTrackIndex].visualizer;
+                visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // НЕОНОВЫЕ ЛИНИИ с плавным переходом
+            // НЕОНОВЫЕ ЛИНИИ
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 85;
@@ -861,7 +739,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // === ОПТИМИЗАЦИЯ 4: Создание частиц с пулом объектов ===
+    // Создание частиц
     function createParticles() {
         particles.innerHTML = '';
         particlesData = [];
@@ -1065,23 +943,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // === ОПТИМИЗАЦИЯ 5: Асинхронная загрузка с плавными переходами ===
-    let isTrackLoading = false;
-    let nextTrackIndex = null;
-
-    // Обновление темы с плавными переходами
+    // Обновление темы
     function updateTheme() {
         const currentColors = tracks[currentTrackIndex].colors;
         const neonColor = tracks[currentTrackIndex].neonColor;
-        const visualizerColors = tracks[currentTrackIndex].visualizer;
         
-        // Плавный переход фона
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
-        
-        // Плавный переход прогресс-бара
         progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
-        
-        // Плавный переход кнопки play/pause
         playPauseBtn.style.background = `linear-gradient(135deg, ${currentColors.accent}, ${currentColors.primary})`;
         
         document.documentElement.style.setProperty('--neon-color', neonColor);
@@ -1103,19 +971,10 @@ document.addEventListener('DOMContentLoaded', function() {
         style.id = 'dynamic-neon-styles';
         document.head.appendChild(style);
         
-        // Плавное обновление изображения альбома
         albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
         
-        // Запуск плавного перехода цветов визуализатора
-        isVisualizationTransitioning = true;
-        colorTransitionProgress = 0;
-        targetColors = visualizerColors;
-        currentColors = visualizerColors; // Начальные цвета для перехода
-        
-        // Обновляем ползунок громкости
         updateVolumeSlider();
         
-        // Обновляем частицы без полного пересоздания
         if (particlesData.length === 0) {
             createParticles();
         } else {
@@ -1149,7 +1008,6 @@ document.addEventListener('DOMContentLoaded', function() {
                  inset 0 0 8px rgba(255, 255, 255, 0.2)`;
         }
         
-        // Обновляем список треков, если панель открыта
         if (isTrackListOpen) {
             renderTrackList();
         }
@@ -1195,7 +1053,6 @@ document.addEventListener('DOMContentLoaded', function() {
             progress.style.width = `${progressPercent}%`;
             currentTime.textContent = formatTime(audio.currentTime);
             
-            // Обновляем прогресс в списке треков, если панель открыта
             if (isTrackListOpen) {
                 const activeTrackItem = trackList.querySelector('.track-item.active');
                 if (activeTrackItem) {
@@ -1208,85 +1065,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // === ОПТИМИЗАЦИЯ 5: Асинхронная загрузка треков ===
-    async function loadTrack(index, autoPlay = false) {
-        if (isTrackLoading || index < 0 || index >= tracks.length) return;
-        
-        isTrackLoading = true;
-        currentTrackIndex = index;
-        const track = tracks[currentTrackIndex];
-        
-        // Предзагрузка соседних треков
-        preloadAdjacentTracks(index);
-        
-        // Быстрое обновление UI
-        audio.pause();
-        isPlaying = false;
-        playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
-        currentTrack.textContent = track.name;
-        currentArtist.textContent = track.artist;
-        
-        // Немедленное обновление темы
-        updateTheme();
-        
-        try {
-            // Используем предзагруженный трек если доступен
-            const preloaded = preloadedTracks.get(index);
-            if (preloaded && preloaded.ready) {
-                audio.src = track.path;
-                
-                // Быстрая установка длительности если доступна
-                if (preloaded.duration > 0) {
-                    duration.textContent = formatTime(preloaded.duration);
-                }
+    // Загрузка трека
+    function loadTrack(index, autoPlay = false) {
+        if (index >= 0 && index < tracks.length) {
+            currentTrackIndex = index;
+            const track = tracks[currentTrackIndex];
+            
+            audio.pause();
+            isPlaying = false;
+            playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            audio.src = track.path;
+            currentTrack.textContent = track.name;
+            currentArtist.textContent = track.artist;
+            
+            updateTheme();
+            
+            const onLoaded = function() {
+                duration.textContent = formatTime(audio.duration);
+                audio.removeEventListener('loadedmetadata', onLoaded);
                 
                 if (autoPlay) {
-                    await playTrack();
+                    playTrack();
                 }
+            };
+            
+            if (audio.readyState >= 1) {
+                onLoaded();
             } else {
-                // Стандартная загрузка
-                audio.src = track.path;
-                
-                const onLoaded = function() {
-                    duration.textContent = formatTime(audio.duration);
-                    audio.removeEventListener('loadedmetadata', onLoaded);
-                    
-                    if (autoPlay) {
-                        playTrack();
-                    }
-                };
-                
-                if (audio.readyState >= 1) {
-                    onLoaded();
-                } else {
-                    audio.addEventListener('loadedmetadata', onLoaded);
-                }
+                audio.addEventListener('loadedmetadata', onLoaded);
             }
-        } catch (error) {
-            console.error('Track loading error:', error);
-        } finally {
-            isTrackLoading = false;
         }
     }
 
-    // Воспроизведение трека
-    async function playTrack() {
-        try {
-            // Возобновляем аудиоконтекст если нужно
-            if (audioContext && audioContext.state === 'suspended') {
-                await audioContext.resume();
-            }
-            
-            await audio.play();
+    // Воспроизведение трека - ИСПРАВЛЕННАЯ ВЕРСИЯ
+    function playTrack() {
+        // Инициализируем анализатор перед воспроизведением
+        initAudioAnalyzer();
+        
+        audio.play().then(() => {
             isPlaying = true;
             playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
             
+            // Запускаем визуализацию
             if (!animationId) {
                 visualize();
             }
-        } catch (error) {
+        }).catch(error => {
             console.error('Playback failed:', error);
-        }
+            // Если произошла ошибка, пробуем возобновить аудиоконтекст
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                        if (!animationId) {
+                            visualize();
+                        }
+                    });
+                });
+            }
+        });
     }
 
     // Перемотка вперед/назад
@@ -1302,6 +1146,10 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             isPlaying = false;
             playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
         } else {
             playTrack();
         }
@@ -1391,6 +1239,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 audio.pause();
                 isPlaying = false;
                 playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
                 break;
         }
     });
@@ -1398,26 +1250,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка ошибок аудио
     audio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
-        isTrackLoading = false;
     });
 
     // Инициализация
-    function init() {
-        createVisualizer();
-        createParticles();
-        createCornerParticles();
-        createEdgeGlow();
-        initAudioSystem();
-        updatePlaybackModeButton();
-        updateVolumeSlider();
-        
-        // Предзагрузка первого трека и соседних
-        preloadTrack(0).then(() => {
-            loadTrack(0);
-            preloadAdjacentTracks(0);
-        });
-    }
-
-    // Запуск инициализации
-    init();
+    createVisualizer();
+    createParticles();
+    createCornerParticles();
+    createEdgeGlow();
+    updatePlaybackModeButton();
+    updateVolumeSlider();
+    loadTrack(0);
 });
