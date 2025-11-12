@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- СУЩЕСТВУЮЩИЕ ЭЛЕМЕНТЫ DOM (без изменений) ---
+    // --- ЭЛЕМЕНТЫ DOM ---
     const audio = document.getElementById('audioPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const prevBtn = document.getElementById('prevBtn');
@@ -23,10 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackListPanel = document.getElementById('trackListPanel');
     const trackList = document.getElementById('trackList');
     const trackSearch = document.getElementById('trackSearch');
-    // НОВЫЙ ЭЛЕМЕНТ DOM
     const playlistSelector = document.getElementById('playlistSelector');
 
-    // --- ОБНОВЛЕННАЯ СТРУКТУРА ДАННЫХ ДЛЯ ПЛЕЙЛИСТОВ ---
+    // --- СТРУКТУРА ДАННЫХ ПЛЕЙЛИСТОВ ---
     const playlists = {
         "Библиотека": [
             { 
@@ -122,34 +121,98 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         ],
         "Boo!": [
+            // --- НАЧАЛО: НОВЫЕ ТРЕКИ В ПЛЕЙЛИСТЕ "Boo!" ---
             { 
-                name: 'Spooky Scary Skeletons', 
-                artist: 'Andrew Gold',
-                path: 'audio/Spooky_Scary_Skeletons.mp3', // Убедитесь, что у вас есть эти файлы
-                colors: { primary: '#0d0d0d', secondary: '#3c1e4a', accent: '#ff9a00' },
-                cover: 'picture/Spooky.jpg', // и эти обложки
-                visualizer: ['#ff9a00', '#f0e38d', '#e26b0a', '#a94c08', '#703305'],
-                neonColor: '#ff9a00'
+                name: 'Goo Goo Muck', 
+                artist: 'The Cramps',
+                path: 'audio/The_Cramps_Goo_Goo_Muck.mp3',
+                colors: { primary: '#1c1f17', secondary: '#4d4a3d', accent: '#c7b446' },
+                cover: 'picture/Goo_Goo_Muck.jpg',
+                visualizer: ['#c7b446', '#a9973b', '#8b7a2d', '#6d5e1f', '#4f4211'],
+                neonColor: '#c7b446'
             },
             { 
-                name: 'This is Halloween', 
-                artist: 'The Citizens of Halloween',
-                path: 'audio/This_is_Halloween.mp3',
-                colors: { primary: '#1a1a2e', secondary: '#2d2d57', accent: '#c86ce6' },
-                cover: 'picture/Halloween.jpg',
-                visualizer: ['#c86ce6', '#ffffff', '#8e44ad', '#5e2a7a', '#3e1c52'],
-                neonColor: '#c86ce6'
+                name: 'Ghostbusters', 
+                artist: 'Ray Parker, Jr.',
+                path: 'audio/Ray_Parker_Jr_Ghostbusters.mp3',
+                colors: { primary: '#101418', secondary: '#434c4f', accent: '#66ff33' },
+                cover: 'picture/Ghostbusters.jpg',
+                visualizer: ['#66ff33', '#aaff88', '#ffffff', '#a8b3b6', '#434c4f'],
+                neonColor: '#66ff33'
             },
+            { 
+                name: 'Ramalama (Bang Bang)', 
+                artist: 'Róisín Murphy',
+                path: 'audio/Roisin_Murphy_Ramalama_Bang_Bang.mp3',
+                colors: { primary: '#0a0a0a', secondary: '#5a0f1e', accent: '#f0f0f0' },
+                cover: 'picture/Ramalama_Bang_Bang.jpg',
+                visualizer: ['#f0f0f0', '#d3d3d3', '#a0a0a0', '#7b212b', '#5c1723'],
+                neonColor: '#f0f0f0'
+            },
+            { 
+                name: 'Exploration', 
+                artist: 'Bruno Coulais',
+                path: 'audio/Bruno_Coulais_Exploration.mp3',
+                colors: { primary: '#0f0f2d', secondary: '#3c2a4d', accent: '#8978d6' },
+                cover: 'picture/Exploration.jpg',
+                visualizer: ['#8978d6', '#a99de0', '#695aab', '#3c2a4d', '#281c34'],
+                neonColor: '#8978d6'
+            },
+            { 
+                name: 'Шкатулка 8D Remix', 
+                artist: 'MiatriSs',
+                path: 'audio/MiatriSs_Шкатулка_8D_Remix.mp3',
+                colors: { primary: '#2b1d1a', secondary: '#5a3d34', accent: '#d4af37' },
+                cover: 'picture/Шкатулка_8D_Remix.jpg',
+                visualizer: ['#d4af37', '#b89a30', '#9c8529', '#807022', '#645b1b'],
+                neonColor: '#d4af37'
+            },
+            { 
+                name: 'Spend The Night Alone', 
+                artist: 'Callie Mae & longestsoloever',
+                path: 'audio/Callie_Mae_and_longestsoloever_Spend_The_Night_Alone.mp3',
+                colors: { primary: '#1a1d2b', secondary: '#3e4a61', accent: '#a8b4c7' },
+                cover: 'picture/Spend_The_Night_Alone.jpg',
+                visualizer: ['#a8b4c7', '#8e9aaf', '#748097', '#5a667f', '#3e4a61'],
+                neonColor: '#a8b4c7'
+            },
+            { 
+                name: 'My Ordinary Life', 
+                artist: 'The Living Tombstone',
+                path: 'audio/The_Living_Tombstone_My_Ordinary_Life.mp3',
+                colors: { primary: '#402f23', secondary: '#9f8664', accent: '#f5e4c3' },
+                cover: 'picture/My_Ordinary_Life.jpg',
+                visualizer: ['#f5e4c3', '#dcd0b3', '#c3bca3', '#a9a893', '#9f8664'],
+                neonColor: '#f5e4c3'
+            },
+            { 
+                name: 'Alastor\'s Game', 
+                artist: 'The Living Tombstone',
+                path: 'audio/The_Living_Tombstone_Alastors_Game.mp3',
+                colors: { primary: '#1c0000', secondary: '#6b0000', accent: '#ff3333' },
+                cover: 'picture/Alastors_Game.jpg',
+                visualizer: ['#ff3333', '#ff6666', '#cc0000', '#990000', '#6b0000'],
+                neonColor: '#ff3333'
+            },
+            { 
+                name: 'Discord (Remix/Cover)', 
+                artist: 'CG5 feat. DAGames & RichaadEB',
+                path: 'audio/CG5_Discord_Remix_Cover.mp3',
+                colors: { primary: '#200a3d', secondary: '#4d2d80', accent: '#00d1ff' },
+                cover: 'picture/Discord_Remix_Cover.jpg',
+                visualizer: ['#00d1ff', '#5ce0ff', '#8f5ce6', '#4d2d80', '#200a3d'],
+                neonColor: '#00d1ff'
+            }
+            // --- КОНЕЦ: НОВЫЕ ТРЕКИ В ПЛЕЙЛИСТЕ "Boo!" ---
         ]
     };
 
-    let currentPlaylistName = "Библиотека"; // НОВОЕ: Имя текущего плейлиста
-    let currentTracks = playlists[currentPlaylistName]; // НОВОЕ: Текущий массив треков
+    let currentPlaylistName = "Библиотека";
+    let currentTracks = playlists[currentPlaylistName];
     let currentTrackIndex = 0;
     let isPlaying = false;
     let isTrackListOpen = false;
     
-    // ... (остальной код до функции updateVolumeSlider без изменений)
     const PLAYBACK_MODES = {
         PLAYLIST: 0,
         SINGLE: 1,
@@ -225,13 +288,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateVolumeSlider() {
         const volumeValue = volumeSlider.value;
-        // ИЗМЕНЕНО: Проверяем, есть ли треки, прежде чем получить цвет
         const accentColor = currentTracks.length > 0 ? currentTracks[currentTrackIndex].colors.accent : '#ffffff';
         
         volumeSlider.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${volumeValue}%, rgba(255, 255, 255, 0.1) ${volumeValue}%, rgba(255, 255, 255, 0.1) 100%)`;
     }
 
-    // ... (функции от createVisualizer до updateCornerParticlesColors без изменений)
     function createVisualizer() {
         visualizer.innerHTML = '';
         visualizerBars = [];
@@ -344,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function visualize() {
-        if (!analyser || !isPlaying) return;
+        if (!analyser || !isPlaying || currentTracks.length === 0) return;
         
         try {
             analyser.getByteFrequencyData(dataArray);
@@ -560,6 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateEdgeGlow(features) {
+        if (currentTracks.length === 0) return;
         const { rms, bassEnergy, isBeat } = features;
         
         let baseIntensity = rms * 0.3;
@@ -581,6 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function analyzeEdgeEffects(features) {
+        if (currentTracks.length === 0) return;
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
         if ((highEnergy > 0.2 || (isBeat && highEnergy > 0.1)) && sparkCooldown <= 0) {
@@ -604,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateParticlesMovement(features) {
-        if (isParticlesTransitioning || particlesData.length === 0) return;
+        if (isParticlesTransitioning || particlesData.length === 0 || currentTracks.length === 0) return;
         
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
@@ -659,6 +722,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createCornerParticles() {
+        if (currentTracks.length === 0) return;
         const corners = [
             { left: '5%', top: '5%' },
             { left: '95%', top: '5%' },
@@ -713,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateCornerParticles(features) {
+        if (currentTracks.length === 0) return;
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         const time = Date.now() * 0.001;
         
@@ -753,6 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createParticles() {
+        if (currentTracks.length === 0) return;
         particles.innerHTML = '';
         particlesData = [];
         
@@ -839,6 +905,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateParticles() {
+        if (currentTracks.length === 0) return;
         const currentColors = currentTracks[currentTrackIndex].colors;
         
         particlesData.forEach(particleData => {
@@ -863,6 +930,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateCornerParticlesColors() {
+        if (currentTracks.length === 0) return;
         const currentColors = currentTracks[currentTrackIndex].colors;
         
         cornerParticlesData.forEach(particleData => {
@@ -872,14 +940,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function renderTrackList() {
         trackList.innerHTML = '';
         
+        if (currentTracks.length === 0) {
+            trackList.innerHTML = '<div class="track-item-title" style="text-align: center; padding: 20px;">Плейлист пуст</div>';
+            return;
+        }
+
         currentTracks.forEach((track, index) => {
             const trackItem = document.createElement('div');
-            // Проверяем, активен ли трек, сравнивая его путь. Это важно при переключении плейлистов
-            const isTrackActive = audio.src.includes(track.path);
+            const isTrackActive = audio.src.includes(track.path) && !audio.paused;
             trackItem.className = `track-item ${isTrackActive ? 'active' : ''}`;
             
             const progressPercent = isTrackActive ? (audio.currentTime / audio.duration * 100) || 0 : 0;
@@ -897,7 +968,6 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             trackItem.addEventListener('click', () => {
-                // Находим оригинальный индекс трека в текущем плейлисте
                 const originalIndex = currentTracks.findIndex(t => t.path === track.path);
                 loadTrack(originalIndex, true);
             });
@@ -906,7 +976,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function filterTracks(searchTerm) {
         const filteredTracks = currentTracks.filter(track => 
             track.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -915,9 +984,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         trackList.innerHTML = '';
         
+        if (filteredTracks.length === 0) {
+            trackList.innerHTML = '<div class="track-item-title" style="text-align: center; padding: 20px;">Ничего не найдено</div>';
+            return;
+        }
+        
         filteredTracks.forEach((track) => {
             const originalIndex = currentTracks.findIndex(t => t.path === track.path);
-            const isTrackActive = audio.src.includes(track.path);
+            const isTrackActive = audio.src.includes(track.path) && !audio.paused;
             const trackItem = document.createElement('div');
             trackItem.className = `track-item ${isTrackActive ? 'active' : ''}`;
             
@@ -956,9 +1030,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function updateTheme() {
-        if (currentTracks.length === 0) return; // Защита от пустого плейлиста
+        if (currentTracks.length === 0) return;
 
         const currentColors = currentTracks[currentTrackIndex].colors;
         const neonColor = currentTracks[currentTrackIndex].neonColor;
@@ -991,7 +1064,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         updateVolumeSlider();
         
-        // ... (остальная часть функции без изменений)
         if (particlesData.length === 0) {
             createParticles();
         } else {
@@ -1081,7 +1153,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function loadTrack(index, autoPlay = false) {
         if (index >= 0 && index < currentTracks.length) {
             currentTrackIndex = index;
@@ -1116,15 +1187,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             audio.load();
         } else {
-             // Если треков в плейлисте нет, сбрасываем интерфейс
              currentTrack.textContent = 'Плейлист пуст';
              currentArtist.textContent = 'Выберите другой';
+             albumImage.style.backgroundImage = 'none';
+             duration.textContent = '0:00';
+             progress.style.width = '0%';
         }
     }
     
-    // ... (функция playTrack и seek без изменений)
     function playTrack() {
-        console.log('Attempting to play track...');
+        if (currentTracks.length === 0) return;
         
         initAudioAnalyzer();
         
@@ -1132,7 +1204,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (playPromise !== undefined) {
             playPromise.then(() => {
-                console.log('Playback started successfully');
                 isPlaying = true;
                 playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                 
@@ -1150,9 +1221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (!animationId) {
                                 visualize();
                             }
-                        }).catch(e => {
-                            console.error('Second playback attempt failed:', e);
-                        });
+                        }).catch(e => console.error('Second playback attempt failed:', e));
                     });
                 }
             });
@@ -1164,8 +1233,6 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
         }
     }
-
-    // --- ОБНОВЛЕННЫЕ И НОВЫЕ ОБРАБОТЧИКИ СОБЫТИЙ ---
 
     playPauseBtn.addEventListener('click', () => {
         if (isPlaying) {
@@ -1181,30 +1248,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ИЗМЕНЕНО: Обработчики работают с `currentTracks`
     prevBtn.addEventListener('click', () => {
+        if (currentTracks.length === 0) return;
         let newIndex = currentTrackIndex - 1;
         if (newIndex < 0) newIndex = currentTracks.length - 1;
         loadTrack(newIndex, true);
     });
 
     nextBtn.addEventListener('click', () => {
+        if (currentTracks.length === 0) return;
         let newIndex = currentTrackIndex + 1;
         if (newIndex >= currentTracks.length) newIndex = 0;
         loadTrack(newIndex, true);
     });
 
     playbackModeBtn.addEventListener('click', togglePlaybackMode);
-
     trackListBtn.addEventListener('click', toggleTrackList);
 
     trackSearch.addEventListener('input', (e) => {
-        const searchTerm = e.target.value;
-        if (searchTerm.trim() === '') {
-            renderTrackList();
-        } else {
-            filterTracks(searchTerm);
-        }
+        filterTracks(e.target.value);
     });
 
     volumeSlider.addEventListener('input', () => {
@@ -1241,8 +1303,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     audio.addEventListener('timeupdate', updateProgress);
     
-    // ИЗМЕНЕНО: Обработчик окончания работает с `currentTracks`
     audio.addEventListener('ended', () => {
+        if (currentTracks.length === 0) return;
         switch(playbackMode) {
             case PLAYBACK_MODES.PLAYLIST:
                 let newIndex = currentTrackIndex + 1;
@@ -1264,15 +1326,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    audio.addEventListener('error', function(e) {
-        console.error('Audio element error:', e);
-    });
+    audio.addEventListener('error', (e) => console.error('Audio element error:', e));
 
-    // --- НОВЫЕ ФУНКЦИИ И ИХ ВЫЗОВЫ ДЛЯ ПЛЕЙЛИСТОВ ---
-    
-    /**
-     * НОВОЕ: Заполняет выпадающий список плейлистами
-     */
     function populatePlaylistSelector() {
         for (const playlistName in playlists) {
             const option = document.createElement('option');
@@ -1282,34 +1337,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * НОВОЕ: Переключает на выбранный плейлист
-     */
     function switchPlaylist(playlistName) {
         if (playlists[playlistName]) {
             currentPlaylistName = playlistName;
             currentTracks = playlists[playlistName];
             
-            // Если текущий трек не из нового плейлиста, просто обновляем список.
-            // Если плейлист был изменен, а трек продолжает играть,
-            // нажатие next/prev переключит на трек из нового плейлиста.
-            
-            // Если в новом плейлисте нет песен, а старая еще играет,
-            // мы не хотим ее останавливать, но список будет пуст.
+            const isCurrentTrackInNewPlaylist = currentTracks.some(track => audio.src.includes(track.path));
+            if (!isCurrentTrackInNewPlaylist) {
+                audio.pause();
+                isPlaying = false;
+                playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
+                if (animationId) cancelAnimationFrame(animationId);
+                
+                // Сбрасываем прогресс-бар и время, если плейлист пуст
+                if (currentTracks.length === 0) {
+                    progress.style.width = '0%';
+                    currentTime.textContent = '0:00';
+                }
+
+                loadTrack(0); 
+            }
+
             renderTrackList();
         }
     }
 
-    // НОВЫЙ ОБРАБОТЧИК
     playlistSelector.addEventListener('change', (e) => {
         switchPlaylist(e.target.value);
     });
 
-
-    // --- ИНИЦИАЛИЗАЦИЯ ---
-    
     function initializePlayer() {
-        populatePlaylistSelector(); // Заполняем селектор
+        populatePlaylistSelector();
         createVisualizer();
         createParticles();
         createCornerParticles();
@@ -1318,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateVolumeSlider();
         
         setTimeout(() => {
-            loadTrack(0); // Загружаем первый трек из плейлиста по умолчанию
+            loadTrack(0);
         }, 500);
     }
     
