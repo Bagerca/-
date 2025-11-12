@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Элементы DOM
+    // --- СУЩЕСТВУЮЩИЕ ЭЛЕМЕНТЫ DOM (без изменений) ---
     const audio = document.getElementById('audioPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const prevBtn = document.getElementById('prevBtn');
@@ -23,147 +23,133 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackListPanel = document.getElementById('trackListPanel');
     const trackList = document.getElementById('trackList');
     const trackSearch = document.getElementById('trackSearch');
+    // НОВЫЙ ЭЛЕМЕНТ DOM
+    const playlistSelector = document.getElementById('playlistSelector');
 
-    // Массив треков с обновленными цветовыми схемами
-    const tracks = [
-        { 
-            name: 'Tangled Up', 
-            artist: 'Caro Emerald',
-            path: 'audio/Caro_Emerald_Tangled_Up.mp3',
-            colors: {
-                primary: '#333b25',
-                secondary: '#745c18',
-                accent: '#efdc31'
+    // --- ОБНОВЛЕННАЯ СТРУКТУРА ДАННЫХ ДЛЯ ПЛЕЙЛИСТОВ ---
+    const playlists = {
+        "Библиотека": [
+            { 
+                name: 'Tangled Up', 
+                artist: 'Caro Emerald',
+                path: 'audio/Caro_Emerald_Tangled_Up.mp3',
+                colors: { primary: '#333b25', secondary: '#745c18', accent: '#efdc31' },
+                cover: 'picture/TangledUp.jpg',
+                visualizer: ['#efdc31', '#ead772', '#e4c51c', '#a0951a', '#817a44'],
+                neonColor: '#efdc31'
             },
-            cover: 'picture/TangledUp.jpg',
-            visualizer: ['#efdc31', '#ead772', '#e4c51c', '#a0951a', '#817a44'],
-            neonColor: '#efdc31'
-        },
-        { 
-            name: 'Valhalla Calling', 
-            artist: 'Miracle Of Sound',
-            path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
-            colors: {
-                primary: '#122a34',
-                secondary: '#1b4c4b',
-                accent: '#44bba8'
+            { 
+                name: 'Valhalla Calling', 
+                artist: 'Miracle Of Sound',
+                path: 'audio/VALHALLA_CALLING_Miracle_Of_Sound.mp3',
+                colors: { primary: '#122a34', secondary: '#1b4c4b', accent: '#44bba8' },
+                cover: 'picture/ValhallaCalling.jpeg',
+                visualizer: ['#44bba8', '#d8e2e4', '#286869', '#2a5c6c', '#1e5258'],
+                neonColor: '#44bba8'
             },
-            cover: 'picture/ValhallaCalling.jpeg',
-            visualizer: ['#44bba8', '#d8e2e4', '#286869', '#2a5c6c', '#1e5258'],
-            neonColor: '#44bba8'
-        },
-        { 
-            name: 'Lust', 
-            artist: 'Marino ft. Alexandria',
-            path: 'audio/Marino_Lust.m4a',
-            colors: {
-                primary: '#230b10',
-                secondary: '#5c1723',
-                accent: '#e1212c'
+            { 
+                name: 'Lust', 
+                artist: 'Marino ft. Alexandria',
+                path: 'audio/Marino_Lust.m4a',
+                colors: { primary: '#230b10', secondary: '#5c1723', accent: '#e1212c' },
+                cover: 'picture/Lust.jpeg',
+                visualizer: ['#e1212c', '#e48494', '#ddadb0', '#7b212b', '#5c1723'],
+                neonColor: '#e1212c'
             },
-            cover: 'picture/Lust.jpeg',
-            visualizer: ['#e1212c', '#e48494', '#ddadb0', '#7b212b', '#5c1723'],
-            neonColor: '#e1212c'
-        },
-        { 
-            name: 'Puttin On The Ritz', 
-            artist: 'Taco',
-            path: 'audio/Taco_Puttin_On_The_Ritz.m4a',
-            colors: {
-                primary: '#080708',
-                secondary: '#3c345a',
-                accent: '#86bbd6'
+            { 
+                name: 'Puttin On The Ritz', 
+                artist: 'Taco',
+                path: 'audio/Taco_Puttin_On_The_Ritz.m4a',
+                colors: { primary: '#080708', secondary: '#3c345a', accent: '#86bbd6' },
+                cover: 'picture/Puttin_On_The_Ritz.jpg',
+                visualizer: ['#86bbd6', '#3d82a5', '#78afbc', '#92703f', '#b0ab8e'],
+                neonColor: '#86bbd6'
             },
-            cover: 'picture/Puttin_On_The_Ritz.jpg',
-            visualizer: ['#86bbd6', '#3d82a5', '#78afbc', '#92703f', '#b0ab8e'],
-            neonColor: '#86bbd6'
-        },
-        { 
-            name: 'The Cigarette Duet', 
-            artist: 'Princess Chelsea',
-            path: 'audio/Princess_Chelsea_Cigarette_Duet.m4a',
-            colors: {
-                primary: '#701d1e',
-                secondary: '#821318',
-                accent: '#e0a494'
+            { 
+                name: 'The Cigarette Duet', 
+                artist: 'Princess Chelsea',
+                path: 'audio/Princess_Chelsea_Cigarette_Duet.m4a',
+                colors: { primary: '#701d1e', secondary: '#821318', accent: '#e0a494' },
+                cover: 'picture/Cigarette_Duet.jpg',
+                visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
+                neonColor: '#e0a494'
             },
-            cover: 'picture/Cigarette_Duet.jpg',
-            visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
-            neonColor: '#e0a494'
-        },
-        { 
-            name: 'A Man Without Love', 
-            artist: 'Engelbert Humperdinck',
-            path: 'audio/Engelbert_Humperdinck_Man_Without_Love.m4a',
-            colors: {
-                primary: '#18101d',
-                secondary: '#463138',
-                accent: '#5fabba'
+            { 
+                name: 'A Man Without Love', 
+                artist: 'Engelbert Humperdinck',
+                path: 'audio/Engelbert_Humperdinck_Man_Without_Love.m4a',
+                colors: { primary: '#18101d', secondary: '#463138', accent: '#5fabba' },
+                cover: 'picture/Man_Without_Love.jpg',
+                visualizer: ['#5fabba', '#d1aba2', '#8a8295', '#994144'],
+                neonColor: '#5fabba'
             },
-            cover: 'picture/Man_Without_Love.jpg',
-            visualizer: ['#5fabba', '#d1aba2', '#8a8295', '#994144'],
-            neonColor: '#5fabba'
-        },
-        { 
-            name: 'IRIS OUT', 
-            artist: 'Kenshi Yonezu',
-            path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
-            colors: {
-                primary: '#0b0405',
-                secondary: '#3d255a',
-                accent: '#e00705'
+            { 
+                name: 'IRIS OUT', 
+                artist: 'Kenshi Yonezu',
+                path: 'audio/Kenshi_Yonezu_IRIS_OUT.m4a',
+                colors: { primary: '#0b0405', secondary: '#3d255a', accent: '#e00705' },
+                cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
+                visualizer: ['#e00705', '#10a3a9'],
+                neonColor: '#e00705',
+                neonColorRight: '#10a3a9'
             },
-            cover: 'picture/Kenshi_Yonezu_IRIS_OUT.jpg',
-            visualizer: ['#e00705', '#10a3a9'],
-            neonColor: '#e00705',
-            neonColorRight: '#10a3a9'
-        },
-        { 
-            name: 'God Rest Ye Merry Gentlemen', 
-            artist: 'Pentatonix',
-            path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
-            colors: {
-                primary: '#231c15',
-                secondary: '#79573f',
-                accent: '#dad7cf'
+            { 
+                name: 'God Rest Ye Merry Gentlemen', 
+                artist: 'Pentatonix',
+                path: 'audio/Pentatonix_God_Rest_Ye_Merry_Gentlemen.m4a',
+                colors: { primary: '#231c15', secondary: '#79573f', accent: '#dad7cf' },
+                cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
+                visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
+                neonColor: '#bcaf9c'
             },
-            cover: 'picture/Pentatonix_God_Rest_Ye_Merry_Gentlemen.jpg',
-            visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
-            neonColor: '#bcaf9c'
-        },
-        { 
-            name: 'Песня смертника', 
-            artist: '2rbina 2rista',
-            path: 'audio/2rbina_2rista_Песня_смертника.m4a',
-            colors: {
-                primary: '#0d1313',    // Глубокий почти черный
-                secondary: '#3b3c3c',  // Темно-серый
-                accent: '#c2312e'      // Ярко-красный
+            { 
+                name: 'Песня смертника', 
+                artist: '2rbina 2rista',
+                path: 'audio/2rbina_2rista_Песня_смертника.m4a',
+                colors: { primary: '#0d1313', secondary: '#3b3c3c', accent: '#c2312e' },
+                cover: 'picture/Песня_смертника.jpg',
+                visualizer: ['#c2312e', '#684241', '#94949c', '#83848c', '#44544c'],
+                neonColor: '#c2312e'
             },
-            cover: 'picture/Песня_смертника.jpg',
-            visualizer: ['#c2312e', '#684241', '#94949c', '#83848c', '#44544c'],
-            neonColor: '#c2312e'
-        },
-        { 
-            name: '2 Phút Hơn - Electric Guitar Version', 
-            artist: 'Pháo',
-            path: 'audio/2_Phút_Hơn_Pháo_Electric_Guitar_Version.m4a',
-            colors: {
-                primary: '#171715',    // Глубокий почти черный
-                secondary: '#9f1310',  // Насыщенный темно-красный
-                accent: '#fb7b7c'      // Нежный розово-красный
+            { 
+                name: '2 Phút Hơn - Electric Guitar Version', 
+                artist: 'Pháo',
+                path: 'audio/2_Phút_Hơn_Pháo_Electric_Guitar_Version.m4a',
+                colors: { primary: '#171715', secondary: '#9f1310', accent: '#fb7b7c' },
+                cover: 'picture/Pháo_Electric_Guitar_Version.jpeg',
+                visualizer: ['#fb7b7c', '#f4b3eb', '#f4cac3', '#ec7469', '#e6958d'],
+                neonColor: '#fb7b7c'
+            }
+        ],
+        "Boo!": [
+            { 
+                name: 'Spooky Scary Skeletons', 
+                artist: 'Andrew Gold',
+                path: 'audio/Spooky_Scary_Skeletons.mp3', // Убедитесь, что у вас есть эти файлы
+                colors: { primary: '#0d0d0d', secondary: '#3c1e4a', accent: '#ff9a00' },
+                cover: 'picture/Spooky.jpg', // и эти обложки
+                visualizer: ['#ff9a00', '#f0e38d', '#e26b0a', '#a94c08', '#703305'],
+                neonColor: '#ff9a00'
             },
-            cover: 'picture/Pháo_Electric_Guitar_Version.jpeg',
-            visualizer: ['#fb7b7c', '#f4b3eb', '#f4cac3', '#ec7469', '#e6958d'],
-            neonColor: '#fb7b7c'
-        }
-    ];
+            { 
+                name: 'This is Halloween', 
+                artist: 'The Citizens of Halloween',
+                path: 'audio/This_is_Halloween.mp3',
+                colors: { primary: '#1a1a2e', secondary: '#2d2d57', accent: '#c86ce6' },
+                cover: 'picture/Halloween.jpg',
+                visualizer: ['#c86ce6', '#ffffff', '#8e44ad', '#5e2a7a', '#3e1c52'],
+                neonColor: '#c86ce6'
+            },
+        ]
+    };
 
+    let currentPlaylistName = "Библиотека"; // НОВОЕ: Имя текущего плейлиста
+    let currentTracks = playlists[currentPlaylistName]; // НОВОЕ: Текущий массив треков
     let currentTrackIndex = 0;
     let isPlaying = false;
     let isTrackListOpen = false;
     
-    // Режимы воспроизведения
+    // ... (остальной код до функции updateVolumeSlider без изменений)
     const PLAYBACK_MODES = {
         PLAYLIST: 0,
         SINGLE: 1,
@@ -172,51 +158,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let playbackMode = PLAYBACK_MODES.PLAYLIST;
     
-    // Аудио система
     let audioContext, analyser, dataArray, bufferLength, audioSource;
     
     let visualizerBars = [];
     let animationId = null;
     
-    // Переменные для ритмичного свечения
     let beatDetected = false;
     let lastBeatTime = 0;
     let beatThreshold = 0.7;
     let currentPulseIntensity = 0;
 
-    // Переменные для анимации частиц
     let particlesData = [];
     let cornerParticlesData = [];
     let isParticlesTransitioning = false;
     let particleTransitionProgress = 0;
     let currentMusicIntensity = 0;
 
-    // Переменные для расширенного анализа
     let energyHistory = [];
     let energyAverage = 0;
     let spectralCentroid = 0;
     let isBeat = false;
     let beatCooldown = 0;
 
-    // Переменные для эффектов краев экрана
     let sparkParticles = [];
     let lastSparkTime = 0;
     let sparkCooldown = 0;
     let energySurgeActive = false;
     let energySurgeIntensity = 0;
 
-    // Переменные для краевого свечения
     let edgeGlowElements = {};
     let edgeGlowIntensity = 0;
 
-    // Частотные диапазоны
     const FREQ_RANGES = {
         BASS: { start: 0, end: 10 },
         MID: { start: 10, end: 20 },
         HIGH: { start: 20, end: 30 }
     };
 
-    // Функция для обновления отображения кнопки режима воспроизведения
     function updatePlaybackModeButton() {
         const icon = playbackModeBtn.querySelector('svg');
         switch(playbackMode) {
@@ -239,22 +217,21 @@ document.addEventListener('DOMContentLoaded', function() {
             playbackModeBtn.style.transform = 'scale(1)';
         }, 200);
     }
-
-    // Функция для переключения режима воспроизведения
+    
     function togglePlaybackMode() {
         playbackMode = (playbackMode + 1) % 3;
         updatePlaybackModeButton();
     }
-
-    // Функция для обновления ползунка громкости
+    
     function updateVolumeSlider() {
         const volumeValue = volumeSlider.value;
-        const accentColor = tracks[currentTrackIndex].colors.accent;
+        // ИЗМЕНЕНО: Проверяем, есть ли треки, прежде чем получить цвет
+        const accentColor = currentTracks.length > 0 ? currentTracks[currentTrackIndex].colors.accent : '#ffffff';
         
         volumeSlider.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${volumeValue}%, rgba(255, 255, 255, 0.1) ${volumeValue}%, rgba(255, 255, 255, 0.1) 100%)`;
     }
 
-    // Создание визуализатора
+    // ... (функции от createVisualizer до updateCornerParticlesColors без изменений)
     function createVisualizer() {
         visualizer.innerHTML = '';
         visualizerBars = [];
@@ -269,7 +246,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Инициализация аудиоанализатора
     function initAudioAnalyzer() {
         try {
             if (audioContext) {
@@ -282,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
             
-            // Создаем источник только если его нет
             if (!audioSource) {
                 audioSource = audioContext.createMediaElementSource(audio);
                 audioSource.connect(analyser);
@@ -299,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Получение энергии по частотным диапазонам
     function getFrequencyEnergy(range) {
         let sum = 0;
         const count = range.end - range.start;
@@ -309,7 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return sum / count / 255;
     }
 
-    // Функция для анализа спектральных характеристик
     function analyzeSpectralFeatures() {
         if (!analyser || !dataArray) return;
         
@@ -362,7 +335,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Плавное затухание пульсации
     function updatePulseIntensity() {
         if (currentPulseIntensity > 0) {
             currentPulseIntensity -= 0.08;
@@ -371,7 +343,6 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // Визуализация звука
     function visualize() {
         if (!analyser || !isPlaying) return;
         
@@ -379,7 +350,6 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser.getByteFrequencyData(dataArray);
             const features = analyzeSpectralFeatures();
             
-            // Обновление визуализатора
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
@@ -401,11 +371,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 visualizerBars[i].style.height = `${baseHeight}px`;
                 
-                const currentColors = tracks[currentTrackIndex].visualizer;
+                const currentColors = currentTracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
-            // НЕОНОВЫЕ ЛИНИИ с раздельными цветами
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 85;
@@ -418,12 +387,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 leftGlow.style.opacity = brightness;
                 rightGlow.style.opacity = brightness;
                 
-                const neonColor = tracks[currentTrackIndex].neonColor;
-                const neonColorRight = tracks[currentTrackIndex].neonColorRight || neonColor;
+                const neonColor = currentTracks[currentTrackIndex].neonColor;
+                const neonColorRight = currentTracks[currentTrackIndex].neonColorRight || neonColor;
                 const baseBlur = 12;
                 const pulseBlur = currentPulseIntensity * 35;
                 
-                // ЛЕВАЯ линия - основной цвет
                 leftGlow.style.background = neonColor;
                 leftGlow.style.boxShadow = 
                     `0 0 ${baseBlur + pulseBlur}px ${neonColor},
@@ -431,7 +399,6 @@ document.addEventListener('DOMContentLoaded', function() {
                      0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColor},
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
                 
-                // ПРАВАЯ линия - правый цвет (или основной, если не задан)
                 rightGlow.style.background = neonColorRight;
                 rightGlow.style.boxShadow = 
                     `0 0 ${baseBlur + pulseBlur}px ${neonColorRight},
@@ -440,11 +407,9 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
-            // Обновление движения частиц
             updateParticlesMovement(features);
             updateCornerParticles(features);
             
-            // Обновление эффектов краев экрана
             analyzeEdgeEffects(features);
             updateSparkParticles();
             updateEnergySurge();
@@ -461,7 +426,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Создание частиц-искр
     function createSparkParticle(corner, intensity) {
         const spark = document.createElement('div');
         spark.className = 'spark';
@@ -478,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const speed = 2 + Math.random() * 3;
         
         const size = 2 + Math.random() * 4 * intensity;
-        const currentColors = tracks[currentTrackIndex].colors;
+        const currentColors = currentTracks[currentTrackIndex].colors;
         
         spark.style.width = `${size}px`;
         spark.style.height = `${size}px`;
@@ -510,7 +474,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     }
 
-    // Обновление частиц-искр
     function updateSparkParticles() {
         sparkParticles.forEach((spark, index) => {
             spark.life -= 0.02;
@@ -535,7 +498,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Активация энергетических всплесков
     function activateEnergySurge(intensity) {
         energySurgeActive = true;
         energySurgeIntensity = intensity;
@@ -547,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('energyLeft')
         ];
         
-        const currentColors = tracks[currentTrackIndex].colors;
+        const currentColors = currentTracks[currentTrackIndex].colors;
         
         waves.forEach(wave => {
             wave.style.opacity = intensity.toString();
@@ -567,7 +529,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     }
 
-    // Обновление энергетических всплесков
     function updateEnergySurge() {
         if (energySurgeActive && energySurgeIntensity > 0) {
             energySurgeIntensity -= 0.1;
@@ -586,7 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Создание краевого свечения
     function createEdgeGlow() {
         const edges = ['top', 'right', 'bottom', 'left'];
         const edgeGlowContainer = document.getElementById('edgeGlow');
@@ -599,7 +559,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновление краевого свечения
     function updateEdgeGlow(features) {
         const { rms, bassEnergy, isBeat } = features;
         
@@ -613,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         edgeGlowIntensity = Math.min(1, baseIntensity);
         
-        const currentColors = tracks[currentTrackIndex].colors;
+        const currentColors = currentTracks[currentTrackIndex].colors;
         
         Object.values(edgeGlowElements).forEach(glow => {
             glow.style.opacity = edgeGlowIntensity.toString();
@@ -621,7 +580,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Анализ триггеров для эффектов краев
     function analyzeEdgeEffects(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         
@@ -645,7 +603,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обновление движения частиц
     function updateParticlesMovement(features) {
         if (isParticlesTransitioning || particlesData.length === 0) return;
         
@@ -693,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.height = `${newSize}px`;
             particle.style.opacity = newOpacity;
             
-            const currentColors = tracks[currentTrackIndex].colors;
+            const currentColors = currentTracks[currentTrackIndex].colors;
             particle.style.background = currentColors.accent;
             
             const transitionTime = Math.max(0.05, 0.2 - rms * 0.15);
@@ -701,7 +658,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Создание угловых частиц
     function createCornerParticles() {
         const corners = [
             { left: '5%', top: '5%' },
@@ -734,7 +690,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 particle.style.pointerEvents = 'none';
                 particle.style.zIndex = '3';
                 
-                const currentColors = tracks[currentTrackIndex].colors;
+                const currentColors = currentTracks[currentTrackIndex].colors;
                 particle.style.background = currentColors.accent;
                 particle.style.boxShadow = `0 0 ${size * 2}px ${currentColors.accent}`;
                 
@@ -756,7 +712,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновление угловых частиц
     function updateCornerParticles(features) {
         const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
         const time = Date.now() * 0.001;
@@ -789,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.height = `${newSize}px`;
             particle.style.opacity = (newOpacity + beatBoost).toString();
             
-            const currentColors = tracks[currentTrackIndex].colors;
+            const currentColors = currentTracks[currentTrackIndex].colors;
             particle.style.background = currentColors.accent;
             particle.style.boxShadow = `0 0 ${newSize * 2}px ${currentColors.accent}`;
             
@@ -797,13 +752,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Создание частиц
     function createParticles() {
         particles.innerHTML = '';
         particlesData = [];
         
         const particleCount = 15;
-        const currentColors = tracks[currentTrackIndex].colors;
+        const currentColors = currentTracks[currentTrackIndex].colors;
         
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
@@ -855,7 +809,6 @@ document.addEventListener('DOMContentLoaded', function() {
         startParticleTransition();
     }
 
-    // Запуск анимации перехода частиц
     function startParticleTransition() {
         isParticlesTransitioning = true;
         particleTransitionProgress = 0;
@@ -885,9 +838,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, transitionDuration);
     }
 
-    // Обновление частиц при смене трека
     function updateParticles() {
-        const currentColors = tracks[currentTrackIndex].colors;
+        const currentColors = currentTracks[currentTrackIndex].colors;
         
         particlesData.forEach(particleData => {
             const particle = particleData.element;
@@ -910,9 +862,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCornerParticlesColors();
     }
 
-    // Обновление цветов угловых частиц
     function updateCornerParticlesColors() {
-        const currentColors = tracks[currentTrackIndex].colors;
+        const currentColors = currentTracks[currentTrackIndex].colors;
         
         cornerParticlesData.forEach(particleData => {
             const particle = particleData.element;
@@ -921,15 +872,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Функция для отображения списка треков
+    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function renderTrackList() {
         trackList.innerHTML = '';
         
-        tracks.forEach((track, index) => {
+        currentTracks.forEach((track, index) => {
             const trackItem = document.createElement('div');
-            trackItem.className = `track-item ${index === currentTrackIndex ? 'active' : ''}`;
+            // Проверяем, активен ли трек, сравнивая его путь. Это важно при переключении плейлистов
+            const isTrackActive = audio.src.includes(track.path);
+            trackItem.className = `track-item ${isTrackActive ? 'active' : ''}`;
             
-            const progressPercent = index === currentTrackIndex ? (audio.currentTime / audio.duration * 100) || 0 : 0;
+            const progressPercent = isTrackActive ? (audio.currentTime / audio.duration * 100) || 0 : 0;
             
             trackItem.innerHTML = `
                 <div class="track-item-cover" style="background-image: url('${track.cover}')"></div>
@@ -940,32 +893,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="track-item-progress-bar" style="width: ${progressPercent}%"></div>
                     </div>
                 </div>
-                ${index === currentTrackIndex ? '<div class="now-playing-icon">▶</div>' : ''}
+                ${isTrackActive ? '<div class="now-playing-icon">▶</div>' : ''}
             `;
             
             trackItem.addEventListener('click', () => {
-                loadTrack(index, true);
+                // Находим оригинальный индекс трека в текущем плейлисте
+                const originalIndex = currentTracks.findIndex(t => t.path === track.path);
+                loadTrack(originalIndex, true);
             });
             
             trackList.appendChild(trackItem);
         });
     }
-
-    // Функция для фильтрации треков
+    
+    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function filterTracks(searchTerm) {
-        const filteredTracks = tracks.filter(track => 
+        const filteredTracks = currentTracks.filter(track => 
             track.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
             track.artist.toLowerCase().includes(searchTerm.toLowerCase())
         );
         
         trackList.innerHTML = '';
         
-        filteredTracks.forEach((track, index) => {
-            const originalIndex = tracks.findIndex(t => t.path === track.path);
+        filteredTracks.forEach((track) => {
+            const originalIndex = currentTracks.findIndex(t => t.path === track.path);
+            const isTrackActive = audio.src.includes(track.path);
             const trackItem = document.createElement('div');
-            trackItem.className = `track-item ${originalIndex === currentTrackIndex ? 'active' : ''}`;
+            trackItem.className = `track-item ${isTrackActive ? 'active' : ''}`;
             
-            const progressPercent = originalIndex === currentTrackIndex ? (audio.currentTime / audio.duration * 100) || 0 : 0;
+            const progressPercent = isTrackActive ? (audio.currentTime / audio.duration * 100) || 0 : 0;
             
             trackItem.innerHTML = `
                 <div class="track-item-cover" style="background-image: url('${track.cover}')"></div>
@@ -976,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="track-item-progress-bar" style="width: ${progressPercent}%"></div>
                     </div>
                 </div>
-                ${originalIndex === currentTrackIndex ? '<div class="now-playing-icon">▶</div>' : ''}
+                ${isTrackActive ? '<div class="now-playing-icon">▶</div>' : ''}
             `;
             
             trackItem.addEventListener('click', () => {
@@ -987,7 +943,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Функция переключения панели треков
     function toggleTrackList() {
         isTrackListOpen = !isTrackListOpen;
         
@@ -1001,11 +956,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обновление темы
+    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function updateTheme() {
-        const currentColors = tracks[currentTrackIndex].colors;
-        const neonColor = tracks[currentTrackIndex].neonColor;
-        const neonColorRight = tracks[currentTrackIndex].neonColorRight || neonColor;
+        if (currentTracks.length === 0) return; // Защита от пустого плейлиста
+
+        const currentColors = currentTracks[currentTrackIndex].colors;
+        const neonColor = currentTracks[currentTrackIndex].neonColor;
+        const neonColorRight = currentTracks[currentTrackIndex].neonColorRight || neonColor;
         
         document.body.style.background = `linear-gradient(135deg, ${currentColors.primary} 0%, ${currentColors.secondary} 100%)`;
         progress.style.background = `linear-gradient(90deg, ${currentColors.accent}, ${currentColors.primary})`;
@@ -1030,10 +987,11 @@ document.addEventListener('DOMContentLoaded', function() {
         style.id = 'dynamic-neon-styles';
         document.head.appendChild(style);
         
-        albumImage.style.backgroundImage = `url('${tracks[currentTrackIndex].cover}')`;
+        albumImage.style.backgroundImage = `url('${currentTracks[currentTrackIndex].cover}')`;
         
         updateVolumeSlider();
         
+        // ... (остальная часть функции без изменений)
         if (particlesData.length === 0) {
             createParticles();
         } else {
@@ -1052,7 +1010,6 @@ document.addEventListener('DOMContentLoaded', function() {
             leftGlow.style.opacity = '0.8';
             rightGlow.style.opacity = '0.8';
             
-            // Устанавливаем разные цвета для левой и правой линии
             leftGlow.style.background = neonColor;
             rightGlow.style.background = neonColorRight;
             
@@ -1099,7 +1056,6 @@ document.addEventListener('DOMContentLoaded', function() {
         energySurgeActive = false;
     }
 
-    // Форматирование времени
     function formatTime(seconds) {
         if (isNaN(seconds)) return '0:00';
         const mins = Math.floor(seconds / 60);
@@ -1107,7 +1063,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
-    // Обновление прогресс-бара
     function updateProgress() {
         if (audio.duration && !isNaN(audio.duration)) {
             const progressPercent = (audio.currentTime / audio.duration) * 100;
@@ -1126,13 +1081,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Загрузка трека
+    // ИЗМЕНЕНО: Функция теперь работает с `currentTracks`
     function loadTrack(index, autoPlay = false) {
-        if (index >= 0 && index < tracks.length) {
+        if (index >= 0 && index < currentTracks.length) {
             currentTrackIndex = index;
-            const track = tracks[currentTrackIndex];
-            
-            console.log('Loading track:', track.path);
+            const track = currentTracks[currentTrackIndex];
             
             audio.pause();
             isPlaying = false;
@@ -1150,36 +1103,29 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTheme();
             
             const onLoaded = function() {
-                console.log('Track loaded successfully:', track.name);
                 duration.textContent = formatTime(audio.duration);
                 audio.removeEventListener('loadedmetadata', onLoaded);
                 
                 if (autoPlay) {
-                    setTimeout(() => {
-                        playTrack();
-                    }, 100);
+                    setTimeout(() => playTrack(), 100);
                 }
             };
             
-            const onError = function(e) {
-                console.error('Error loading track:', track.path, e);
-                console.error('Audio error details:', audio.error);
-                audio.removeEventListener('error', onError);
-            };
-            
             audio.addEventListener('loadedmetadata', onLoaded);
-            audio.addEventListener('error', onError);
+            audio.addEventListener('error', (e) => console.error('Error loading track:', track.path, e));
             
-            // Принудительная загрузка
             audio.load();
+        } else {
+             // Если треков в плейлисте нет, сбрасываем интерфейс
+             currentTrack.textContent = 'Плейлист пуст';
+             currentArtist.textContent = 'Выберите другой';
         }
     }
-
-    // Воспроизведение трека
+    
+    // ... (функция playTrack и seek без изменений)
     function playTrack() {
         console.log('Attempting to play track...');
         
-        // Инициализируем анализатор перед воспроизведением
         initAudioAnalyzer();
         
         const playPromise = audio.play();
@@ -1190,14 +1136,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 isPlaying = true;
                 playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                 
-                // Запускаем визуализацию
                 if (!animationId) {
                     visualize();
                 }
             }).catch(error => {
                 console.error('Playback failed:', error);
                 
-                // Пробуем возобновить аудиоконтекст
                 if (audioContext && audioContext.state === 'suspended') {
                     audioContext.resume().then(() => {
                         audio.play().then(() => {
@@ -1215,14 +1159,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Перемотка вперед/назад
     function seek(seconds) {
         if (audio.duration) {
             audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
         }
     }
 
-    // Обработчики событий
+    // --- ОБНОВЛЕННЫЕ И НОВЫЕ ОБРАБОТЧИКИ СОБЫТИЙ ---
+
     playPauseBtn.addEventListener('click', () => {
         if (isPlaying) {
             audio.pause();
@@ -1236,16 +1180,17 @@ document.addEventListener('DOMContentLoaded', function() {
             playTrack();
         }
     });
-
+    
+    // ИЗМЕНЕНО: Обработчики работают с `currentTracks`
     prevBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex - 1;
-        if (newIndex < 0) newIndex = tracks.length - 1;
+        if (newIndex < 0) newIndex = currentTracks.length - 1;
         loadTrack(newIndex, true);
     });
 
     nextBtn.addEventListener('click', () => {
         let newIndex = currentTrackIndex + 1;
-        if (newIndex >= tracks.length) newIndex = 0;
+        if (newIndex >= currentTracks.length) newIndex = 0;
         loadTrack(newIndex, true);
     });
 
@@ -1276,15 +1221,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Обработка клавиатуры
     document.addEventListener('keydown', (e) => {
         switch(e.key) {
-            case 'ArrowLeft':
-                seek(-5);
-                break;
-            case 'ArrowRight':
-                seek(5);
-                break;
+            case 'ArrowLeft': seek(-5); break;
+            case 'ArrowRight': seek(5); break;
             case 'ArrowUp':
                 volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 10);
                 audio.volume = volumeSlider.value / 100;
@@ -1295,28 +1235,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 audio.volume = volumeSlider.value / 100;
                 updateVolumeSlider();
                 break;
-            case ' ':
-                e.preventDefault();
-                playPauseBtn.click();
-                break;
+            case ' ': e.preventDefault(); playPauseBtn.click(); break;
         }
     });
 
     audio.addEventListener('timeupdate', updateProgress);
-
-    // Обработчик окончания трека с учетом режима воспроизведения
+    
+    // ИЗМЕНЕНО: Обработчик окончания работает с `currentTracks`
     audio.addEventListener('ended', () => {
         switch(playbackMode) {
             case PLAYBACK_MODES.PLAYLIST:
                 let newIndex = currentTrackIndex + 1;
-                if (newIndex >= tracks.length) newIndex = 0;
+                if (newIndex >= currentTracks.length) newIndex = 0;
                 loadTrack(newIndex, true);
                 break;
-                
             case PLAYBACK_MODES.SINGLE:
                 loadTrack(currentTrackIndex, true);
                 break;
-                
             case PLAYBACK_MODES.ONCE:
                 audio.pause();
                 isPlaying = false;
@@ -1329,23 +1264,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Улучшенная обработка ошибок аудио
     audio.addEventListener('error', function(e) {
         console.error('Audio element error:', e);
-        console.error('Audio error code:', audio.error ? audio.error.code : 'unknown');
-        console.error('Audio error message:', audio.error ? audio.error.message : 'unknown');
     });
 
-    // Инициализация
-    createVisualizer();
-    createParticles();
-    createCornerParticles();
-    createEdgeGlow();
-    updatePlaybackModeButton();
-    updateVolumeSlider();
+    // --- НОВЫЕ ФУНКЦИИ И ИХ ВЫЗОВЫ ДЛЯ ПЛЕЙЛИСТОВ ---
     
-    // Загружаем первый трек с задержкой для стабильности
-    setTimeout(() => {
-        loadTrack(0);
-    }, 500);
+    /**
+     * НОВОЕ: Заполняет выпадающий список плейлистами
+     */
+    function populatePlaylistSelector() {
+        for (const playlistName in playlists) {
+            const option = document.createElement('option');
+            option.value = playlistName;
+            option.textContent = playlistName;
+            playlistSelector.appendChild(option);
+        }
+    }
+
+    /**
+     * НОВОЕ: Переключает на выбранный плейлист
+     */
+    function switchPlaylist(playlistName) {
+        if (playlists[playlistName]) {
+            currentPlaylistName = playlistName;
+            currentTracks = playlists[playlistName];
+            
+            // Если текущий трек не из нового плейлиста, просто обновляем список.
+            // Если плейлист был изменен, а трек продолжает играть,
+            // нажатие next/prev переключит на трек из нового плейлиста.
+            
+            // Если в новом плейлисте нет песен, а старая еще играет,
+            // мы не хотим ее останавливать, но список будет пуст.
+            renderTrackList();
+        }
+    }
+
+    // НОВЫЙ ОБРАБОТЧИК
+    playlistSelector.addEventListener('change', (e) => {
+        switchPlaylist(e.target.value);
+    });
+
+
+    // --- ИНИЦИАЛИЗАЦИЯ ---
+    
+    function initializePlayer() {
+        populatePlaylistSelector(); // Заполняем селектор
+        createVisualizer();
+        createParticles();
+        createCornerParticles();
+        createEdgeGlow();
+        updatePlaybackModeButton();
+        updateVolumeSlider();
+        
+        setTimeout(() => {
+            loadTrack(0); // Загружаем первый трек из плейлиста по умолчанию
+        }, 500);
+    }
+    
+    initializePlayer();
 });
