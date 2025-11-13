@@ -296,9 +296,9 @@ const playlists = {
             artist: 'JT Music feat. Andrea Storm Kaden',
             path: 'audio/JT_Music_feat_Andrea_Storm_Kaden_Make_Me_Pretty.mp3',
             cover: 'picture/JT_Music_feat_Andrea_Storm_Kaden_Make_Me_Pretty.jpg',
-            colors: { primary: '#5c1723', secondary: '#821318', accent: '#e0a494' },
-            visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
-            neonColor: '#e0a494'
+            colors: { primary: '#0b1a1f', secondary: '#1a3b3a', accent: '#d4c4b8' },
+            visualizer: ['#d4c4b8', '#cc0000', '#b58d38', '#1a3b3a', '#0b1a1f'],
+            neonColor: '#d4c4b8'
         },
         { 
             name: 'Call on the Undertaker', 
