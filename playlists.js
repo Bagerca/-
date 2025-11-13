@@ -245,7 +245,7 @@ const playlists = {
             path: 'audio/Stromae_Pomme_Ma_Meilleure_Ennemie.mp3',
             cover: 'picture/Stromae_Pomme_Ma_Meilleure_Ennemie.jpg',
             colors: { primary: '#701d1e', secondary: '#821318', accent: '#e0a494' },
-            cover: 'picture/Cigarette_Duet.jpg',
+            cover: 'picture/Stromae_Pomme_Ma_Meilleure_Ennemie.jpg',
             visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
             neonColor: '#e0a494'
         },
