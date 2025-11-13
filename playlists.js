@@ -169,66 +169,64 @@ const playlists = {
             name: 'Discord (Remix/Cover)', 
             artist: 'CG5 feat. DAGames & RichaadEB',
             path: 'audio/CG5_Discord_Remix_Cover.mp3',
-            colors: { primary: '#200a3d', secondary: '#4d2d80', accent: '#00d1ff' },
+            colors: { primary: '#1a3b2a', secondary: '#4f2e2a', accent: '#66ff33' },
             cover: 'picture/Discord_Remix_Cover.jpg',
-            visualizer: ['#00d1ff', '#5ce0ff', '#8f5ce6', '#4d2d80', '#200a3d'],
-            neonColor: '#00d1ff'
+            visualizer: ['#66ff33', '#d9363e', '#f0c420', '#4f2e2a', '#1a3b2a'],
+            neonColor: '#66ff33'
         },
-        // --- НОВЫЕ ТРЕКИ ---
-        // ❗ Примечание: Для этих треков установлены цвета-заглушки. Их можно изменить для лучшего вида.
         { 
             name: 'Rest in Ink', 
             artist: 'JT Music',
             path: 'audio/JT_Music_Rest_in_Ink.mp3',
             cover: 'picture/JT_Music_Rest_in_Ink.jpg',
-            colors: { primary: '#1a1d2b', secondary: '#3e4a61', accent: '#a8b4c7' },
-            visualizer: ['#a8b4c7', '#8e9aaf', '#748097', '#5a667f', '#3e4a61'],
-            neonColor: '#a8b4c7'
+            colors: { primary: '#120e1a', secondary: '#3a2e2c', accent: '#e8a848' },
+            visualizer: ['#e8a848', '#b57d38', '#8a5c29', '#5c3d1a', '#3a2e2c'],
+            neonColor: '#e8a848'
         },
         { 
             name: 'Waiting so long (TV Size)', 
             artist: 'Berserk OST',
             path: 'audio/Berserk_OST_Waiting_so_long_TV_Size.mp3',
             cover: 'picture/Berserk_OST_Waiting_so_long.jpg',
-            colors: { primary: '#1c0000', secondary: '#6b0000', accent: '#ff3333' },
-            visualizer: ['#ff3333', '#ff6666', '#cc0000', '#990000', '#6b0000'],
-            neonColor: '#ff3333'
+            colors: { primary: '#100c0d', secondary: '#381a1d', accent: '#c91f28' },
+            visualizer: ['#c91f28', '#e66b3d', '#aab2c4', '#5c3a3d', '#100c0d'],
+            neonColor: '#c91f28'
         },
         { 
             name: 'Enemy', 
             artist: 'Imagine Dragons, JID',
             path: 'audio/Imagine_Dragons_JID_Enemy.mp3',
             cover: 'picture/Imagine_Dragons_JID_Enemy.jpg',
-            colors: { primary: '#200a3d', secondary: '#4d2d80', accent: '#00d1ff' },
-            visualizer: ['#00d1ff', '#5ce0ff', '#8f5ce6', '#4d2d80', '#200a3d'],
-            neonColor: '#00d1ff'
+            colors: { primary: '#1a2e2a', secondary: '#2c1f4a', accent: '#ff2828' },
+            visualizer: ['#ff2828', '#2d75f0', '#b5935a', '#2c1f4a', '#1a2e2a'],
+            neonColor: '#ff2828'
         },
         { 
             name: 'To Ashes and Blood', 
             artist: 'Woodkid',
             path: 'audio/Woodkid_To_Ashes_and_Blood.mp3',
             cover: 'picture/Woodkid_To_Ashes_and_Blood.jpg',
-            colors: { primary: '#0a0a0a', secondary: '#5a0f1e', accent: '#f0f0f0' },
-            visualizer: ['#f0f0f0', '#d3d3d3', '#a0a0a0', '#7b212b', '#5c1723'],
-            neonColor: '#f0f0f0'
+            colors: { primary: '#020a1c', secondary: '#0a2d6b', accent: '#c4d6f0' },
+            visualizer: ['#c4d6f0', '#e0e9f5', '#3a69b3', '#0a2d6b', '#020a1c'],
+            neonColor: '#c4d6f0'
         },
         { 
             name: "Epoch (The Living Tombstone's Remix)", 
             artist: 'Savlonic',
             path: 'audio/Savlonic_Epoch_The_Living_Tombstone_Remix.mp3',
             cover: 'picture/Savlonic_Epoch_The_Living_Tombstone_Remix.jpg',
-            colors: { primary: '#402f23', secondary: '#9f8664', accent: '#f5e4c3' },
-            visualizer: ['#f5e4c3', '#dcd0b3', '#c3bca3', '#a9a893', '#9f8664'],
-            neonColor: '#f5e4c3'
+            colors: { primary: '#1e5ca3', secondary: '#54a3e8', accent: '#ffd800' },
+            visualizer: ['#ffd800', '#a6683a', '#54a3e8', '#ffffff', '#1e5ca3'],
+            neonColor: '#ffd800'
         },
         { 
             name: 'My Guest (Azar ENGLISH COVER)', 
             artist: 'MaeFaeBe',
             path: 'audio/MaeFaeBe_My_Guest_Azar_English_Cover.mp3',
             cover: 'picture/MaeFaeBe_My_Guest_Azar_English_Cover.jpg',
-            colors: { primary: '#2b1d1a', secondary: '#5a3d34', accent: '#d4af37' },
-            visualizer: ['#d4af37', '#b89a30', '#9c8529', '#807022', '#645b1b'],
-            neonColor: '#d4af37'
+            colors: { primary: '#110a14', secondary: '#5c1723', accent: '#ff1111' },
+            visualizer: ['#ff1111', '#1e25ff', '#c4c8de', '#5c1723', '#110a14'],
+            neonColor: '#ff1111'
         },
         { 
             name: 'The Existential Threat', 
