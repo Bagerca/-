@@ -1,6 +1,6 @@
 const playlists = {
     "Библиотека": [
-        // --- ТРЕКИ ИЗ СТАРОЙ БИБЛИОТЕКИ ---
+        // --- ТРЕКИ С ОБНОВЛЕННЫМИ ПАЛИТРАМИ ---
         { 
             name: 'Tangled Up', 
             artist: 'Caro Emerald',
@@ -92,7 +92,7 @@ const playlists = {
             visualizer: ['#fb7b7c', '#f4b3eb', '#f4cac3', '#ec7469', '#e6958d'],
             neonColor: '#fb7b7c'
         },
-        // --- ТРЕКИ ИЗ ПЛЕЙЛИСТА "Boo!" (перемещены) ---
+        // --- ОСТАЛЬНЫЕ ТРЕКИ ИЗ ОРИГИНАЛЬНОЙ БИБЛИОТЕКИ ---
         {
             name: 'Goo Goo Muck',
             artist: 'The Cramps',
@@ -255,7 +255,7 @@ const playlists = {
             visualizer: ['#44d5e3', '#f0e594', '#6094b8', '#345c8c', '#1a294a'],
             neonColor: '#44d5e3'
         },
-        {
+        { 
             name: 'Open The Door',
             artist: 'longestsoloever feat. DayumDahlia',
             path: 'audio/longestsoloever_feat_DayumDahlia_Open_The_Door.mp3',
@@ -278,9 +278,9 @@ const playlists = {
             artist: 'Kocchi no Kento',
             path: 'audio/Kocchi_no_Kento_Hai_Yorokonde_English_Ver.mp3',
             cover: 'picture/Kocchi_no_Kento_Hai_Yorokonde_English_Ver.jpg',
-            colors: { primary: '#200a3d', secondary: '#4d2d80', accent: '#00d1ff' },
-            visualizer: ['#00d1ff', '#5ce0ff', '#8f5ce6', '#4d2d80', '#200a3d'],
-            neonColor: '#00d1ff'
+            colors: { primary: '#5c1723', secondary: '#821318', accent: '#e0a494' },
+            visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
+            neonColor: '#e0a494'
         },
         { 
             name: 'Soldat', 
@@ -332,9 +332,9 @@ const playlists = {
             artist: 'Rockwell',
             path: "audio/Rockwell_Somebodys_Watching_Me.mp3",
             cover: "picture/Rockwell_Somebodys_Watching_Me.jpg",
-            colors: { primary: '#1c1f17', secondary: '#4d4a3d', accent: '#c7b446' },
-            visualizer: ['#c7b446', '#a9973b', '#8b7a2d', '#6d5e1f', '#4f4211'],
-            neonColor: '#c7b446'
+            colors: { primary: '#080808', secondary: '#1f1f1f', accent: '#d91e2a' },
+            visualizer: ['#d91e2a', '#ffffff', '#b0b0b0', '#7a7a7a', '#1f1f1f'],
+            neonColor: '#d91e2a'
         },
         { 
             name: 'Should I Stay or Should I Go', 
