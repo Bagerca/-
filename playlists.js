@@ -387,18 +387,18 @@ const playlists = {
             artist: 'OxT',
             path: 'audio/OxT_HOLLOW_HUNGER.mp3',
             cover: 'picture/OxT_HOLLOW_HUNGER.jpg',
-            colors: { primary: '#1c0000', secondary: '#6b0000', accent: '#ff3333' },
-            visualizer: ['#ff3333', '#ff6666', '#cc0000', '#990000', '#6b0000'],
-            neonColor: '#ff3333'
+            colors: { primary: '#231c15', secondary: '#79573f', accent: '#dad7cf' },
+            visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
+            neonColor: '#bcaf9c'
         },
         { 
             name: 'Hoist the Colours', 
             artist: 'Bobby Bass',
             path: 'audio/Bobby_Bass_Hoist_the_Colours.mp3',
             cover: 'picture/Bobby_Bass_Hoist_the_Colours.jpg',
-            colors: { primary: '#231c15', secondary: '#79573f', accent: '#dad7cf' },
-            visualizer: ['#dad7cf', '#bcaf9c', '#a59078', '#94794d', '#79573f'],
-            neonColor: '#bcaf9c'
+            colors: { primary: '#1c0000', secondary: '#6b0000', accent: '#ff3333' },
+            visualizer: ['#ff3333', '#ff6666', '#cc0000', '#990000', '#6b0000'],
+            neonColor: '#ff3333'
         },
         { 
             name: 'You Will Believe (Remix/Cover)', 
