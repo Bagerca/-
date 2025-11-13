@@ -297,7 +297,7 @@ const playlists = {
             path: 'audio/JT_Music_feat_Andrea_Storm_Kaden_Make_Me_Pretty.mp3',
             cover: 'picture/JT_Music_feat_Andrea_Storm_Kaden_Make_Me_Pretty.jpg',
             colors: { primary: '#0b1a1f', secondary: '#1a3b3a', accent: '#d4c4b8' },
-            visualizer: ['#d4c4b8', '#cc0000', '#b58d38', '#1a3b3a', '#0b1a1f'],
+            visualizer: ['#d4c4b8', '#cc0000'],
             neonColor: '#d4c4b8'
         },
         { 
