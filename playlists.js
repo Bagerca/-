@@ -93,32 +93,32 @@ const playlists = {
             neonColor: '#fb7b7c'
         },
         // --- ТРЕКИ ИЗ ПЛЕЙЛИСТА "Boo!" (перемещены) ---
-        { 
-            name: 'Goo Goo Muck', 
+        {
+            name: 'Goo Goo Muck',
             artist: 'The Cramps',
             path: 'audio/The_Cramps_Goo_Goo_Muck.mp3',
-            colors: { primary: '#1c1f17', secondary: '#4d4a3d', accent: '#c7b446' },
             cover: 'picture/Goo_Goo_Muck.jpg',
-            visualizer: ['#c7b446', '#a9973b', '#8b7a2d', '#6d5e1f', '#4f4211'],
-            neonColor: '#c7b446'
+            colors: { primary: '#10100a', secondary: '#2a2a20', accent: '#f0ff00' },
+            visualizer: ['#f0ff00', '#b8c200', '#f5f5f5', '#2a2a20'],
+            neonColor: '#f0ff00'
         },
-        { 
-            name: 'Ghostbusters', 
+        {
+            name: 'Ghostbusters',
             artist: 'Ray Parker, Jr.',
             path: 'audio/Ray_Parker_Jr_Ghostbusters.mp3',
-            colors: { primary: '#101418', secondary: '#434c4f', accent: '#66ff33' },
             cover: 'picture/Ghostbusters.jpg',
-            visualizer: ['#66ff33', '#aaff88', '#ffffff', '#a8b3b6', '#434c4f'],
-            neonColor: '#66ff33'
+            colors: { primary: '#080808', secondary: '#1f1f1f', accent: '#d91e2a' },
+            visualizer: ['#d91e2a', '#ffffff', '#b0b0b0', '#7a7a7a', '#1f1f1f'],
+            neonColor: '#d91e2a'
         },
-        { 
-            name: 'Ramalama (Bang Bang)', 
+        {
+            name: 'Ramalama (Bang Bang)',
             artist: 'Róisín Murphy',
             path: 'audio/Roisin_Murphy_Ramalama_Bang_Bang.mp3',
-            colors: { primary: '#0a0a0a', secondary: '#5a0f1e', accent: '#f0f0f0' },
             cover: 'picture/Ramalama_Bang_Bang.jpg',
-            visualizer: ['#f0f0f0', '#d3d3d3', '#a0a0a0', '#7b212b', '#5c1723'],
-            neonColor: '#f0f0f0'
+            colors: { primary: '#101014', secondary: '#241f22', accent: '#c45d3c' },
+            visualizer: ['#c45d3c', '#f0f0f0', '#a0a0a0', '#4a4a4a'],
+            neonColor: '#c45d3c'
         },
         { 
             name: 'Exploration', 
