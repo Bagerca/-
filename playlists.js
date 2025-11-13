@@ -233,28 +233,27 @@ const playlists = {
             artist: 'Sparks',
             path: 'audio/Sparks_The_Existential_Threat.mp3',
             cover: 'picture/Sparks_The_Existential_Threat.jpg',
-            colors: { primary: '#080708', secondary: '#3c345a', accent: '#86bbd6' },
-            visualizer: ['#86bbd6', '#3d82a5', '#78afbc', '#92703f', '#b0ab8e'],
-            neonColor: '#86bbd6'
+            colors: { primary: '#1f1d1b', secondary: '#4f2620', accent: '#95d6b4' },
+            visualizer: ['#95d6b4', '#d4c4b8', '#8a8295', '#4f2620', '#1f1d1b'],
+            neonColor: '#95d6b4'
         },
         { 
             name: 'Ma Meilleure Ennemie', 
             artist: 'Stromae, Pomme',
             path: 'audio/Stromae_Pomme_Ma_Meilleure_Ennemie.mp3',
             cover: 'picture/Stromae_Pomme_Ma_Meilleure_Ennemie.jpg',
-            colors: { primary: '#701d1e', secondary: '#821318', accent: '#e0a494' },
-            cover: 'picture/Stromae_Pomme_Ma_Meilleure_Ennemie.jpg',
-            visualizer: ['#e0a494', '#d98c8a', '#d39ca4', '#b66b74', '#a23d3d', '#821318'],
-            neonColor: '#e0a494'
+            colors: { primary: '#0a1438', secondary: '#0b4a91', accent: '#d4a24f' },
+            visualizer: ['#d4a24f', '#3b89f0', '#5e6e48', '#6a4ea8', '#0b4a91'],
+            neonColor: '#d4a24f'
         },
         { 
             name: 'Rapture Rising', 
             artist: 'JT Music',
             path: 'audio/JT_Music_Rapture_Rising.mp3',
             cover: 'picture/JT_Music_Rapture_Rising.jpg',
-            colors: { primary: '#18101d', secondary: '#463138', accent: '#5fabba' },
-            visualizer: ['#5fabba', '#d1aba2', '#8a8295', '#994144'],
-            neonColor: '#5fabba'
+            colors: { primary: '#0b0c1f', secondary: '#1a294a', accent: '#44d5e3' },
+            visualizer: ['#44d5e3', '#f0e594', '#6094b8', '#345c8c', '#1a294a'],
+            neonColor: '#44d5e3'
         },
         { 
             name: 'Open The Door', 
