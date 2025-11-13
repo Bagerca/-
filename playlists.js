@@ -133,16 +133,16 @@ const playlists = {
             name: 'Шкатулка 8D Remix', 
             artist: 'MiatriSs',
             path: 'audio/MiatriSs_Шкатулка_8D_Remix.mp3',
-            colors: { primary: '#2b1d1a', secondary: '#5a3d34', accent: '#d4af37' },
+            colors: { primary: '#1a1829', secondary: '#3c305c', accent: '#8a4fff' },
             cover: 'picture/Шкатулка_8D_Remix.jpg',
-            visualizer: ['#d4af37', '#b89a30', '#9c8529', '#807022', '#645b1b'],
-            neonColor: '#d4af37'
+            visualizer: ['#8a4fff', '#a782ff', '#3c305c', '#d1c4d9', '#1a1829'],
+            neonColor: '#8a4fff'
         },
         { 
             name: 'Spend The Night Alone', 
             artist: 'Callie Mae & longestsoloever',
             path: 'audio/Callie_Mae_and_longestsoloever_Spend_The_Night_Alone.mp3',
-            colors: { primary: '#1a1d2b', secondary: '#3e4a61', accent: '#a8b4c7' },
+            colors: { primary: '#050608', secondary: '#1a1d2b', accent: '#a8b4c7' },
             cover: 'picture/Spend_The_Night_Alone.jpg',
             visualizer: ['#a8b4c7', '#8e9aaf', '#748097', '#5a667f', '#3e4a61'],
             neonColor: '#a8b4c7'
@@ -151,19 +151,19 @@ const playlists = {
             name: 'My Ordinary Life', 
             artist: 'The Living Tombstone',
             path: 'audio/The_Living_Tombstone_My_Ordinary_Life.mp3',
-            colors: { primary: '#402f23', secondary: '#9f8664', accent: '#f5e4c3' },
+            colors: { primary: '#4d3163', secondary: '#d46a45', accent: '#30d5c8' },
             cover: 'picture/My_Ordinary_Life.jpg',
-            visualizer: ['#f5e4c3', '#dcd0b3', '#c3bca3', '#a9a893', '#9f8664'],
-            neonColor: '#f5e4c3'
+            visualizer: ['#30d5c8', '#e62e5c', '#ffdd57', '#d46a45', '#4d3163'],
+            neonColor: '#30d5c8'
         },
         { 
             name: 'Alastor\'s Game', 
             artist: 'The Living Tombstone',
             path: 'audio/The_Living_Tombstone_Alastors_Game.mp3',
-            colors: { primary: '#1c0000', secondary: '#6b0000', accent: '#ff3333' },
+            colors: { primary: '#1c0000', secondary: '#4a0000', accent: '#ff1f1f' },
             cover: 'picture/Alastors_Game.jpg',
-            visualizer: ['#ff3333', '#ff6666', '#cc0000', '#990000', '#6b0000'],
-            neonColor: '#ff3333'
+            visualizer: ['#ff1f1f', '#ff4d4d', '#cc0000', '#990000', '#6b0000'],
+            neonColor: '#ff1f1f'
         },
         { 
             name: 'Discord (Remix/Cover)', 
