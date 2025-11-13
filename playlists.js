@@ -255,8 +255,8 @@ const playlists = {
             visualizer: ['#44d5e3', '#f0e594', '#6094b8', '#345c8c', '#1a294a'],
             neonColor: '#44d5e3'
         },
-        { 
-            name: 'Open The Door', 
+        {
+            name: 'Open The Door',
             artist: 'longestsoloever feat. DayumDahlia',
             path: 'audio/longestsoloever_feat_DayumDahlia_Open_The_Door.mp3',
             cover: 'picture/longestsoloever_feat_DayumDahlia_Open_The_Door.jpg',
