@@ -655,6 +655,8 @@ body {
 
 .spark {
     position: absolute;
+    top: 0;
+    left: 0; /* Искры теперь позиционируются через transform */
     border-radius: 50%;
     pointer-events: none;
     opacity: 0;
@@ -999,4 +1001,20 @@ body {
 @keyframes pulse-text {
     0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
+}
+
+/* --- ОПТИМИЗАЦИЯ: Подсказки для браузера --- */
+.particle, .corner-particle, .spark {
+    /* Говорим браузеру, что будем анимировать положение и прозрачность, чтобы он подготовил GPU-ускорение */
+    will-change: transform, opacity;
+}
+
+.visualizer-bar {
+    /* Говорим, что будем анимировать высоту */
+    will-change: height;
+}
+
+.neon-glow {
+    /* Говорим, что будем анимировать эти свойства */
+    will-change: height, opacity, box-shadow;
 }
