@@ -1200,3 +1200,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initializePlayer();
 });
+
+window.addEventListener('load', function() {
+    const preloader = document.getElementById('preloader');
+    
+    // Небольшая задержка для плавности (опционально)
+    setTimeout(() => {
+        preloader.classList.add('hide');
+        
+        // Полностью удаляем элемент из DOM после завершения анимации исчезновения
+        setTimeout(() => {
+            preloader.remove();
+        }, 500); // 500ms соответствует времени transition в CSS
+    }, 800); // Задержка показа прелоадера (можно уменьшить до 0)
+});
