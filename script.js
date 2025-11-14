@@ -25,10 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackSearch = document.getElementById('trackSearch');
     const playlistSelector = document.getElementById('playlistSelector');
 
-    // --- ОПТИМИЗАЦИЯ: Адаптивная производительность ---
-    const isMobile = window.innerWidth <= 768;
-    let frameCount = 0; // Счетчик кадров для пропуска обновления некоторых эффектов
-
     // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
     let currentPlaylistName = "Библиотека";
     let currentTracks = playlists[currentPlaylistName];
@@ -81,7 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
         HIGH: { start: 20, end: 30 }
     };
 
-    // Один объект для данных о музыке, который будет обновляться, а не создаваться заново.
+    // --- ИЗМЕНЕНИЕ 1: Создаем "маркерную доску" - один объект для данных о музыке ---
+    // Этот объект будет обновляться каждый кадр, а не создаваться заново.
     let audioFeatures = {
         rms: 0,
         bassEnergy: 0,
@@ -178,6 +175,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return sum / count / 255;
     }
 
+    // --- ИЗМЕНЕНИЕ 2: Функция analyzeSpectralFeatures теперь не возвращает новый объект ---
+    // Она напрямую изменяет глобальный объект audioFeatures.
     function analyzeSpectralFeatures() {
         if (!analyser || !dataArray) return;
         
@@ -220,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
             beatCooldown--;
         }
         
+        // Обновляем "маркерную доску"
         audioFeatures.rms = rms;
         audioFeatures.bassEnergy = bassEnergy;
         audioFeatures.midEnergy = midEnergy;
@@ -236,37 +236,48 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
-    // --- ОПТИМИЗАЦИЯ: Добавлен счетчик кадров для пропуска анимаций ---
+    // --- ИЗМЕНЕНИЕ 3: Функция visualize теперь использует глобальный audioFeatures ---
     function visualize() {
         if (!analyser || !isPlaying || currentTracks.length === 0) return;
         
-        frameCount++; // Увеличиваем счетчик
-        
         try {
             analyser.getByteFrequencyData(dataArray);
+            
+            // Просто вызываем функцию для обновления "доски".
+            // Больше не нужно `const features = ...`
             analyzeSpectralFeatures(); 
             
-            // --- Эффекты, которые обновляются КАЖДЫЙ кадр (самые важные) ---
+            // Везде ниже вместо `features` мы используем `audioFeatures`
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
+                
                 let baseHeight = Math.max(5, value * 110);
                 
                 if (i < 10) {
-                    baseHeight += (audioFeatures.bassEnergy * 25) + (audioFeatures.isBeat ? currentPulseIntensity * 40 : 0);
+                    const bassBoost = audioFeatures.bassEnergy * 25;
+                    const beatBoost = audioFeatures.isBeat ? currentPulseIntensity * 40 : 0;
+                    baseHeight += bassBoost + beatBoost;
                 } else if (i < 20) {
-                    baseHeight += (audioFeatures.midEnergy * 18) + (audioFeatures.rms * 12);
+                    const midBoost = audioFeatures.midEnergy * 18;
+                    const energyBoost = audioFeatures.rms * 12;
+                    baseHeight += midBoost + energyBoost;
                 } else {
-                    baseHeight += audioFeatures.highEnergy * 20;
+                    const highBoost = audioFeatures.highEnergy * 20;
+                    baseHeight += highBoost;
                 }
                 
                 visualizerBars[i].style.height = `${baseHeight}px`;
+                
                 const currentColors = currentTracks[currentTrackIndex].visualizer;
                 visualizerBars[i].style.background = `linear-gradient(to top, ${currentColors[0]}, ${currentColors[1]})`;
             }
             
             if (leftGlow && rightGlow) {
-                const lineHeight = 15 + (audioFeatures.rms * 130);
+                const minHeight = 15;
+                const maxHeight = 85;
+                const lineHeight = minHeight + (audioFeatures.rms * 130);
+                
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
@@ -276,28 +287,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const neonColor = currentTracks[currentTrackIndex].neonColor;
                 const neonColorRight = currentTracks[currentTrackIndex].neonColorRight || neonColor;
+                const baseBlur = 12;
                 const pulseBlur = currentPulseIntensity * 35;
                 
-                leftGlow.style.boxShadow = `0 0 ${12 + pulseBlur}px ${neonColor}, 0 0 ${(12 + pulseBlur) * 1.8}px ${neonColor}, 0 0 ${(12 + pulseBlur) * 2.5}px ${neonColor}, inset 0 0 10px rgba(255, 255, 255, 0.3)`;
-                rightGlow.style.boxShadow = `0 0 ${12 + pulseBlur}px ${neonColorRight}, 0 0 ${(12 + pulseBlur) * 1.8}px ${neonColorRight}, 0 0 ${(12 + pulseBlur) * 2.5}px ${neonColorRight}, inset 0 0 10px rgba(255, 255, 255, 0.3)`;
-            }
-
-            // --- Эффекты, которые можно обновлять РЕЖЕ (каждый второй кадр) ---
-            if (frameCount % 2 === 0) {
-                updateParticlesMovement(audioFeatures);
-                updateCornerParticles(audioFeatures);
-                updateSparkParticles();
+                leftGlow.style.background = neonColor;
+                leftGlow.style.boxShadow = 
+                    `0 0 ${baseBlur + pulseBlur}px ${neonColor},
+                     0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColor},
+                     0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColor},
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                
+                rightGlow.style.background = neonColorRight;
+                rightGlow.style.boxShadow = 
+                    `0 0 ${baseBlur + pulseBlur}px ${neonColorRight},
+                     0 0 ${(baseBlur + pulseBlur) * 1.8}px ${neonColorRight},
+                     0 0 ${(baseBlur + pulseBlur) * 2.5}px ${neonColorRight},
+                     inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
+            // Передаем объект audioFeatures в другие функции
+            updateParticlesMovement(audioFeatures);
+            updateCornerParticles(audioFeatures);
             analyzeEdgeEffects(audioFeatures);
+            updateSparkParticles();
             updateEnergySurge();
             updateEdgeGlow(audioFeatures);
+            
             updatePulseIntensity();
             
             animationId = requestAnimationFrame(visualize);
         } catch (error) {
             console.error('Visualization error:', error);
-            if (animationId) cancelAnimationFrame(animationId);
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
         }
     }
 
@@ -323,50 +346,53 @@ document.addEventListener('DOMContentLoaded', function() {
         spark.style.height = `${size}px`;
         spark.style.background = currentColors.accent;
         spark.style.boxShadow = `0 0 ${size * 2}px ${currentColors.accent}`;
+        spark.style.left = `${startPos.x}px`;
+        spark.style.top = `${startPos.y}px`;
         spark.style.opacity = '0.8';
-        
-        // --- ОПТИМИЗАЦИЯ: Начальное положение задаем через transform ---
-        spark.style.transform = `translate(${startPos.x}px, ${startPos.y}px)`;
         
         document.getElementById('sparkParticles').appendChild(spark);
         
         const sparkData = {
             element: spark,
-            x: startPos.x, // Сохраняем текущие координаты
-            y: startPos.y,
+            startX: startPos.x,
+            startY: startPos.y,
             velocityX: Math.cos(angle) * speed,
             velocityY: Math.sin(angle) * speed,
             life: 1.0,
+            maxLife: 1.0
         };
         
         sparkParticles.push(sparkData);
         
         setTimeout(() => {
-            if (spark.parentNode) spark.parentNode.removeChild(spark);
+            if (spark.parentNode) {
+                spark.parentNode.removeChild(spark);
+            }
             sparkParticles = sparkParticles.filter(s => s.element !== spark);
         }, 1000);
     }
-    
-    // --- ОПТИМИЗАЦИЯ: Функция обновляет transform, а не left/top ---
+
     function updateSparkParticles() {
         sparkParticles.forEach((spark, index) => {
             spark.life -= 0.02;
             
             if (spark.life <= 0) {
-                if (spark.element.parentNode) spark.element.parentNode.removeChild(spark.element);
+                if (spark.element.parentNode) {
+                    spark.element.parentNode.removeChild(spark.element);
+                }
                 sparkParticles.splice(index, 1);
                 return;
             }
             
-            // Обновляем сохраненные координаты
-            spark.x += spark.velocityX;
-            spark.y += spark.velocityY;
+            const newX = parseFloat(spark.element.style.left) + spark.velocityX;
+            const newY = parseFloat(spark.element.style.top) + spark.velocityY;
             
+            spark.element.style.left = `${newX}px`;
+            spark.element.style.top = `${newY}px`;
             spark.element.style.opacity = (spark.life * 0.8).toString();
             
             const scale = spark.life * 0.7 + 0.3;
-            // Применяем новые координаты и масштаб через transform
-            spark.element.style.transform = `translate(${spark.x}px, ${spark.y}px) scale(${scale})`;
+            spark.element.style.transform = `scale(${scale})`;
         });
     }
 
@@ -435,7 +461,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentTracks.length === 0) return;
         const { rms, bassEnergy, isBeat } = features;
         
-        let baseIntensity = rms * 0.3 + bassEnergy * 0.2 + (isBeat ? currentPulseIntensity * 0.4 : 0);
+        let baseIntensity = rms * 0.3;
+        
+        if (isBeat) {
+            baseIntensity += currentPulseIntensity * 0.4;
+        }
+        
+        baseIntensity += bassEnergy * 0.2;
+        
         edgeGlowIntensity = Math.min(1, baseIntensity);
         
         const currentColors = currentTracks[currentTrackIndex].colors;
@@ -470,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- ОПТИМИЗАЦИЯ: Функция обновляет transform, а не left/top ---
     function updateParticlesMovement(features) {
         if (isParticlesTransitioning || particlesData.length === 0 || currentTracks.length === 0) return;
         
@@ -497,39 +529,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 moveY = isBeat ? (Math.random() - 0.5) * 10 * currentPulseIntensity : 0;
             }
             
-            let sizeVariation = (index % 10 < 3) ? bassEnergy * 6 : (index % 10 < 7) ? midEnergy * 4 : highEnergy * 3;
+            let sizeVariation = 0;
+            if (index % 10 < 3) {
+                sizeVariation = bassEnergy * 6;
+            } else if (index % 10 < 7) {
+                sizeVariation = midEnergy * 4;
+            } else {
+                sizeVariation = highEnergy * 3;
+            }
+            
             const newSize = particleData.baseSize + sizeVariation;
             const newOpacity = Math.min(1, particleData.baseOpacity + rms * 0.3);
             
-            // Применяем смещение через transform. Базовые left/top не трогаем.
-            particle.style.transform = `translate(${moveX}vw, ${moveY}vh)`;
+            const newLeft = particleData.baseLeft + moveX;
+            const newTop = particleData.baseTop + moveY;
             
+            particle.style.left = `${newLeft}vw`;
+            particle.style.top = `${newTop}vh`;
             particle.style.width = `${newSize}px`;
             particle.style.height = `${newSize}px`;
             particle.style.opacity = newOpacity;
             
-            particle.style.background = currentTracks[currentTrackIndex].colors.accent;
+            const currentColors = currentTracks[currentTrackIndex].colors;
+            particle.style.background = currentColors.accent;
             
             const transitionTime = Math.max(0.05, 0.2 - rms * 0.15);
-            particle.style.transition = `transform ${transitionTime}s ease-out, width ${transitionTime}s ease-out, height ${transitionTime}s ease-out, opacity ${transitionTime}s ease-out`;
+            particle.style.transition = `all ${transitionTime}s ease-out`;
         });
     }
 
     function createCornerParticles() {
         if (currentTracks.length === 0) return;
         const corners = [
-            { left: '5%', top: '5%' }, { left: '95%', top: '5%' },
-            { left: '5%', top: '95%' }, { left: '95%', top: '95%' }
+            { left: '5%', top: '5%' },
+            { left: '95%', top: '5%' },
+            { left: '5%', top: '95%' },
+            { left: '95%', top: '95%' }
         ];
         
         cornerParticlesData = [];
         const cornerParticlesContainer = document.getElementById('cornerParticles');
         cornerParticlesContainer.innerHTML = '';
         
-        // --- ОПТИМИЗАЦИЯ: Уменьшаем количество частиц на мобильных устройствах ---
-        const particlesPerCorner = isMobile ? 4 : 8;
+        const particlesPerCorner = 8;
         
-        corners.forEach((corner) => {
+        corners.forEach((corner, cornerIndex) => {
             for (let i = 0; i < particlesPerCorner; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'corner-particle';
@@ -540,11 +584,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 particle.style.width = `${size}px`;
                 particle.style.height = `${size}px`;
                 particle.style.opacity = opacity.toString();
-                // Задаем базовую позицию
                 particle.style.left = corner.left;
                 particle.style.top = corner.top;
                 particle.style.position = 'fixed';
                 particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '3';
                 
                 const currentColors = currentTracks[currentTrackIndex].colors;
                 particle.style.background = currentColors.accent;
@@ -554,8 +599,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 cornerParticlesData.push({
                     element: particle,
+                    baseLeft: parseFloat(corner.left),
+                    baseTop: parseFloat(corner.top),
                     baseSize: size,
                     baseOpacity: opacity,
+                    cornerIndex: cornerIndex,
+                    particleIndex: i,
                     angle: Math.random() * Math.PI * 2,
                     radius: Math.random() * 2 + 1,
                     orbitSpeed: Math.random() * 0.03 + 0.01
@@ -564,7 +613,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- ОПТИМИЗАЦИЯ: Функция обновляет transform, а не left/top ---
     function updateCornerParticles(features) {
         if (currentTracks.length === 0) return;
         const { rms, bassEnergy, highEnergy, isBeat } = features;
@@ -575,19 +623,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const dynamicRadius = radius + (bassEnergy * 8);
             const dynamicSpeed = orbitSpeed * (0.5 + rms * 1.5);
+            
             particleData.angle += dynamicSpeed;
             
             const orbitX = Math.cos(particleData.angle) * dynamicRadius;
             const orbitY = Math.sin(particleData.angle) * dynamicRadius;
             
+            const newX = particleData.baseLeft + orbitX;
+            const newY = particleData.baseTop + orbitY;
+            
             const sizeVariation = (bassEnergy + highEnergy) * 6;
             const newSize = particleData.baseSize + sizeVariation;
+            
             const newOpacity = Math.min(0.8, particleData.baseOpacity + rms * 0.4);
+            
             const beatBoost = isBeat ? currentPulseIntensity * 0.3 : 0;
             
-            // Применяем смещение через transform. Базовые left/top не трогаем.
-            particle.style.transform = `translate(${orbitX}%, ${orbitY}%)`;
-            
+            particle.style.left = `${newX}%`;
+            particle.style.top = `${newY}%`;
             particle.style.width = `${newSize}px`;
             particle.style.height = `${newSize}px`;
             particle.style.opacity = (newOpacity + beatBoost).toString();
@@ -595,7 +648,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentColors = currentTracks[currentTrackIndex].colors;
             particle.style.background = currentColors.accent;
             particle.style.boxShadow = `0 0 ${newSize * 2}px ${currentColors.accent}`;
-            particle.style.transition = `transform 0.3s ease-out, width 0.3s ease-out, height 0.3s ease-out`;
+            
+            particle.style.transition = `all 0.3s ease-out`;
         });
     }
 
@@ -604,8 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
         particles.innerHTML = '';
         particlesData = [];
         
-        // --- ОПТИМИЗАЦИЯ: Уменьшаем количество частиц на мобильных устройствах ---
-        const particleCount = isMobile ? 7 : 15;
+        const particleCount = 15;
         const currentColors = currentTracks[currentTrackIndex].colors;
         
         for (let i = 0; i < particleCount; i++) {
@@ -631,11 +684,16 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             particle.style.position = 'absolute';
             particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
             
             particles.appendChild(particle);
             
             particlesData.push({
                 element: particle,
+                startLeft: startLeft,
+                startTop: startTop,
+                startSize: startSize,
+                startOpacity: startOpacity,
                 endLeft: endLeft,
                 endTop: endTop,
                 endSize: endSize,
@@ -643,7 +701,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 baseLeft: endLeft,
                 baseTop: endTop,
                 baseSize: endSize,
-                baseOpacity: endOpacity
+                baseOpacity: endOpacity,
+                velocityX: 0,
+                velocityY: 0,
+                movementIntensity: Math.random() * 0.5 + 0.5
             });
         }
         
@@ -652,6 +713,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function startParticleTransition() {
         isParticlesTransitioning = true;
+        particleTransitionProgress = 0;
+        
+        const transitionDuration = 800;
         
         particlesData.forEach(particleData => {
             const particle = particleData.element;
@@ -671,7 +735,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 50);
         });
         
-        setTimeout(() => { isParticlesTransitioning = false; }, 800);
+        setTimeout(() => {
+            isParticlesTransitioning = false;
+        }, transitionDuration);
     }
 
     function updateParticles() {
@@ -680,14 +746,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         particlesData.forEach(particleData => {
             const particle = particleData.element;
+            
+            particleData.startLeft = parseFloat(particle.style.left);
+            particleData.startTop = parseFloat(particle.style.top);
+            particleData.startSize = parseFloat(particle.style.width);
+            particleData.startOpacity = parseFloat(particle.style.opacity);
+            
             particleData.endLeft = (Math.random() * 80 + 10) + (Math.random() * 40 - 20);
             particleData.endTop = (Math.random() * 80 + 10) + (Math.random() * 40 - 20);
             particleData.endSize = Math.random() * 15 + 5;
             particleData.endOpacity = Math.random() * 0.3 + 0.1;
+            
             particle.style.background = currentColors.accent;
         });
         
         startParticleTransition();
+        
         updateCornerParticlesColors();
     }
 
@@ -701,8 +775,6 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.boxShadow = `0 0 ${particleData.baseSize * 2}px ${currentColors.accent}`;
         });
     }
-
-    // --- Все остальные функции ниже остаются без изменений ---
 
     function renderTrackList() {
         trackList.innerHTML = '';
@@ -849,8 +921,17 @@ document.addEventListener('DOMContentLoaded', function() {
             leftGlow.style.background = neonColor;
             rightGlow.style.background = neonColorRight;
             
-            leftGlow.style.boxShadow = `0 0 10px ${neonColor}, 0 0 20px ${neonColor}, 0 0 30px ${neonColor}, inset 0 0 8px rgba(255, 255, 255, 0.2)`;
-            rightGlow.style.boxShadow = `0 0 10px ${neonColorRight}, 0 0 20px ${neonColorRight}, 0 0 30px ${neonColorRight}, inset 0 0 8px rgba(255, 255, 255, 0.2)`;
+            leftGlow.style.boxShadow = 
+                `0 0 10px ${neonColor},
+                 0 0 20px ${neonColor},
+                 0 0 30px ${neonColor},
+                 inset 0 0 8px rgba(255, 255, 255, 0.2)`;
+            
+            rightGlow.style.boxShadow = 
+                `0 0 10px ${neonColorRight},
+                 0 0 20px ${neonColorRight},
+                 0 0 30px ${neonColorRight},
+                 inset 0 0 8px rgba(255, 255, 255, 0.2)`;
         }
         
         if (isTrackListOpen) {
@@ -863,11 +944,19 @@ document.addEventListener('DOMContentLoaded', function() {
         currentMusicIntensity = 0;
         
         sparkParticles.forEach(spark => {
-            if (spark.element.parentNode) spark.element.parentNode.removeChild(spark.element);
+            if (spark.element.parentNode) {
+                spark.element.parentNode.removeChild(spark.element);
+            }
         });
         sparkParticles = [];
         
-        const energyWaves = document.querySelectorAll('.energy-wave');
+        const energyWaves = [
+            document.getElementById('energyTop'),
+            document.getElementById('energyRight'),
+            document.getElementById('energyBottom'),
+            document.getElementById('energyLeft')
+        ];
+        
         energyWaves.forEach(wave => {
             wave.style.opacity = '0';
             wave.style.boxShadow = 'none';
@@ -892,7 +981,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const activeTrackItem = trackList.querySelector('.track-item.active');
                 if (activeTrackItem) {
                     const progressBar = activeTrackItem.querySelector('.track-item-progress-bar');
-                    if (progressBar) progressBar.style.width = `${progressPercent}%`;
+                    if (progressBar) {
+                        progressBar.style.width = `${progressPercent}%`;
+                    }
                 }
             }
         }
@@ -951,15 +1042,21 @@ document.addEventListener('DOMContentLoaded', function() {
             playPromise.then(() => {
                 isPlaying = true;
                 playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                if (!animationId) visualize();
+                
+                if (!animationId) {
+                    visualize();
+                }
             }).catch(error => {
                 console.error('Playback failed:', error);
+                
                 if (audioContext && audioContext.state === 'suspended') {
                     audioContext.resume().then(() => {
                         audio.play().then(() => {
                             isPlaying = true;
                             playPauseBtn.querySelector('svg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                            if (!animationId) visualize();
+                            if (!animationId) {
+                                visualize();
+                            }
                         }).catch(e => console.error('Second playback attempt failed:', e));
                     });
                 }
@@ -1046,7 +1143,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentTracks.length === 0) return;
         switch(playbackMode) {
             case PLAYBACK_MODES.PLAYLIST:
-                let newIndex = (currentTrackIndex + 1) % currentTracks.length;
+                let newIndex = currentTrackIndex + 1;
+                if (newIndex >= currentTracks.length) newIndex = 0;
                 loadTrack(newIndex, true);
                 break;
             case PLAYBACK_MODES.SINGLE:
@@ -1087,6 +1185,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 playPauseBtn.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
                 if (animationId) cancelAnimationFrame(animationId);
                 
+                // Сбрасываем прогресс-бар и время, если плейлист пуст
                 if (currentTracks.length === 0) {
                     progress.style.width = '0%';
                     currentTime.textContent = '0:00';
@@ -1123,8 +1222,13 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('load', function() {
     const preloader = document.getElementById('preloader');
     
+    // Небольшая задержка для плавности (опционально)
     setTimeout(() => {
         preloader.classList.add('hide');
-        setTimeout(() => { preloader.remove(); }, 500);
-    }, 800);
+        
+        // Полностью удаляем элемент из DOM после завершения анимации исчезновения
+        setTimeout(() => {
+            preloader.remove();
+        }, 500); // 500ms соответствует времени transition в CSS
+    }, 800); // Задержка показа прелоадера (можно уменьшить до 0)
 });
