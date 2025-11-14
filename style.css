@@ -931,3 +931,72 @@ body {
         height: 20px;
     }
 }
+
+/* --- СТИЛИ ПРЕЛОАДЕРА --- */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a2e; /* Тот же цвет фона, что и у body */
+    z-index: 9999; /* Поверх всего */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#preloader.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.loader-visualizer {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 60px;
+}
+
+.loader-visualizer .bar {
+    width: 10px;
+    background: linear-gradient(to top, #e94560, #0f3460); /* Неоновый градиент */
+    border-radius: 5px;
+    animation: loader-dance 0.8s infinite ease-in-out;
+}
+
+/* Разная задержка анимации для эффекта волны */
+.loader-visualizer .bar:nth-child(1) { animation-delay: 0.0s; height: 20px; }
+.loader-visualizer .bar:nth-child(2) { animation-delay: 0.1s; height: 40px; }
+.loader-visualizer .bar:nth-child(3) { animation-delay: 0.2s; height: 55px; }
+.loader-visualizer .bar:nth-child(4) { animation-delay: 0.1s; height: 35px; }
+.loader-visualizer .bar:nth-child(5) { animation-delay: 0.0s; height: 20px; }
+
+.loader-text {
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    animation: pulse-text 1.5s infinite ease-in-out;
+}
+
+@keyframes loader-dance {
+    0%, 100% { height: 20px; }
+    50% { height: 60px; }
+}
+
+@keyframes pulse-text {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
