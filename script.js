@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTrackIndex = 0;
     let isPlaying = false;
     let isTrackListOpen = false;
-    
+    let isLiteMode = false; // <-- ПЕРЕМЕННАЯ ДЛЯ ОБЛЕГЧЕННОГО РЕЖИМА
+
     const PLAYBACK_MODES = {
         PLAYLIST: 0,
         SINGLE: 1,
@@ -88,6 +89,26 @@ document.addEventListener('DOMContentLoaded', function() {
         isBeat: false
     };
 
+    // --- НОВАЯ ФУНКЦИЯ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ОБЛЕГЧЕННОГО РЕЖИМА ---
+    function toggleLiteMode() {
+        isLiteMode = !isLiteMode;
+        const cornerParticlesContainer = document.getElementById('cornerParticles');
+        const sparkParticlesContainer = document.getElementById('sparkParticles');
+
+        if (isLiteMode) {
+            console.log("Lite Mode Activated");
+            // Очищаем контейнеры от существующих частиц
+            cornerParticlesContainer.innerHTML = ''; 
+            sparkParticlesContainer.innerHTML = '';
+            // Добавляем класс к body для визуального отклика
+            document.body.classList.add('lite-mode');
+        } else {
+            console.log("Lite Mode Deactivated");
+            // При выключении режима, частицы будут созданы заново при смене трека или можно вызвать функцию их создания
+            createCornerParticles(); 
+            document.body.classList.remove('lite-mode');
+        }
+    }
 
     function updatePlaybackModeButton() {
         const icon = playbackModeBtn.querySelector('svg');
@@ -307,8 +328,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Передаем объект audioFeatures в другие функции
             updateParticlesMovement(audioFeatures);
-            updateCornerParticles(audioFeatures);
-            analyzeEdgeEffects(audioFeatures);
+
+            // --- ОБНОВЛЕНО: Добавляем проверку на isLiteMode ---
+            if (!isLiteMode) {
+                updateCornerParticles(audioFeatures);
+                analyzeEdgeEffects(audioFeatures); // Эта функция создает искры
+            }
+            // ---------------------------------------------------
+
             updateSparkParticles();
             updateEnergySurge();
             updateEdgeGlow(audioFeatures);
@@ -906,7 +933,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateParticles();
         }
         
-        if (cornerParticlesData.length === 0) {
+        if (cornerParticlesData.length === 0 && !isLiteMode) {
             createCornerParticles();
         } else {
             updateCornerParticlesColors();
@@ -1119,21 +1146,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // --- ОБНОВЛЕННЫЙ ОБРАБОТЧИК КЛАВИШ ---
     document.addEventListener('keydown', (e) => {
-        switch(e.key) {
-            case 'ArrowLeft': seek(-5); break;
-            case 'ArrowRight': seek(5); break;
-            case 'ArrowUp':
+        // Проверяем, чтобы горячие клавиши не срабатывали при вводе в поле поиска
+        if (e.target.id === 'trackSearch') return;
+
+        switch(e.key.toLowerCase()) { // Используем toLowerCase для универсальности
+            case 'arrowleft': 
+                seek(-5); 
+                break;
+            case 'arrowright': 
+                seek(5); 
+                break;
+            case 'arrowup':
+                e.preventDefault();
                 volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 10);
                 audio.volume = volumeSlider.value / 100;
                 updateVolumeSlider();
                 break;
-            case 'ArrowDown':
+            case 'arrowdown':
+                e.preventDefault();
                 volumeSlider.value = Math.max(0, parseInt(volumeSlider.value) - 10);
                 audio.volume = volumeSlider.value / 100;
                 updateVolumeSlider();
                 break;
-            case ' ': e.preventDefault(); playPauseBtn.click(); break;
+            case ' ': 
+                e.preventDefault(); 
+                playPauseBtn.click(); 
+                break;
+            case 'l': // <-- НАШ НОВЫЙ ОБРАБОТЧИК
+                toggleLiteMode();
+                break;
         }
     });
 
@@ -1206,7 +1249,12 @@ document.addEventListener('DOMContentLoaded', function() {
         populatePlaylistSelector();
         createVisualizer();
         createParticles();
-        createCornerParticles();
+        
+        // --- ОБНОВЛЕНО: Добавляем проверку на isLiteMode ---
+        if (!isLiteMode) {
+            createCornerParticles();
+        }
+        
         createEdgeGlow();
         updatePlaybackModeButton();
         updateVolumeSlider();
