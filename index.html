@@ -32,6 +32,14 @@
         
         <div class="album-art" id="albumArt">
             <div class="album-image" id="albumImage"></div>
+
+            <!-- --- НОВАЯ КНОПКА ОБЛЕГЧЕННОГО РЕЖИМА --- -->
+            <button id="liteModeBtn" class="album-overlay-btn" title="Облегченный режим (Клавиша L)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1.62-2.9c2,3.12,6.03,5.9,11.67,5.9c.33,0,1,0,1-1C20,16,17,8,17,8z M14.33,19.97C11.93,19.17,9.3,17.21,7.5,14.66c3.2-3.8,6.44-6.3,9.58-7.5c-1.4,3.3-2.88,6.84-4.83,10.81H14.33z M19.93,4.07C19.5,4.5,19,5,18.43,5.57L17,7l-1.43-1.43c-3.14,2.23-5.5,5.1-7.24,8.15C7.5,12.33,7,10.67,6,9c-1-1.67-2.67-3-5-3v-2c3.33,0,5.67,2.33,7,5c1.33-2.67,3.67-4.33,6-5c.67,1,1.33,2.33,2,4l2-2C21.67,6.33,22,4.67,22,3v-2C21.33,1,20.67,2.33,19.93,4.07z"/>
+                </svg>
+            </button>
+            
             <div class="neon-lines-container">
                 <div class="neon-line left-line">
                     <div class="neon-glow" id="leftGlow"></div>
@@ -103,7 +111,6 @@
     <div class="track-list-panel" id="trackListPanel">
         <div class="track-list-header">
             <h3>Библиотека треков</h3>
-            <!-- БЛОК ДЛЯ ВЫБОРА ПЛЕЙЛИСТА -->
             <div class="playlist-controls">
                 <select id="playlistSelector" class="playlist-select"></select>
             </div>
@@ -112,9 +119,7 @@
                 <div class="search-icon">🔍</div>
             </div>
         </div>
-        <div class="track-list" id="trackList">
-            <!-- Треки будут добавляться через JS -->
-        </div>
+        <div class="track-list" id="trackList"></div>
     </div>
 
     <!-- Эффекты для краев экрана -->
