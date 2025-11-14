@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackSearch = document.getElementById('trackSearch');
     const playlistSelector = document.getElementById('playlistSelector');
 
+    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
     let currentPlaylistName = "Библиотека";
     let currentTracks = playlists[currentPlaylistName];
     let currentTrackIndex = 0;
@@ -75,6 +76,18 @@ document.addEventListener('DOMContentLoaded', function() {
         MID: { start: 10, end: 20 },
         HIGH: { start: 20, end: 30 }
     };
+
+    // --- ИЗМЕНЕНИЕ 1: Создаем "маркерную доску" - один объект для данных о музыке ---
+    // Этот объект будет обновляться каждый кадр, а не создаваться заново.
+    let audioFeatures = {
+        rms: 0,
+        bassEnergy: 0,
+        midEnergy: 0,
+        highEnergy: 0,
+        spectralCentroid: 0,
+        isBeat: false
+    };
+
 
     function updatePlaybackModeButton() {
         const icon = playbackModeBtn.querySelector('svg');
@@ -162,6 +175,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return sum / count / 255;
     }
 
+    // --- ИЗМЕНЕНИЕ 2: Функция analyzeSpectralFeatures теперь не возвращает новый объект ---
+    // Она напрямую изменяет глобальный объект audioFeatures.
     function analyzeSpectralFeatures() {
         if (!analyser || !dataArray) return;
         
@@ -204,14 +219,13 @@ document.addEventListener('DOMContentLoaded', function() {
             beatCooldown--;
         }
         
-        return {
-            rms,
-            bassEnergy,
-            midEnergy,
-            highEnergy,
-            spectralCentroid,
-            isBeat
-        };
+        // Обновляем "маркерную доску"
+        audioFeatures.rms = rms;
+        audioFeatures.bassEnergy = bassEnergy;
+        audioFeatures.midEnergy = midEnergy;
+        audioFeatures.highEnergy = highEnergy;
+        audioFeatures.spectralCentroid = spectralCentroid;
+        audioFeatures.isBeat = isBeat;
     }
 
     function updatePulseIntensity() {
@@ -222,13 +236,18 @@ document.addEventListener('DOMContentLoaded', function() {
         beatDetected = false;
     }
 
+    // --- ИЗМЕНЕНИЕ 3: Функция visualize теперь использует глобальный audioFeatures ---
     function visualize() {
         if (!analyser || !isPlaying || currentTracks.length === 0) return;
         
         try {
             analyser.getByteFrequencyData(dataArray);
-            const features = analyzeSpectralFeatures();
             
+            // Просто вызываем функцию для обновления "доски".
+            // Больше не нужно `const features = ...`
+            analyzeSpectralFeatures(); 
+            
+            // Везде ниже вместо `features` мы используем `audioFeatures`
             for (let i = 0; i < visualizerBars.length; i++) {
                 const barIndex = Math.floor((i / visualizerBars.length) * bufferLength);
                 const value = dataArray[barIndex] / 255;
@@ -236,15 +255,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 let baseHeight = Math.max(5, value * 110);
                 
                 if (i < 10) {
-                    const bassBoost = features.bassEnergy * 25;
-                    const beatBoost = features.isBeat ? currentPulseIntensity * 40 : 0;
+                    const bassBoost = audioFeatures.bassEnergy * 25;
+                    const beatBoost = audioFeatures.isBeat ? currentPulseIntensity * 40 : 0;
                     baseHeight += bassBoost + beatBoost;
                 } else if (i < 20) {
-                    const midBoost = features.midEnergy * 18;
-                    const energyBoost = features.rms * 12;
+                    const midBoost = audioFeatures.midEnergy * 18;
+                    const energyBoost = audioFeatures.rms * 12;
                     baseHeight += midBoost + energyBoost;
                 } else {
-                    const highBoost = features.highEnergy * 20;
+                    const highBoost = audioFeatures.highEnergy * 20;
                     baseHeight += highBoost;
                 }
                 
@@ -257,12 +276,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (leftGlow && rightGlow) {
                 const minHeight = 15;
                 const maxHeight = 85;
-                const lineHeight = minHeight + (features.rms * 130);
+                const lineHeight = minHeight + (audioFeatures.rms * 130);
                 
                 leftGlow.style.height = `${lineHeight}%`;
                 rightGlow.style.height = `${lineHeight}%`;
                 
-                const brightness = 0.7 + (features.spectralCentroid / bufferLength) * 0.5;
+                const brightness = 0.7 + (audioFeatures.spectralCentroid / bufferLength) * 0.5;
                 leftGlow.style.opacity = brightness;
                 rightGlow.style.opacity = brightness;
                 
@@ -286,13 +305,13 @@ document.addEventListener('DOMContentLoaded', function() {
                      inset 0 0 10px rgba(255, 255, 255, 0.3)`;
             }
             
-            updateParticlesMovement(features);
-            updateCornerParticles(features);
-            
-            analyzeEdgeEffects(features);
+            // Передаем объект audioFeatures в другие функции
+            updateParticlesMovement(audioFeatures);
+            updateCornerParticles(audioFeatures);
+            analyzeEdgeEffects(audioFeatures);
             updateSparkParticles();
             updateEnergySurge();
-            updateEdgeGlow(features);
+            updateEdgeGlow(audioFeatures);
             
             updatePulseIntensity();
             
@@ -462,7 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function analyzeEdgeEffects(features) {
         if (currentTracks.length === 0) return;
-        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
+        const { highEnergy, isBeat } = features;
         
         if ((highEnergy > 0.2 || (isBeat && highEnergy > 0.1)) && sparkCooldown <= 0) {
             const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
@@ -596,12 +615,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateCornerParticles(features) {
         if (currentTracks.length === 0) return;
-        const { rms, bassEnergy, midEnergy, highEnergy, isBeat } = features;
-        const time = Date.now() * 0.001;
+        const { rms, bassEnergy, highEnergy, isBeat } = features;
         
         cornerParticlesData.forEach(particleData => {
             const particle = particleData.element;
-            const { cornerIndex, angle, radius, orbitSpeed } = particleData;
+            const { radius, orbitSpeed } = particleData;
             
             const dynamicRadius = radius + (bassEnergy * 8);
             const dynamicSpeed = orbitSpeed * (0.5 + rms * 1.5);
