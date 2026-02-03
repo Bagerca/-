@@ -3,26 +3,43 @@
     --mc-panel: #C6C6C6;
     --mc-shadow-dark: #373737;
     --mc-shadow-light: #FFFFFF;
-    --slot-bg: #8B8B8B;
 }
 
 body {
     margin: 0;
     padding: 0;
-    /* Глубинная руда + виньетка */
-    background-color: #0b0b0b;
-    background-image: url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_diamond_ore.png');
-    background-size: 128px;
-    background-repeat: repeat;
-    image-rendering: pixelated; 
-    box-shadow: inset 0 0 150px 100px rgba(0, 0, 0, 0.75);
-    
+    background-color: #0b0b0b; /* Цвет, пока грузятся текстуры */
     font-family: 'Press Start 2P', cursive;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow-x: hidden; /* Чтобы не было полос прокрутки от фона */
+}
+
+/* ЭТО НАШ НОВЫЙ ФОН */
+#bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Убираем на задний план */
+    image-rendering: pixelated; /* Пиксельная четкость */
+}
+
+/* Затемнение (Виньетка), чтобы текст читался на пестром фоне */
+.vignette-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    /* Сильное затемнение по краям, центр посветлее */
+    background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 90%);
+    pointer-events: none; /* Чтобы можно было кликать сквозь него */
 }
 
 .main-container {
@@ -31,37 +48,37 @@ body {
     text-align: center;
     padding: 20px;
     position: relative;
-    z-index: 2;
+    z-index: 2; /* Контент поверх всего */
 }
 
-/* ЗАГОЛОВОК */
+/* --- ЗАГОЛОВОК --- */
 .mc-title {
-    text-shadow: 4px 4px 0px #222;
+    text-shadow: 4px 4px 0px #111;
     font-size: 26px;
     margin-bottom: 5px;
     line-height: 1.5;
     color: #FFFFFF;
+    /* Черная обводка букв для читаемости */
+    -webkit-text-stroke: 1px #000; 
 }
 
 .orange { color: #FFAA00; text-shadow: 3px 3px 0px #2a2a2a; }
-.green { color: #55FF55; }
-
 .subtitle {
     font-size: 10px;
-    color: #AAAAAA;
+    color: #CCCCCC;
     margin-bottom: 25px;
     text-shadow: 2px 2px 0px #000;
+    background-color: rgba(0,0,0,0.6);
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
 }
 
-/* --- СУНДУК (GUI) --- */
+/* --- СУНДУК --- */
 .inventory-panel {
     background-color: var(--mc-panel);
-    border: 4px solid #000; /* Внешняя черная обводка */
-    /* Внутренняя обводка для объема */
-    box-shadow: 
-        inset 4px 4px 0px var(--mc-shadow-light),
-        inset -4px -4px 0px var(--mc-shadow-dark);
-    
+    border: 4px solid #000;
+    box-shadow: inset 4px 4px 0px var(--mc-shadow-light), inset -4px -4px 0px var(--mc-shadow-dark);
     padding: 12px;
     margin-bottom: 25px;
     color: #3f3f3f;
@@ -78,20 +95,14 @@ body {
 .item-list {
     max-height: 450px;
     overflow-y: auto;
-    padding-right: 5px; /* Место под скроллбар */
+    padding-right: 5px;
 }
 
-/* Скроллбар */
 .item-list::-webkit-scrollbar { width: 10px; }
 .item-list::-webkit-scrollbar-track { background: #000; border: 1px solid #373737; }
-.item-list::-webkit-scrollbar-thumb {
-    background: #C6C6C6;
-    border: 1px solid #FFF;
-    border-right-color: #555;
-    border-bottom-color: #555;
-}
+.item-list::-webkit-scrollbar-thumb { background: #C6C6C6; border: 1px solid #FFF; border-right-color: #555; border-bottom-color: #555; }
 
-/* --- ПРЕДМЕТ (СТРОКА) --- */
+/* --- ПРЕДМЕТ --- */
 .item-row {
     display: flex;
     align-items: center;
@@ -101,90 +112,27 @@ body {
     border: 2px solid transparent;
     transition: background 0.1s;
 }
+.item-row:hover { background: rgba(255, 255, 255, 0.1); border: 2px solid #FFF; }
 
-.item-row:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid #FFF;
-}
-
-/* СЛОТ ПОД ИКОНКУ (квадратик) */
 .item-icon {
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     background-color: #8B8B8B;
-    border-top: 2px solid #373737;
-    border-left: 2px solid #373737;
-    border-bottom: 2px solid #FFF;
-    border-right: 2px solid #FFF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    border-top: 2px solid #373737; border-left: 2px solid #373737; border-bottom: 2px solid #FFF; border-right: 2px solid #FFF;
+    display: flex; justify-content: center; align-items: center;
     margin-right: 12px;
 }
+.item-icon img { width: 28px; height: 28px; image-rendering: pixelated; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); }
 
-.item-icon img {
-    width: 28px;
-    height: 28px;
-    image-rendering: pixelated;
-    filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));
-}
+.item-name { flex-grow: 1; font-size: 12px; color: #fff; text-shadow: 2px 2px 0 #000; }
+.item-amount { color: #FFFF55; text-shadow: 2px 2px 0 #000; font-size: 12px; }
+.panel-footer { margin-top: 10px; font-size: 10px; text-align: right; color: #404040; }
 
-.item-name {
-    flex-grow: 1;
-    font-size: 12px;
-    color: #fff;
-    text-shadow: 2px 2px 0 #000;
-}
-
-.item-amount {
-    color: #FFFF55;
-    text-shadow: 2px 2px 0 #000;
-    font-size: 12px;
-}
-
-.panel-footer {
-    margin-top: 10px;
-    font-size: 10px;
-    text-align: right;
-    color: #404040;
-}
-
-/* --- КНОПКА (Стиль Меню) --- */
+/* --- КНОПКА --- */
 .mc-button {
-    background-color: #C6C6C6;
-    border: 2px solid #000;
-    
-    /* 3D эффект кнопке */
-    box-shadow: 
-        inset 2px 2px 0px #FFF,
-        inset -2px -2px 0px #373737;
-        
-    color: #E0E0E0; /* Обычный цвет текста */
-    text-shadow: 2px 2px 0 #222;
-    
-    font-family: 'Press Start 2P', cursive;
-    padding: 16px 0;
-    width: 100%;
-    cursor: pointer;
-    font-size: 14px;
-    
-    /* Чтобы текст не выделялся при дабл-клике */
-    user-select: none;
+    background-color: #C6C6C6; border: 2px solid #000;
+    box-shadow: inset 2px 2px 0px #FFF, inset -2px -2px 0px #373737;
+    color: #E0E0E0; text-shadow: 2px 2px 0 #222;
+    font-family: 'Press Start 2P', cursive; padding: 16px 0; width: 100%; cursor: pointer; font-size: 14px; user-select: none;
 }
-
-/* При наведении в майне текст становится желтым */
-.mc-button:hover {
-    background-color: #D0D0D0; /* Чуть светлее */
-    color: #FFFF55; 
-    text-shadow: 2px 2px 0 #3f3f20;
-}
-
-/* При нажатии */
-.mc-button:active {
-    background-color: #999;
-    box-shadow: 
-        inset 2px 2px 0px #373737,
-        inset -2px -2px 0px #FFF;
-    padding-top: 18px; /* Имитация нажатия */
-    padding-bottom: 14px;
-}
+.mc-button:hover { background-color: #D0D0D0; color: #FFFF55; text-shadow: 2px 2px 0 #3f3f20; }
+.mc-button:active { background-color: #999; box-shadow: inset 2px 2px 0px #373737, inset -2px -2px 0px #FFF; padding-top: 18px; padding-bottom: 14px; }
