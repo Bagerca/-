@@ -1,25 +1,21 @@
 :root {
     --mc-bg: #181818;
-    --mc-gray: #C6C6C6;
-    --mc-dark-gray: #555555;
-    --mc-panel: #212121;
-    --gui-highlight: #FFFFFF;
-    --gui-shadow: #373737;
+    --mc-panel: #C6C6C6;
+    --mc-shadow-dark: #373737;
+    --mc-shadow-light: #FFFFFF;
+    --slot-bg: #8B8B8B;
 }
 
 body {
     margin: 0;
     padding: 0;
-    
-    /* --- ФОН: ГЛУБИННАЯ АЛМАЗНАЯ РУДА --- */
+    /* Глубинная руда + виньетка */
     background-color: #0b0b0b;
     background-image: url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_diamond_ore.png');
     background-size: 128px;
     background-repeat: repeat;
     image-rendering: pixelated; 
-    
-    /* Виньетка (затемнение краев), чтобы текст читался */
-    box-shadow: inset 0 0 150px 100px rgba(0, 0, 0, 0.7);
+    box-shadow: inset 0 0 150px 100px rgba(0, 0, 0, 0.75);
     
     font-family: 'Press Start 2P', cursive;
     color: white;
@@ -31,94 +27,79 @@ body {
 
 .main-container {
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     text-align: center;
     padding: 20px;
     position: relative;
     z-index: 2;
 }
 
-/* ЗАГОЛОВОК (Вернули стиль 1-й версии: жесткая тень, без обводки) */
+/* ЗАГОЛОВОК */
 .mc-title {
-    text-shadow: 4px 4px 0px #3f3f3f;
-    font-size: 24px;
-    margin-bottom: 10px;
+    text-shadow: 4px 4px 0px #222;
+    font-size: 26px;
+    margin-bottom: 5px;
     line-height: 1.5;
     color: #FFFFFF;
 }
 
-.orange { color: #FFAA00; }
+.orange { color: #FFAA00; text-shadow: 3px 3px 0px #2a2a2a; }
 .green { color: #55FF55; }
 
-/* ПОДЗАГОЛОВОК (Вернули стиль 1-й версии) */
 .subtitle {
     font-size: 10px;
     color: #AAAAAA;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     text-shadow: 2px 2px 0px #000;
-    background: none; /* Убрали рамку, вернули просто текст */
-    border: none;
 }
 
-/* --- ОКНО СУНДУКА (Оставили 3D рамки, но внутри старый стиль) --- */
+/* --- СУНДУК (GUI) --- */
 .inventory-panel {
-    background-color: #C6C6C6;
+    background-color: var(--mc-panel);
+    border: 4px solid #000; /* Внешняя черная обводка */
+    /* Внутренняя обводка для объема */
+    box-shadow: 
+        inset 4px 4px 0px var(--mc-shadow-light),
+        inset -4px -4px 0px var(--mc-shadow-dark);
     
-    /* 3D Рамка */
-    border-top: 4px solid var(--gui-highlight);
-    border-left: 4px solid var(--gui-highlight);
-    border-right: 4px solid var(--gui-shadow);
-    border-bottom: 4px solid var(--gui-shadow);
-    
-    outline: 2px solid #000;
-    padding: 6px;
-    box-shadow: 10px 10px 0px rgba(0,0,0,0.5); /* Вернули старую тень */
-    margin-bottom: 20px;
+    padding: 12px;
+    margin-bottom: 25px;
     color: #3f3f3f;
     text-align: left;
 }
 
 .panel-header {
-    margin-bottom: 10px;
-    padding-left: 5px;
-    font-size: 14px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+    font-size: 16px;
     color: #404040;
-    /* Вернули легкую тень, если она была тебе по душе, или оставим чисто */
-    text-shadow: none; 
 }
 
 .item-list {
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
-    background: #8B8B8B;
-    
-    /* Вдавленная рамка */
-    border-top: 4px solid #373737;
-    border-left: 4px solid #373737;
-    border-bottom: 4px solid #FFF;
-    border-right: 4px solid #FFF;
-    
-    padding: 10px;
+    padding-right: 5px; /* Место под скроллбар */
 }
 
 /* Скроллбар */
-.item-list::-webkit-scrollbar { width: 12px; }
-.item-list::-webkit-scrollbar-track { background: #000; }
+.item-list::-webkit-scrollbar { width: 10px; }
+.item-list::-webkit-scrollbar-track { background: #000; border: 1px solid #373737; }
 .item-list::-webkit-scrollbar-thumb {
     background: #C6C6C6;
-    border: 2px solid #FFF;
+    border: 1px solid #FFF;
     border-right-color: #555;
     border-bottom-color: #555;
 }
 
-/* СТРОКА ПРЕДМЕТА */
+/* --- ПРЕДМЕТ (СТРОКА) --- */
 .item-row {
     display: flex;
     align-items: center;
-    background: rgba(0,0,0,0.2); /* Вернули темную подложку из 1-й версии */
+    background: rgba(0,0,0,0.15);
     margin-bottom: 4px;
-    padding: 8px;
+    padding: 4px;
     border: 2px solid transparent;
+    transition: background 0.1s;
 }
 
 .item-row:hover {
@@ -126,15 +107,28 @@ body {
     border: 2px solid #FFF;
 }
 
-.item-icon img {
-    width: 32px;
-    height: 32px;
-    margin-right: 15px;
-    image-rendering: pixelated;
-    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.5));
+/* СЛОТ ПОД ИКОНКУ (квадратик) */
+.item-icon {
+    width: 36px;
+    height: 36px;
+    background-color: #8B8B8B;
+    border-top: 2px solid #373737;
+    border-left: 2px solid #373737;
+    border-bottom: 2px solid #FFF;
+    border-right: 2px solid #FFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 12px;
 }
 
-/* ВЕРНУЛИ ЖЕЛТЫЕ ЦИФРЫ И СТАРЫЙ ТЕКСТ */
+.item-icon img {
+    width: 28px;
+    height: 28px;
+    image-rendering: pixelated;
+    filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));
+}
+
 .item-name {
     flex-grow: 1;
     font-size: 12px;
@@ -143,8 +137,9 @@ body {
 }
 
 .item-amount {
-    color: #FFFF55; /* Желтый цвет количества! */
+    color: #FFFF55;
     text-shadow: 2px 2px 0 #000;
+    font-size: 12px;
 }
 
 .panel-footer {
@@ -154,26 +149,42 @@ body {
     color: #404040;
 }
 
-/* КНОПКА (Темная, как в 1-й версии) */
+/* --- КНОПКА (Стиль Меню) --- */
 .mc-button {
-    background-color: #787878;
-    border: 4px solid #000; /* Черная рамка кнопки */
-    border-top-color: #DDD;
-    border-left-color: #DDD;
+    background-color: #C6C6C6;
+    border: 2px solid #000;
     
-    color: white;
+    /* 3D эффект кнопке */
+    box-shadow: 
+        inset 2px 2px 0px #FFF,
+        inset -2px -2px 0px #373737;
+        
+    color: #E0E0E0; /* Обычный цвет текста */
+    text-shadow: 2px 2px 0 #222;
+    
     font-family: 'Press Start 2P', cursive;
-    padding: 15px 30px;
+    padding: 16px 0;
+    width: 100%;
     cursor: pointer;
     font-size: 14px;
-    text-shadow: 2px 2px 0 #000;
-    width: 100%;
+    
+    /* Чтобы текст не выделялся при дабл-клике */
+    user-select: none;
 }
 
+/* При наведении в майне текст становится желтым */
+.mc-button:hover {
+    background-color: #D0D0D0; /* Чуть светлее */
+    color: #FFFF55; 
+    text-shadow: 2px 2px 0 #3f3f20;
+}
+
+/* При нажатии */
 .mc-button:active {
-    border-top-color: #000;
-    border-left-color: #000;
-    border-bottom-color: #DDD;
-    border-right-color: #DDD;
-    transform: translateY(2px);
+    background-color: #999;
+    box-shadow: 
+        inset 2px 2px 0px #373737,
+        inset -2px -2px 0px #FFF;
+    padding-top: 18px; /* Имитация нажатия */
+    padding-bottom: 14px;
 }
