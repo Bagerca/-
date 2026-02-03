@@ -2,19 +2,26 @@
     --mc-bg: #181818;
     --mc-gray: #C6C6C6;
     --mc-dark-gray: #555555;
-    --mc-panel: #212121; /* Темный фон инвентаря */
-    --mc-border-light: #6e6e6e; /* Рамки слотов */
-    --mc-border-dark: #111111;
+    --mc-panel: #212121;
+    --mc-border-light: #ffffff; 
+    --mc-border-dark: #373737;
+    --gui-text-color: #404040; /* Тот самый темно-серый цвет текста GUI */
 }
 
 body {
     margin: 0;
     padding: 0;
-    /* Текстура земли на фоне */
-    background-color: #120b06; 
-    background-image: url('https://assets.codepen.io/13471/dirt-texture.png'); 
-    background-size: 128px;
-    font-family: 'Press Start 2P', cursive; /* Пиксельный шрифт */
+    /* ФОН: Текстура камня/руды */
+    background-color: #121212;
+    /* Ссылка на текстуру камня. Можно заменить на любую другую, например, алмазную руду */
+    background-image: url('https://assets.codepen.io/13471/stone-texture.png'); 
+    background-size: 128px; /* Размер "блока" */
+    background-repeat: repeat;
+    
+    /* Затемнение фона, чтобы текст читался лучше */
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.6);
+    
+    font-family: 'Press Start 2P', cursive;
     color: white;
     display: flex;
     justify-content: center;
@@ -27,61 +34,77 @@ body {
     max-width: 600px;
     text-align: center;
     padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .mc-title {
-    text-shadow: 4px 4px 0px #3f3f3f;
-    font-size: 24px;
-    margin-bottom: 10px;
+    text-shadow: 4px 4px 0px #000000;
+    font-size: 28px;
+    margin-bottom: 5px;
     line-height: 1.5;
+    /* Добавим легкий контур, как на лого майне */
+    -webkit-text-stroke: 1px #222;
 }
 
-.orange { color: #FFAA00; }
-.green { color: #55FF55; }
+.orange { color: #FFAA00; text-shadow: 2px 2px 0px #3f3f3f; }
+.green { color: #55FF55; text-shadow: 2px 2px 0px #3f3f3f; }
 
 .subtitle {
     font-size: 10px;
-    color: #AAAAAA;
+    color: #dedede;
     margin-bottom: 30px;
     text-shadow: 2px 2px 0px #000;
+    background-color: rgba(0,0,0,0.5);
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
 }
 
-/* Стили "Сундука" */
+/* --- СТИЛИ ИНВЕНТАРЯ (СУНДУКА) --- */
 .inventory-panel {
     background-color: #C6C6C6;
-    border: 4px solid #000;
-    padding: 4px;
-    box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
-    margin-bottom: 20px;
+    /* Классическая рамка GUI: Светлый верх/лево, Темный низ/право */
+    border-top: 4px solid #FFF;
+    border-left: 4px solid #FFF;
+    border-right: 4px solid #555;
+    border-bottom: 4px solid #555;
+    
+    padding: 8px; /* Отступ внутри серой рамки */
+    box-shadow: 12px 12px 0px rgba(0,0,0,0.5);
+    margin-bottom: 25px;
     color: #3f3f3f;
     text-align: left;
 }
 
+/* Заголовок внутри сундука (Chest) */
 .panel-header {
-    margin-bottom: 10px;
-    padding-left: 5px;
-    font-size: 14px;
-    color: #404040;
+    margin-bottom: 6px;
+    padding-left: 2px;
+    font-size: 14px; /* Чуть меньше, чтобы выглядело аккуратно */
+    color: var(--gui-text-color);
+    text-shadow: none; /* Убираем тень, чтобы текст был четким как в игре */
+    font-weight: normal;
+    letter-spacing: -0.5px; /* Чуть плотнее */
 }
 
 .item-list {
     max-height: 400px;
     overflow-y: auto;
-    background: #8B8B8B; /* Темный фон слотов */
+    background: #8B8B8B;
+    
+    /* Рамка слотов: Вдавленная (Темный верх/лево, Светлый низ/право) */
     border-top: 4px solid #373737;
     border-left: 4px solid #373737;
     border-bottom: 4px solid #FFF;
     border-right: 4px solid #FFF;
-    padding: 10px;
+    
+    padding: 8px;
 }
 
-/* Скроллбар в стиле майна */
-.item-list::-webkit-scrollbar {
-    width: 12px;
-}
-.item-list::-webkit-scrollbar-track {
-    background: #000;
-}
+/* Скроллбар */
+.item-list::-webkit-scrollbar { width: 14px; }
+.item-list::-webkit-scrollbar-track { background: #000; border-left: 2px solid #373737; }
 .item-list::-webkit-scrollbar-thumb {
     background: #C6C6C6;
     border: 2px solid #FFF;
@@ -89,26 +112,31 @@ body {
     border-bottom-color: #555;
 }
 
-/* Отдельная строка предмета */
+/* Строка предмета */
 .item-row {
     display: flex;
     align-items: center;
-    background: rgba(0,0,0,0.2);
-    margin-bottom: 4px;
-    padding: 8px;
-    border: 2px solid transparent;
+    /* Убираем фон по умолчанию, делаем просто прозрачным или чуть темнее */
+    background: transparent; 
+    margin-bottom: 2px;
+    padding: 6px;
+    border: 2px solid transparent; /* Резерв под ховер */
 }
 
+/* При наведении - эффект выделения слота (светлая рамка, полупрозрачный белый фон) */
 .item-row:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid #FFF;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    cursor: pointer;
 }
 
 .item-icon img {
     width: 32px;
     height: 32px;
-    margin-right: 15px;
+    margin-right: 12px;
     image-rendering: pixelated;
+    /* Тень от иконки, чтобы она "парила" */
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
 }
 
 .item-name {
@@ -116,37 +144,52 @@ body {
     font-size: 12px;
     color: #fff;
     text-shadow: 2px 2px 0 #000;
+    line-height: 1.4;
 }
 
 .item-amount {
-    color: #FFFF55;
+    color: #fff; /* Белый с тенью лучше читается */
     text-shadow: 2px 2px 0 #000;
 }
 
 .panel-footer {
-    margin-top: 10px;
+    margin-top: 8px;
     font-size: 10px;
     text-align: right;
+    color: var(--gui-text-color);
+    text-shadow: none;
 }
 
 /* Кнопка */
 .mc-button {
-    background-color: #787878;
-    border: 4px solid #000;
-    border-top-color: #DDD;
-    border-left-color: #DDD;
-    color: white;
-    font-family: 'Press Start 2P', cursive;
-    padding: 15px 30px;
-    cursor: pointer;
-    font-size: 14px;
+    background-color: #999;
+    border-top: 4px solid #FFF;
+    border-left: 4px solid #FFF;
+    border-right: 4px solid #373737;
+    border-bottom: 4px solid #373737;
+    
+    color: #FFF;
     text-shadow: 2px 2px 0 #000;
-    active: transform: translateY(4px);
+    
+    font-family: 'Press Start 2P', cursive;
+    padding: 14px 24px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.1s;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mc-button:hover {
+    background-color: #aaa;
+    color: #FFFAA0; /* Желтоватый текст при наведении */
 }
 
 .mc-button:active {
-    border-top-color: #000;
-    border-left-color: #000;
-    border-bottom-color: #DDD;
-    border-right-color: #DDD;
+    background-color: #888;
+    border-top: 4px solid #373737;
+    border-left: 4px solid #373737;
+    border-right: 4px solid #FFF;
+    border-bottom: 4px solid #FFF;
+    transform: translateY(2px);
 }
