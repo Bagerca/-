@@ -2,19 +2,33 @@
     --mc-bg: #181818;
     --mc-gray: #C6C6C6;
     --mc-dark-gray: #555555;
-    --mc-panel: #212121; /* Темный фон инвентаря */
-    --mc-border-light: #6e6e6e; /* Рамки слотов */
-    --mc-border-dark: #111111;
+    --mc-panel: #212121;
+    --gui-text-dark: #404040; /* Цвет текста внутри сундука */
+    --gui-text-light: #ffffff;
+    --gui-highlight: #FFFFFF;
+    --gui-shadow: #373737;
 }
 
 body {
     margin: 0;
     padding: 0;
-    /* Текстура земли на фоне */
-    background-color: #120b06; 
-    background-image: url('https://assets.codepen.io/13471/dirt-texture.png'); 
-    background-size: 128px;
-    font-family: 'Press Start 2P', cursive; /* Пиксельный шрифт */
+    
+    /* --- НАСТРОЙКА ФОНА (ГЛУБИННАЯ РУДА) --- */
+    background-color: #0b0b0b; /* Темная подложка, если картинка не прогрузится */
+    
+    /* Прямая ссылка на текстуру Deepslate Diamond Ore */
+    background-image: url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_diamond_ore.png');
+    
+    background-size: 128px; /* Размер блока (чем больше, тем крупнее пиксели) */
+    background-repeat: repeat;
+    
+    /* Важно: Делает фон пиксельным, а не размытым */
+    image-rendering: pixelated; 
+    
+    /* Затемнение по краям (виньетка), чтобы центр был светлее */
+    box-shadow: inset 0 0 150px 150px rgba(0, 0, 0, 0.7);
+    
+    font-family: 'Press Start 2P', cursive;
     color: white;
     display: flex;
     justify-content: center;
@@ -27,13 +41,19 @@ body {
     max-width: 600px;
     text-align: center;
     padding: 20px;
+    position: relative;
+    z-index: 2; /* Чтобы контент был поверх затемнения */
 }
 
+/* ЗАГОЛОВОК */
 .mc-title {
-    text-shadow: 4px 4px 0px #3f3f3f;
-    font-size: 24px;
-    margin-bottom: 10px;
+    color: #ffffff;
+    text-shadow: 4px 4px 0px #000000;
+    font-size: 28px;
+    margin-bottom: 5px;
     line-height: 1.5;
+    /* Черная обводка букв */
+    -webkit-text-stroke: 1.5px black; 
 }
 
 .orange { color: #FFAA00; }
@@ -41,112 +61,160 @@ body {
 
 .subtitle {
     font-size: 10px;
-    color: #AAAAAA;
-    margin-bottom: 30px;
+    color: #aaaaaa;
+    margin-bottom: 25px;
     text-shadow: 2px 2px 0px #000;
+    background-color: rgba(0,0,0,0.6);
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 2px;
+    border: 1px solid #000;
 }
 
-/* Стили "Сундука" */
+/* --- ОКНО СУНДУКА (GUI) --- */
 .inventory-panel {
     background-color: #C6C6C6;
-    border: 4px solid #000;
-    padding: 4px;
-    box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
-    margin-bottom: 20px;
-    color: #3f3f3f;
+    
+    /* Эффект 3D рамки (свет сверху-слева, тень снизу-справа) */
+    border-top: 4px solid var(--gui-highlight);
+    border-left: 4px solid var(--gui-highlight);
+    border-right: 4px solid var(--gui-shadow);
+    border-bottom: 4px solid var(--gui-shadow);
+    
+    /* Внешняя черная обводка */
+    outline: 2px solid #000;
+    
+    padding: 8px;
+    box-shadow: 0px 20px 40px rgba(0,0,0,0.6); /* Тень под всем окном */
+    margin-bottom: 25px;
+    color: var(--gui-text-dark);
     text-align: left;
 }
 
+/* Текст "Chest: ..." */
 .panel-header {
-    margin-bottom: 10px;
-    padding-left: 5px;
+    margin-bottom: 6px;
+    padding-left: 2px;
     font-size: 14px;
     color: #404040;
+    text-shadow: none; /* Внутри GUI нет тени у текста заголовков */
+    font-weight: normal;
 }
 
+/* СПИСОК ПРЕДМЕТОВ */
 .item-list {
     max-height: 400px;
     overflow-y: auto;
-    background: #8B8B8B; /* Темный фон слотов */
-    border-top: 4px solid #373737;
-    border-left: 4px solid #373737;
-    border-bottom: 4px solid #FFF;
-    border-right: 4px solid #FFF;
+    background: #8B8B8B; /* Темно-серая подложка слотов */
+    
+    /* Вдавленная рамка для списка */
+    border-top: 2px solid #373737;
+    border-left: 2px solid #373737;
+    border-bottom: 2px solid #FFF;
+    border-right: 2px solid #FFF;
+    
     padding: 10px;
 }
 
-/* Скроллбар в стиле майна */
-.item-list::-webkit-scrollbar {
-    width: 12px;
-}
-.item-list::-webkit-scrollbar-track {
-    background: #000;
+/* Скроллбар (полоса прокрутки) в стиле майна */
+.item-list::-webkit-scrollbar { width: 16px; }
+.item-list::-webkit-scrollbar-track { 
+    background: #000; 
+    border-left: 2px solid #373737; 
 }
 .item-list::-webkit-scrollbar-thumb {
     background: #C6C6C6;
     border: 2px solid #FFF;
+    border-top-color: #FFF;
+    border-left-color: #FFF;
     border-right-color: #555;
     border-bottom-color: #555;
 }
 
-/* Отдельная строка предмета */
+/* ОТДЕЛЬНЫЙ ПРЕДМЕТ (СТРОКА) */
 .item-row {
     display: flex;
     align-items: center;
-    background: rgba(0,0,0,0.2);
-    margin-bottom: 4px;
-    padding: 8px;
-    border: 2px solid transparent;
+    background: transparent;
+    margin-bottom: 2px;
+    padding: 6px;
+    border: 2px solid transparent; 
+    transition: background 0.1s;
 }
 
+/* Эффект при наведении (как в инвентаре) */
 .item-row:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid #FFF;
+    background: rgba(255, 255, 255, 0.2); /* Полупрозрачный белый */
+    cursor: pointer;
 }
 
 .item-icon img {
     width: 32px;
     height: 32px;
-    margin-right: 15px;
+    margin-right: 12px;
     image-rendering: pixelated;
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.4)); /* Тень от иконки */
 }
 
 .item-name {
     flex-grow: 1;
     font-size: 12px;
     color: #fff;
-    text-shadow: 2px 2px 0 #000;
+    text-shadow: 2px 2px 0 #222;
 }
 
 .item-amount {
-    color: #FFFF55;
-    text-shadow: 2px 2px 0 #000;
+    color: #fff;
+    font-size: 12px;
+    text-shadow: 2px 2px 0 #222;
 }
 
+/* НИЖНЯЯ ЧАСТЬ ПАНЕЛИ */
 .panel-footer {
-    margin-top: 10px;
+    margin-top: 8px;
     font-size: 10px;
     text-align: right;
+    color: #404040;
+    text-shadow: none;
 }
 
-/* Кнопка */
+/* КНОПКА КОПИРОВАНИЯ */
 .mc-button {
-    background-color: #787878;
-    border: 4px solid #000;
-    border-top-color: #DDD;
-    border-left-color: #DDD;
-    color: white;
+    background-color: #C6C6C6;
+    
+    /* 3D рамка кнопки */
+    border-top: 2px solid #FFF;
+    border-left: 2px solid #FFF;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    outline: 2px solid #000; /* Двойная обводка для жирности */
+    
+    color: #E0E0E0;
+    text-shadow: 2px 2px 0 #222;
+    
     font-family: 'Press Start 2P', cursive;
-    padding: 15px 30px;
+    padding: 15px 0;
+    width: 100%;
     cursor: pointer;
     font-size: 14px;
-    text-shadow: 2px 2px 0 #000;
-    active: transform: translateY(4px);
+    transition: all 0.1s;
+    
+    /* Цвет текста кнопки */
+    color: #FFFFFF;
+    text-shadow: 2px 2px 0px #3f3f3f;
+}
+
+.mc-button:hover {
+    background-color: #D6D6D6;
+    color: #FFFFAA; /* Светло-желтый при наведении */
+    text-shadow: 2px 2px 0px #2a2a2a;
 }
 
 .mc-button:active {
-    border-top-color: #000;
-    border-left-color: #000;
-    border-bottom-color: #DDD;
-    border-right-color: #DDD;
+    background-color: #999;
+    border-top: 2px solid #000;
+    border-left: 2px solid #000;
+    border-right: 2px solid #FFF;
+    border-bottom: 2px solid #FFF;
+    transform: translateY(2px);
 }
