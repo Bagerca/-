@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Возврат ресурсов: Клан Щербет</title>
+    <!-- Подключаем пиксельный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Заголовок -->
+        <header>
+            <h1 class="mc-title">КЛАН <span class="orange">ЩЕРБЕТ</span></h1>
+            <p class="subtitle">Заявка на возврат ресурсов (Ошибочный рейд)</p>
+        </header>
+
+        <!-- Блок со списком -->
+        <div class="inventory-panel">
+            <div class="panel-header">
+                <span>Chest: Refund List</span>
+            </div>
+            
+            <div class="item-list" id="itemList">
+                <!-- Сюда скрипт сам добавит предметы -->
+            </div>
+
+            <div class="panel-footer">
+                <p>Всего позиций: <span id="totalItems" class="green">0</span></p>
+            </div>
+        </div>
+
+        <!-- Кнопка копирования (для удобства админов) -->
+        <button class="mc-button" onclick="copyToClipboard()">Скопировать текстом</button>
+    </div>
+
+    <script src="items.js"></script>
+    <script>
+        // Простая логика отрисовки и копирования
+        const listContainer = document.getElementById('itemList');
+        const totalCountSpan = document.getElementById('totalItems');
+
+        // Рендерим список
+        function renderItems() {
+            let html = '';
+            resources.forEach(item => {
+                html += `
+                <div class="item-row">
+                    <div class="item-icon">
+                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="icon" onerror="this.style.display='none'">
+                    </div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-amount">x${item.amount}</div>
+                </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+            totalCountSpan.innerText = resources.length;
+        }
+
+        // Функция копирования для админа
+        function copyToClipboard() {
+            let text = "Список возврата Клан Щербет:\n";
+            resources.forEach(item => {
+                text += `- ${item.name}: ${item.amount} шт.\n`;
+            });
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Список скопирован в буфер обмена!");
+            });
+        }
+
+        renderItems();
+    </script>
+</body>
+</html>
