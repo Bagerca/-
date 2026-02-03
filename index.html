@@ -9,9 +9,9 @@
 </head>
 <body>
 
-    <!-- Холст для фона (Руды) -->
+    <!-- Холст для фона -->
     <canvas id="bgCanvas"></canvas>
-    <!-- Затемнение поверх фона -->
+    <!-- Затемнение -->
     <div class="vignette-overlay"></div>
 
     <div class="main-container">
@@ -22,9 +22,11 @@
 
         <div class="inventory-panel">
             <div class="panel-header">
-                <span>Сундук: Список ресурсов</span>
+                <span>Chest: Refund List</span>
             </div>
+            
             <div class="item-list" id="itemList"></div>
+
             <div class="panel-footer">
                 <p>Всего позиций: <span id="totalItems" class="green">0</span></p>
             </div>
@@ -33,6 +35,7 @@
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
+    <!-- Список предметов -->
     <script src="items.js"></script>
 
     <script>
@@ -40,7 +43,11 @@
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Список текстур (Глубинные руды 1.19)
+        // Отключаем сглаживание, чтобы пиксели были резкими
+        ctx.imageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+
         const oreUrls = [
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_copper_ore.png',
@@ -55,7 +62,6 @@
         const loadedImages = [];
         let imagesLoadedCount = 0;
 
-        // Предзагрузка картинок
         oreUrls.forEach(url => {
             const img = new Image();
             img.crossOrigin = "Anonymous";
@@ -64,25 +70,29 @@
                 loadedImages.push(img);
                 imagesLoadedCount++;
                 if (imagesLoadedCount === oreUrls.length) {
-                    drawBackground(); // Рисуем, когда всё загрузилось
+                    drawBackground();
                 }
             };
         });
 
         function drawBackground() {
-            // Размер блока на экране (сделал покрупнее, 64px)
+            // Важно! Отключаем сглаживание снова перед отрисовкой
+            ctx.imageSmoothingEnabled = false;
+            
+            // Размер блока делаем 64px, чтобы было хорошо видно текстуру
             const blockSize = 64; 
             
-            // Подгоняем размер canvas под окно
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+
+            // Снова отключаем сглаживание (иногда сбрасывается при ресайзе)
+            ctx.imageSmoothingEnabled = false;
 
             const cols = Math.ceil(canvas.width / blockSize);
             const rows = Math.ceil(canvas.height / blockSize);
 
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
-                    // Случайная руда
                     const randomImg = loadedImages[Math.floor(Math.random() * loadedImages.length)];
                     if (randomImg) {
                         ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
@@ -91,11 +101,10 @@
             }
         }
 
-        // Перерисовывать при изменении размера окна
         window.addEventListener('resize', drawBackground);
 
 
-        // --- 2. ЛОГИКА СПИСКА ПРЕДМЕТОВ ---
+        // --- 2. ЛОГИКА СПИСКА ---
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
@@ -107,7 +116,7 @@
                 html += `
                 <div class="item-row">
                     <div class="item-icon">
-                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'"> 
+                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'">
                     </div>
                     <div class="item-name">${item.name}</div>
                     <div class="item-amount">x${item.amount}</div>
@@ -128,7 +137,7 @@
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.querySelector('.mc-button');
                 const originalText = btn.innerText;
-                btn.innerText = "Скопировано!";
+                btn.innerText = "СКОПИРОВАНО!";
                 btn.style.color = "#55FF55";
                 setTimeout(() => {
                     btn.innerText = originalText;
