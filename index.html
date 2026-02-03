@@ -4,34 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
-    
-    <!-- Пиксельный шрифт от Google -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    
-    <!-- Подключаем стили -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Холст для генерации фона (Руды) -->
+    <!-- Холст для фона -->
     <canvas id="bgCanvas"></canvas>
-    <!-- Виньетка (затемнение по краям) -->
+    <!-- Затемнение -->
     <div class="vignette-overlay"></div>
 
     <div class="main-container">
-        <!-- Шапка -->
         <header>
             <h1 class="mc-title">КЛАН <span class="orange">ЩЕРБЕТ</span></h1>
             <p class="subtitle">Common World (beta) — Заявка на возврат</p>
         </header>
 
-        <!-- Сундук (Инвентарь) -->
         <div class="inventory-panel">
             <div class="panel-header">
                 <span>Chest: Refund List</span>
             </div>
             
-            <!-- Сюда скрипт добавит предметы -->
             <div class="item-list" id="itemList"></div>
 
             <div class="panel-footer">
@@ -39,26 +32,22 @@
             </div>
         </div>
 
-        <!-- Кнопка действия -->
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
-    <!-- Подключаем файл с данными предметов -->
+    <!-- Список предметов -->
     <script src="items.js"></script>
 
     <script>
-        /* -----------------------------------------------------
-           1. ГЕНЕРАТОР ФОНА (Глубинные руды)
-           ----------------------------------------------------- */
+        // --- 1. ГЕНЕРАТОР ФОНА (РУДЫ) ---
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Отключаем сглаживание для четкости пикселей
+        // Отключаем сглаживание, чтобы пиксели были резкими
         ctx.imageSmoothingEnabled = false;
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
 
-        // Текстуры глубинных руд (1.19)
         const oreUrls = [
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_copper_ore.png',
@@ -73,7 +62,6 @@
         const loadedImages = [];
         let imagesLoadedCount = 0;
 
-        // Предзагрузка картинок
         oreUrls.forEach(url => {
             const img = new Image();
             img.crossOrigin = "Anonymous";
@@ -88,16 +76,16 @@
         });
 
         function drawBackground() {
-            // Убеждаемся, что сглаживание выключено
+            // Важно! Отключаем сглаживание снова перед отрисовкой
             ctx.imageSmoothingEnabled = false;
             
-            // Размер блока (64px смотрится хорошо)
+            // Размер блока делаем 64px, чтобы было хорошо видно текстуру
             const blockSize = 64; 
             
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            // Снова выключаем сглаживание после ресайза (браузеры любят сбрасывать это)
+            // Снова отключаем сглаживание (иногда сбрасывается при ресайзе)
             ctx.imageSmoothingEnabled = false;
 
             const cols = Math.ceil(canvas.width / blockSize);
@@ -113,82 +101,51 @@
             }
         }
 
-        // Перерисовываем фон при изменении размера окна
         window.addEventListener('resize', drawBackground);
 
 
-        /* -----------------------------------------------------
-           2. ЛОГИКА СПИСКА И ОТОБРАЖЕНИЯ
-           ----------------------------------------------------- */
+        // --- 2. ЛОГИКА СПИСКА ---
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
         function renderItems() {
             let html = '';
-            
-            // Проверка, загрузился ли items.js
-            if (typeof resources === 'undefined') {
-                listContainer.innerHTML = '<div style="color:red; padding:10px;">Ошибка: items.js не найден</div>';
-                return;
-            }
+            if (typeof resources === 'undefined') return;
 
             resources.forEach(item => {
-                // Если у предмета есть свойство enchanted: true, добавляем класс
-                const enchantClass = item.enchanted ? 'enchanted' : '';
-
                 html += `
                 <div class="item-row">
-                    <div class="item-icon ${enchantClass}">
-                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" 
-                             alt="" 
-                             onerror="this.style.display='none'">
+                    <div class="item-icon">
+                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'">
                     </div>
                     <div class="item-name">${item.name}</div>
                     <div class="item-amount">x${item.amount}</div>
                 </div>`;
             });
-
             listContainer.innerHTML = html;
             totalCountSpan.innerText = resources.length;
         }
 
-
-        /* -----------------------------------------------------
-           3. КОПИРОВАНИЕ В БУФЕР ОБМЕНА
-           ----------------------------------------------------- */
         function copyToClipboard() {
             let text = "=== ЗАЯВКА НА ВОЗВРАТ (Common World) ===\n";
-            text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n`;
-            text += "---------------------------\n";
-            
+            text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n---------------------------\n`;
             if (typeof resources !== 'undefined') {
-                resources.forEach(item => {
-                    text += `• ${item.name}: ${item.amount}\n`;
-                });
+                resources.forEach(item => { text += `• ${item.name}: ${item.amount}\n`; });
             }
-            
             text += "---------------------------";
 
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.querySelector('.mc-button');
                 const originalText = btn.innerText;
-                
-                // Визуальный эффект успеха
                 btn.innerText = "СКОПИРОВАНО!";
-                btn.style.color = "#55FF55"; // Ярко-зеленый
-                btn.style.textShadow = "2px 2px 0 #004400";
-                
+                btn.style.color = "#55FF55";
                 setTimeout(() => {
                     btn.innerText = originalText;
                     btn.style.color = "";
-                    btn.style.textShadow = "";
                 }, 2000);
-            }).catch(err => {
-                alert("Ошибка копирования. Скопируйте вручную.");
             });
         }
 
-        // Запуск
         renderItems();
     </script>
 </body>
