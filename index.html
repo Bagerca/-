@@ -4,109 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
-    <!-- Пиксельный шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <!-- Подключаем твои стили -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Холст для фона (Руды) -->
+    <canvas id="bgCanvas"></canvas>
+    <!-- Затемнение поверх фона -->
+    <div class="vignette-overlay"></div>
+
     <div class="main-container">
-        <!-- Шапка -->
         <header>
             <h1 class="mc-title">КЛАН <span class="orange">ЩЕРБЕТ</span></h1>
             <p class="subtitle">Common World (beta) — Заявка на возврат</p>
         </header>
 
-        <!-- Основной блок (Сундук) -->
         <div class="inventory-panel">
             <div class="panel-header">
                 <span>Сундук: Список ресурсов</span>
             </div>
-            
-            <!-- Сюда скрипт вставит предметы -->
             <div class="item-list" id="itemList"></div>
-
             <div class="panel-footer">
                 <p>Всего позиций: <span id="totalItems" class="green">0</span></p>
             </div>
         </div>
 
-        <!-- Кнопка -->
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
-    <!-- Подключаем файл со списком предметов -->
     <script src="items.js"></script>
 
     <script>
+        // --- 1. ГЕНЕРАТОР ФОНА (РУДЫ) ---
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Список текстур (Глубинные руды 1.19)
+        const oreUrls = [
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_copper_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_diamond_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_gold_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_iron_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_lapis_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_redstone_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_emerald_ore.png'
+        ];
+
+        const loadedImages = [];
+        let imagesLoadedCount = 0;
+
+        // Предзагрузка картинок
+        oreUrls.forEach(url => {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = url;
+            img.onload = () => {
+                loadedImages.push(img);
+                imagesLoadedCount++;
+                if (imagesLoadedCount === oreUrls.length) {
+                    drawBackground(); // Рисуем, когда всё загрузилось
+                }
+            };
+        });
+
+        function drawBackground() {
+            // Размер блока на экране (сделал покрупнее, 64px)
+            const blockSize = 64; 
+            
+            // Подгоняем размер canvas под окно
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const cols = Math.ceil(canvas.width / blockSize);
+            const rows = Math.ceil(canvas.height / blockSize);
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    // Случайная руда
+                    const randomImg = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+                    if (randomImg) {
+                        ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
+                    }
+                }
+            }
+        }
+
+        // Перерисовывать при изменении размера окна
+        window.addEventListener('resize', drawBackground);
+
+
+        // --- 2. ЛОГИКА СПИСКА ПРЕДМЕТОВ ---
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
-        // 1. Функция отрисовки списка
         function renderItems() {
             let html = '';
-            
-            // Если items.js не загрузился или пуст
-            if (typeof resources === 'undefined') {
-                listContainer.innerHTML = '<div style="padding:10px; color:red;">Ошибка: Файл items.js не найден или пуст!</div>';
-                return;
-            }
+            if (typeof resources === 'undefined') return;
 
             resources.forEach(item => {
-                // Пытаемся взять иконку с официальной вики
-                // Если иконки нет, ставим заглушку или пустой блок
                 html += `
                 <div class="item-row">
                     <div class="item-icon">
-                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" 
-                             alt="" 
-                             onerror="this.style.display='none'"> 
+                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'"> 
                     </div>
                     <div class="item-name">${item.name}</div>
                     <div class="item-amount">x${item.amount}</div>
-                </div>
-                `;
+                </div>`;
             });
-            
             listContainer.innerHTML = html;
             totalCountSpan.innerText = resources.length;
         }
 
-        // 2. Функция копирования (Улучшенная)
         function copyToClipboard() {
             let text = "=== ЗАЯВКА НА ВОЗВРАТ (Common World) ===\n";
-            text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n`;
-            text += "---------------------------\n";
-            
+            text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n---------------------------\n`;
             if (typeof resources !== 'undefined') {
-                resources.forEach(item => {
-                    text += `• ${item.name}: ${item.amount}\n`;
-                });
+                resources.forEach(item => { text += `• ${item.name}: ${item.amount}\n`; });
             }
-            
             text += "---------------------------";
 
             navigator.clipboard.writeText(text).then(() => {
-                // Визуальный эффект на кнопке
                 const btn = document.querySelector('.mc-button');
                 const originalText = btn.innerText;
-                
                 btn.innerText = "Скопировано!";
-                btn.style.color = "#55FF55"; // Зеленый цвет
-                btn.style.textShadow = "2px 2px 0 #003300";
-
+                btn.style.color = "#55FF55";
                 setTimeout(() => {
                     btn.innerText = originalText;
-                    btn.style.color = ""; // Сброс цвета
-                    btn.style.textShadow = "";
+                    btn.style.color = "";
                 }, 2000);
-            }).catch(err => {
-                alert("Не удалось скопировать текст. Возможно, браузер блокирует доступ.");
             });
         }
 
-        // Запускаем отрисовку при загрузке страницы
         renderItems();
     </script>
 </body>
