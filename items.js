@@ -4,10 +4,10 @@ const resources = [
     { name: "Полированный базальт", amount: 8, id: "Polished_Basalt" },
     { name: "Тёмный дуб (бревно)", amount: "192 (3 стака)", id: "Dark_Oak_Log" },
     { name: "Гранит", amount: "128 (2 стака)", id: "Granite" },
-    { name: "Рамка", amount: 31, id: "Item_Frame" }, // 26 + 5
+    { name: "Рамка", amount: 31, id: "Item_Frame" },
     { name: "Песчаник", amount: 64, id: "Sandstone" },
     
-    // Животные (Яйца призыва)
+    // Животные
     { name: "Яйцо призыва: Корова", amount: 4, id: "Cow_Spawn_Egg" },
     { name: "Яйцо призыва: Курица", amount: 4, id: "Chicken_Spawn_Egg" },
     { name: "Яйцо призыва: Свинья", amount: 4, id: "Pig_Spawn_Egg" },
@@ -15,7 +15,9 @@ const resources = [
     { name: "Яйцо призыва: Лошадь", amount: 1, id: "Horse_Spawn_Egg" },
     
     { name: "Седло", amount: 1, id: "Saddle" },
-    { name: "Алмазная конская броня", amount: 1, id: "Diamond_Horse_Armor" },
+    // ЗАЧАРОВАННЫЙ ПРЕДМЕТ
+    { name: "Алмазная конская броня", amount: 1, id: "Diamond_Horse_Armor", enchanted: true },
+    
     { name: "Диорит", amount: 121, id: "Diorite" },
     { name: "Песок", amount: "Дохуя (Много)", id: "Sand" },
     { name: "Железный слиток", amount: 4, id: "Iron_Ingot" },
