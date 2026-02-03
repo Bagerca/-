@@ -3,74 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Возврат ресурсов: Клан Щербет</title>
-    <!-- Подключаем пиксельный шрифт -->
+    <title>Клан Щербет: Возврат ресурсов</title>
+    <!-- Пиксельный шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Подключаем твои стили -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="main-container">
-        <!-- Заголовок -->
+        <!-- Шапка -->
         <header>
             <h1 class="mc-title">КЛАН <span class="orange">ЩЕРБЕТ</span></h1>
-            <p class="subtitle">Заявка на возврат ресурсов (Ошибочный рейд)</p>
+            <p class="subtitle">Common World (beta) — Заявка на возврат</p>
         </header>
 
-        <!-- Блок со списком -->
+        <!-- Основной блок (Сундук) -->
         <div class="inventory-panel">
             <div class="panel-header">
-                <span>Chest: Refund List</span>
+                <span>Сундук: Список ресурсов</span>
             </div>
             
-            <div class="item-list" id="itemList">
-                <!-- Сюда скрипт сам добавит предметы -->
-            </div>
+            <!-- Сюда скрипт вставит предметы -->
+            <div class="item-list" id="itemList"></div>
 
             <div class="panel-footer">
                 <p>Всего позиций: <span id="totalItems" class="green">0</span></p>
             </div>
         </div>
 
-        <!-- Кнопка копирования (для удобства админов) -->
-        <button class="mc-button" onclick="copyToClipboard()">Скопировать текстом</button>
+        <!-- Кнопка -->
+        <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
+    <!-- Подключаем файл со списком предметов -->
     <script src="items.js"></script>
+
     <script>
-        // Простая логика отрисовки и копирования
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
-        // Рендерим список
+        // 1. Функция отрисовки списка
         function renderItems() {
             let html = '';
+            
+            // Если items.js не загрузился или пуст
+            if (typeof resources === 'undefined') {
+                listContainer.innerHTML = '<div style="padding:10px; color:red;">Ошибка: Файл items.js не найден или пуст!</div>';
+                return;
+            }
+
             resources.forEach(item => {
+                // Пытаемся взять иконку с официальной вики
+                // Если иконки нет, ставим заглушку или пустой блок
                 html += `
                 <div class="item-row">
                     <div class="item-icon">
-                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="icon" onerror="this.style.display='none'">
+                        <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" 
+                             alt="" 
+                             onerror="this.style.display='none'"> 
                     </div>
                     <div class="item-name">${item.name}</div>
                     <div class="item-amount">x${item.amount}</div>
                 </div>
                 `;
             });
+            
             listContainer.innerHTML = html;
             totalCountSpan.innerText = resources.length;
         }
 
-        // Функция копирования для админа
+        // 2. Функция копирования (Улучшенная)
         function copyToClipboard() {
-            let text = "Список возврата Клан Щербет:\n";
-            resources.forEach(item => {
-                text += `- ${item.name}: ${item.amount} шт.\n`;
-            });
+            let text = "=== ЗАЯВКА НА ВОЗВРАТ (Common World) ===\n";
+            text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n`;
+            text += "---------------------------\n";
+            
+            if (typeof resources !== 'undefined') {
+                resources.forEach(item => {
+                    text += `• ${item.name}: ${item.amount}\n`;
+                });
+            }
+            
+            text += "---------------------------";
+
             navigator.clipboard.writeText(text).then(() => {
-                alert("Список скопирован в буфер обмена!");
+                // Визуальный эффект на кнопке
+                const btn = document.querySelector('.mc-button');
+                const originalText = btn.innerText;
+                
+                btn.innerText = "Скопировано!";
+                btn.style.color = "#55FF55"; // Зеленый цвет
+                btn.style.textShadow = "2px 2px 0 #003300";
+
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.color = ""; // Сброс цвета
+                    btn.style.textShadow = "";
+                }, 2000);
+            }).catch(err => {
+                alert("Не удалось скопировать текст. Возможно, браузер блокирует доступ.");
             });
         }
 
+        // Запускаем отрисовку при загрузке страницы
         renderItems();
     </script>
 </body>
