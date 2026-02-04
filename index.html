@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/grass_block_side.png">
+    <!-- Шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,6 +14,7 @@
 
     <canvas id="bgCanvas"></canvas>
     
+    <!-- Тултип -->
     <div id="mc-tooltip">
         <div class="tooltip-title">Предмет</div>
         <div class="tooltip-desc">minecraft:item</div>
@@ -34,15 +37,17 @@
 
             <!-- ИНФОРМАЦИОННЫЙ ПОДВАЛ -->
             <div class="panel-footer">
-                <!-- Дата -->
+                <!-- Слева: Дата -->
                 <div class="footer-info">
                     <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/item/clock_16.png" class="footer-icon" alt="Time">
-                    <span id="currentDate">01.01.2024</span>
+                    <span id="currentDate">--.--.----</span>
                 </div>
-                <!-- Слоты -->
+                
+                <!-- Справа: Слоты (ИСПРАВЛЕННАЯ ИКОНКА) -->
                 <div class="footer-info">
                     <span>Слоты: <span id="totalItems" class="green">0</span>/54</span>
-                    <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/item/chest.png" class="footer-icon" alt="Chest">
+                    <!-- Заменили ссылку на рабочую с Вики -->
+                    <img src="https://minecraft.wiki/images/Invicon_Chest.png" class="footer-icon" alt="Chest">
                 </div>
             </div>
         </div>
@@ -113,7 +118,6 @@
             let html = '';
             if (typeof resources === 'undefined') return;
 
-            // Ставим текущую дату
             dateSpan.innerText = new Date().toLocaleDateString('ru-RU');
 
             resources.forEach((item) => {
