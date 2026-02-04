@@ -1,9 +1,8 @@
 :root {
     --mc-bg: #181818;
-    --mc-panel: #C6C6C6; /* Светло-серый фон панелей */
+    --mc-panel: #C6C6C6;
     --mc-shadow-dark: #373737;
     --mc-shadow-light: #FFFFFF;
-    --slot-bg: #8B8B8B; /* Темно-серый фон слотов */
 }
 
 body {
@@ -18,31 +17,24 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     
-    /* 1. ГЛОБАЛЬНЫЙ КУРСОР - ПРИЦЕЛ */
+    /* ГЛАВНОЕ ИСПРАВЛЕНИЕ РАЗМЫТИЯ: */
+    image-rendering: pixelated;      /* Стандарт */
+    image-rendering: -moz-crisp-edges; /* Firefox */
+    image-rendering: crisp-edges;
+    
+    background-repeat: repeat; /* Повторять сгенерированный паттерн */
+    background-attachment: fixed; /* Фон стоит на месте при скролле */
+    
+    /* Курсор-прицел */
     cursor: url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/gui/sprites/hud/crosshair.png') 8 8, auto;
 }
 
-/* --- ФОНОВЫЕ ЭЛЕМЕНТЫ --- */
-
-/* Канвас для генератора руд */
-#bgCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    image-rendering: pixelated; 
-    image-rendering: -moz-crisp-edges;
-    image-rendering: crisp-edges;
-}
-
-/* Виньетка (затемнение краев) */
+/* Виньетка (Затемнение краев) */
 .vignette-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     z-index: 0;
-    background: radial-gradient(circle, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.85) 100%);
+    background: radial-gradient(circle, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.9) 100%);
     pointer-events: none;
 }
 
@@ -55,8 +47,7 @@ body {
     z-index: 2;
 }
 
-/* --- ТИПОГРАФИКА --- */
-
+/* ЗАГОЛОВОК */
 .mc-title {
     text-shadow: 4px 4px 0px #202020;
     font-size: 28px;
@@ -66,7 +57,6 @@ body {
 }
 
 .orange { color: #FFAA00; text-shadow: 4px 4px 0px #3f3f3f; }
-.green { color: #55FF55; }
 
 .subtitle {
     font-size: 10px;
@@ -79,12 +69,10 @@ body {
     border-radius: 2px;
 }
 
-/* --- ПАНЕЛЬ СУНДУКА (GUI) --- */
-
+/* СУНДУК */
 .inventory-panel {
     background-color: var(--mc-panel);
     border: 4px solid #000;
-    /* Внутренние тени для объема */
     box-shadow: inset 4px 4px 0px var(--mc-shadow-light), inset -4px -4px 0px var(--mc-shadow-dark);
     padding: 10px;
     margin-bottom: 25px;
@@ -100,13 +88,11 @@ body {
     font-weight: bold;
 }
 
-/* Контейнер списка */
 .item-list {
     max-height: 450px;
     overflow-y: auto;
     padding-right: 5px;
-    background: #8B8B8B; /* Темный фон под предметами */
-    /* Вдавленная рамка */
+    background: #8B8B8B;
     border-top: 2px solid #373737;
     border-left: 2px solid #373737;
     border-bottom: 2px solid #FFF;
@@ -114,7 +100,6 @@ body {
     padding: 8px;
 }
 
-/* Скроллбар */
 .item-list::-webkit-scrollbar { width: 12px; }
 .item-list::-webkit-scrollbar-track { background: #000; }
 .item-list::-webkit-scrollbar-thumb {
@@ -124,8 +109,7 @@ body {
     border-bottom-color: #555;
 }
 
-/* --- СТРОКА ПРЕДМЕТА --- */
-
+/* ПРЕДМЕТ */
 .item-row {
     display: flex;
     align-items: center;
@@ -136,29 +120,26 @@ body {
     transition: opacity 0.2s;
 }
 
-/* 2. КУРСОР - РУКА (Hover effect) */
 .item-row:hover {
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid #FFF;
     cursor: url('https://assets.codepen.io/13471/mc-cursor-pointer.png') 6 0, pointer;
 }
 
-/* 3. СЛОТ ПРЕДМЕТА (Иконка) */
+/* СЛОТ */
 .item-icon {
     width: 36px;
     height: 36px;
     background-color: #8B8B8B;
-    /* 3D рамка слота */
     border-bottom: 2px solid #FFF;
     border-right: 2px solid #FFF;
     border-top: 2px solid #373737;
     border-left: 2px solid #373737;
-    
     display: flex;
     justify-content: center;
     align-items: center;
     margin-right: 12px;
-    position: relative; /* Для зачарования */
+    position: relative;
 }
 
 .item-icon img {
@@ -189,8 +170,7 @@ body {
     color: #404040;
 }
 
-/* --- КНОПКА --- */
-
+/* КНОПКА */
 .mc-button {
     background-color: #787878;
     border: 4px solid #000;
@@ -221,9 +201,7 @@ body {
     border-left-color: #222;
 }
 
-/* --- НОВЫЕ ФИЧИ --- */
-
-/* 4. ЗАЧАРОВАНИЕ (Блеск) */
+/* ЗАЧАРОВАНИЕ */
 .enchanted::after {
     content: "";
     position: absolute;
@@ -237,7 +215,6 @@ body {
     pointer-events: none;
 }
 
-/* Запасной вариант блеска (CSS градиент) */
 @supports not (mix-blend-mode: color-dodge) {
     .enchanted::after {
         background: linear-gradient(135deg, rgba(147, 86, 255, 0) 0%, rgba(162, 117, 255, 0.4) 50%, rgba(147, 86, 255, 0) 100%);
@@ -250,13 +227,12 @@ body {
     100% { background-position: 64px 64px; }
 }
 
-/* 5. ВСПЛЫВАЮЩАЯ ПОДСКАЗКА (TOOLTIP) */
+/* TOOLTIP */
 #mc-tooltip {
     position: fixed;
     background-color: rgba(16, 0, 16, 0.95);
     border: 2px solid;
-    border-color: #2800a8; /* Фиолетовая рамка */
-    /* Имитация двойной рамки */
+    border-color: #2800a8;
     box-shadow: inset 2px 2px 0px #2800a8, inset -2px -2px 0px #2800a8;
     color: #ffffff;
     font-family: 'Press Start 2P', cursive;
@@ -270,7 +246,7 @@ body {
 }
 
 .tooltip-title {
-    color: #55FFFF; /* Голубой цвет (Diamond) */
+    color: #55FFFF;
     margin-bottom: 6px;
     font-weight: bold;
     text-shadow: 2px 2px 0 #303030;
@@ -281,7 +257,7 @@ body {
     font-size: 8px;
 }
 
-/* 6. СОСТОЯНИЕ "ВЫДАНО" (Checked) */
+/* ГАЛОЧКА (ВЫДАНО) */
 .item-row.checked {
     opacity: 0.5;
     filter: grayscale(100%);
