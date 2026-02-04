@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
+    <!-- 5. FAVICON (Иконка травы в браузере) -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/grass_block_side.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Холст для фона -->
     <canvas id="bgCanvas"></canvas>
-    <!-- Затемнение -->
     <div class="vignette-overlay"></div>
 
     <div class="main-container">
@@ -35,18 +36,16 @@
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
-    <!-- Список предметов -->
+    <!-- Звук клика (скрытый элемент) -->
+    <audio id="clickSound" src="https://www.myinstants.com/media/sounds/minecraft_click.mp3"></audio>
+
     <script src="items.js"></script>
 
     <script>
-        // --- 1. ГЕНЕРАТОР ФОНА (РУДЫ) ---
+        /* --- ГЕНЕРАТОР ФОНА --- */
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
-
-        // Отключаем сглаживание, чтобы пиксели были резкими
         ctx.imageSmoothingEnabled = false;
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
 
         const oreUrls = [
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
@@ -66,45 +65,29 @@
             const img = new Image();
             img.crossOrigin = "Anonymous";
             img.src = url;
-            img.onload = () => {
-                loadedImages.push(img);
-                imagesLoadedCount++;
-                if (imagesLoadedCount === oreUrls.length) {
-                    drawBackground();
-                }
-            };
+            img.onload = () => { loadedImages.push(img); imagesLoadedCount++; if (imagesLoadedCount === oreUrls.length) drawBackground(); };
         });
 
         function drawBackground() {
-            // Важно! Отключаем сглаживание снова перед отрисовкой
             ctx.imageSmoothingEnabled = false;
-            
-            // Размер блока делаем 64px, чтобы было хорошо видно текстуру
             const blockSize = 64; 
-            
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-
-            // Снова отключаем сглаживание (иногда сбрасывается при ресайзе)
             ctx.imageSmoothingEnabled = false;
-
             const cols = Math.ceil(canvas.width / blockSize);
             const rows = Math.ceil(canvas.height / blockSize);
 
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
                     const randomImg = loadedImages[Math.floor(Math.random() * loadedImages.length)];
-                    if (randomImg) {
-                        ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
-                    }
+                    if (randomImg) ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
                 }
             }
         }
-
         window.addEventListener('resize', drawBackground);
 
 
-        // --- 2. ЛОГИКА СПИСКА ---
+        /* --- ЛОГИКА --- */
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
@@ -113,9 +96,12 @@
             if (typeof resources === 'undefined') return;
 
             resources.forEach(item => {
+                // Добавляем класс enchanted, если предмет зачарован
+                const enchantClass = item.enchanted ? 'enchanted' : '';
+                
                 html += `
                 <div class="item-row">
-                    <div class="item-icon">
+                    <div class="item-icon ${enchantClass}">
                         <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'">
                     </div>
                     <div class="item-name">${item.name}</div>
@@ -127,6 +113,11 @@
         }
 
         function copyToClipboard() {
+            // 3. ВОСПРОИЗВЕДЕНИЕ ЗВУКА
+            const sound = document.getElementById('clickSound');
+            sound.currentTime = 0; // Сброс на начало
+            sound.play().catch(e => console.log("Audio play blocked (user didn't interact yet)"));
+
             let text = "=== ЗАЯВКА НА ВОЗВРАТ (Common World) ===\n";
             text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n---------------------------\n`;
             if (typeof resources !== 'undefined') {
