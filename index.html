@@ -6,19 +6,21 @@
     <title>Клан Щербет: Возврат ресурсов</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/grass_block_side.png">
-    <!-- Шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Всплывающая подсказка -->
+    <!-- ВЕРНУЛИ КАНВАС СЮДА -->
+    <canvas id="bgCanvas"></canvas>
+    
+    <!-- Тултип -->
     <div id="mc-tooltip">
         <div class="tooltip-title">Предмет</div>
         <div class="tooltip-desc">minecraft:item</div>
     </div>
 
-    <!-- Затемнение фона (виньетка) -->
+    <!-- Виньетка -->
     <div class="vignette-overlay"></div>
 
     <div class="main-container">
@@ -42,77 +44,73 @@
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
-    <!-- Звук клика -->
     <audio id="clickSound" src="https://www.myinstants.com/media/sounds/minecraft_click.mp3"></audio>
 
     <script src="items.js"></script>
 
     <script>
-        /* --- НОВЫЙ ГЕНЕРАТОР ФОНА (Без размытия) --- */
-        function generateSharpBackground() {
-            // Создаем виртуальный канвас (не вставляем в DOM)
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+        /* --- ГЕНЕРАТОР ФОНА (Прямая отрисовка, без CORS проблем) --- */
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Отключаем сглаживание СРАЗУ
+        ctx.imageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+
+        const oreUrls = [
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_copper_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_diamond_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_gold_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_iron_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_lapis_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_redstone_ore.png',
+            'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_emerald_ore.png'
+        ];
+
+        const loadedImages = [];
+        let imagesLoadedCount = 0;
+
+        oreUrls.forEach(url => {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = url;
+            img.onload = () => {
+                loadedImages.push(img);
+                imagesLoadedCount++;
+                if (imagesLoadedCount === oreUrls.length) {
+                    drawBackground();
+                }
+            };
+            // Если картинка не грузится (редкий случай), просто игнорируем
+            img.onerror = () => { imagesLoadedCount++; };
+        });
+
+        function drawBackground() {
+            // Подгоняем размер под окно
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
             
-            // Размер паттерна 512x512 (8x8 блоков по 64px)
-            const patternSize = 512;
-            canvas.width = patternSize;
-            canvas.height = patternSize;
-            
-            // Выключаем сглаживание
+            // ВАЖНО: Отключаем сглаживание снова после ресайза
             ctx.imageSmoothingEnabled = false;
             
-            const oreUrls = [
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_copper_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_diamond_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_gold_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_iron_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_lapis_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_redstone_ore.png',
-                'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_emerald_ore.png'
-            ];
-
-            const loadedImages = [];
-            let imagesLoadedCount = 0;
-
-            oreUrls.forEach(url => {
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.src = url;
-                img.onload = () => {
-                    loadedImages.push(img);
-                    imagesLoadedCount++;
-                    if (imagesLoadedCount === oreUrls.length) {
-                        // Когда все картинки загружены, рисуем паттерн
-                        drawPattern(ctx, loadedImages, patternSize);
-                    }
-                };
-            });
-        }
-
-        function drawPattern(ctx, images, size) {
-            const blockSize = 64; // Размер одного блока на экране
-            const cols = size / blockSize;
-            const rows = size / blockSize;
+            const blockSize = 64; 
+            const cols = Math.ceil(canvas.width / blockSize);
+            const rows = Math.ceil(canvas.height / blockSize);
 
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
-                    const randomImg = images[Math.floor(Math.random() * images.length)];
+                    const randomImg = loadedImages[Math.floor(Math.random() * loadedImages.length)];
                     if (randomImg) {
                         ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
                     }
                 }
             }
-            
-            // Превращаем канвас в картинку и ставим на фон body
-            const dataUrl = canvas.toDataURL();
-            document.body.style.backgroundImage = `url(${dataUrl})`;
-            document.body.style.backgroundSize = `${size}px`; // Гарантирует четкий размер
         }
-
-        // Запуск генерации
-        generateSharpBackground();
+        
+        // Перерисовываем при изменении размера окна
+        window.addEventListener('resize', drawBackground);
 
 
         /* --- ЛОГИКА ТУЛТИПОВ --- */
@@ -124,8 +122,7 @@
             if (tooltip.style.display === 'block') {
                 const x = e.clientX + 15;
                 const y = e.clientY - 30;
-                // Простая защита от вылета за край экрана
-                tooltip.style.left = Math.min(x, window.innerWidth - 150) + 'px'; 
+                tooltip.style.left = Math.min(x, window.innerWidth - 180) + 'px'; 
                 tooltip.style.top = y + 'px';
             }
         });
@@ -150,7 +147,6 @@
 
             resources.forEach((item) => {
                 const enchantClass = item.enchanted ? 'enchanted' : '';
-                
                 html += `
                 <div class="item-row" 
                      onclick="toggleCheck(this)"
@@ -168,7 +164,6 @@
             totalCountSpan.innerText = resources.length;
         }
 
-        // Функция "Вычеркивания"
         function toggleCheck(element) {
             element.classList.toggle('checked');
             const sound = document.getElementById('clickSound');
