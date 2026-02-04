@@ -15,21 +15,28 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: hidden; /* Скрываем скролл фона */
     
-    /* ГЛАВНОЕ ИСПРАВЛЕНИЕ РАЗМЫТИЯ: */
-    image-rendering: pixelated;      /* Стандарт */
-    image-rendering: -moz-crisp-edges; /* Firefox */
-    image-rendering: crisp-edges;
-    
-    background-repeat: repeat; /* Повторять сгенерированный паттерн */
-    background-attachment: fixed; /* Фон стоит на месте при скролле */
-    
-    /* Курсор-прицел */
+    /* КУРСОР - ПРИЦЕЛ */
     cursor: url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/gui/sprites/hud/crosshair.png') 8 8, auto;
 }
 
-/* Виньетка (Затемнение краев) */
+/* --- ВАЖНО: ВОЗВРАЩАЕМ CANVAS ДЛЯ ФОНА --- */
+#bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    
+    /* УБИРАЕМ МЫЛО (Пиксельная четкость) */
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Виньетка (затемнение краев) */
 .vignette-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -88,6 +95,7 @@ body {
     font-weight: bold;
 }
 
+/* СПИСОК */
 .item-list {
     max-height: 450px;
     overflow-y: auto;
