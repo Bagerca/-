@@ -32,8 +32,18 @@
             
             <div class="item-list" id="itemList"></div>
 
+            <!-- ИНФОРМАЦИОННЫЙ ПОДВАЛ -->
             <div class="panel-footer">
-                <p>Всего позиций: <span id="totalItems" class="green">0</span></p>
+                <!-- Дата -->
+                <div class="footer-info">
+                    <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/item/clock_16.png" class="footer-icon" alt="Time">
+                    <span id="currentDate">01.01.2024</span>
+                </div>
+                <!-- Слоты -->
+                <div class="footer-info">
+                    <span>Слоты: <span id="totalItems" class="green">0</span>/54</span>
+                    <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/item/chest.png" class="footer-icon" alt="Chest">
+                </div>
             </div>
         </div>
 
@@ -60,15 +70,12 @@
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_redstone_ore.png',
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_emerald_ore.png'
         ];
-
-        const loadedImages = [];
-        let imagesLoadedCount = 0;
+        const loadedImages = []; let imagesLoadedCount = 0;
         oreUrls.forEach(url => {
             const img = new Image(); img.crossOrigin = "Anonymous"; img.src = url;
             img.onload = () => { loadedImages.push(img); imagesLoadedCount++; if (imagesLoadedCount === oreUrls.length) drawBackground(); };
             img.onerror = () => { imagesLoadedCount++; };
         });
-
         function drawBackground() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             ctx.imageSmoothingEnabled = false;
@@ -94,24 +101,23 @@
                 tooltip.style.top = (e.clientY - 30) + 'px';
             }
         });
-        function showTooltip(name, id) {
-            tooltipTitle.innerText = name; tooltipDesc.innerText = "minecraft:" + id.toLowerCase(); tooltip.style.display = 'block';
-        }
+        function showTooltip(name, id) { tooltipTitle.innerText = name; tooltipDesc.innerText = "minecraft:" + id.toLowerCase(); tooltip.style.display = 'block'; }
         function hideTooltip() { tooltip.style.display = 'none'; }
 
-        /* --- РЕНДЕР (ОБНОВЛЕННЫЙ) --- */
+        /* --- РЕНДЕР --- */
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
+        const dateSpan = document.getElementById('currentDate');
 
         function renderItems() {
             let html = '';
             if (typeof resources === 'undefined') return;
 
+            // Ставим текущую дату
+            dateSpan.innerText = new Date().toLocaleDateString('ru-RU');
+
             resources.forEach((item) => {
-                // ПРОВЕРЯЕМ ЗАЧАРОВАНИЕ
-                // Если enchanted: true, добавляем класс 'enchanted-row' ко ВСЕЙ СТРОКЕ
                 const rowEnchantClass = item.enchanted ? 'enchanted-row' : '';
-                
                 const rarityClass = item.rarity ? item.rarity : 'common';
                 
                 html += `
