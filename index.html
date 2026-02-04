@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
-    <!-- 5. FAVICON (Иконка травы в браузере) -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/grass_block_side.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- НОВОЕ: Блок тултипа -->
+    <div id="mc-tooltip">
+        <div class="tooltip-title">Предмет</div>
+        <div class="tooltip-desc">minecraft:item</div>
+    </div>
 
     <canvas id="bgCanvas"></canvas>
     <div class="vignette-overlay"></div>
@@ -25,9 +29,7 @@
             <div class="panel-header">
                 <span>Chest: Refund List</span>
             </div>
-            
             <div class="item-list" id="itemList"></div>
-
             <div class="panel-footer">
                 <p>Всего позиций: <span id="totalItems" class="green">0</span></p>
             </div>
@@ -36,7 +38,6 @@
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
-    <!-- Звук клика (скрытый элемент) -->
     <audio id="clickSound" src="https://www.myinstants.com/media/sounds/minecraft_click.mp3"></audio>
 
     <script src="items.js"></script>
@@ -60,7 +61,6 @@
 
         const loadedImages = [];
         let imagesLoadedCount = 0;
-
         oreUrls.forEach(url => {
             const img = new Image();
             img.crossOrigin = "Anonymous";
@@ -73,10 +73,8 @@
             const blockSize = 64; 
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            ctx.imageSmoothingEnabled = false;
             const cols = Math.ceil(canvas.width / blockSize);
             const rows = Math.ceil(canvas.height / blockSize);
-
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
                     const randomImg = loadedImages[Math.floor(Math.random() * loadedImages.length)];
@@ -86,8 +84,28 @@
         }
         window.addEventListener('resize', drawBackground);
 
+        /* --- ЛОГИКА ТУЛТИПОВ --- */
+        const tooltip = document.getElementById('mc-tooltip');
+        const tooltipTitle = tooltip.querySelector('.tooltip-title');
+        const tooltipDesc = tooltip.querySelector('.tooltip-desc');
 
-        /* --- ЛОГИКА --- */
+        document.addEventListener('mousemove', (e) => {
+            // Двигаем тултип за мышкой
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY - 30) + 'px';
+        });
+
+        function showTooltip(name, id) {
+            tooltipTitle.innerText = name;
+            tooltipDesc.innerText = "minecraft:" + id.toLowerCase();
+            tooltip.style.display = 'block';
+        }
+
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+
+        /* --- РЕНДЕР СПИСКА --- */
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
@@ -95,12 +113,16 @@
             let html = '';
             if (typeof resources === 'undefined') return;
 
-            resources.forEach(item => {
-                // Добавляем класс enchanted, если предмет зачарован
+            resources.forEach((item, index) => {
                 const enchantClass = item.enchanted ? 'enchanted' : '';
                 
+                // Добавляем обработчики событий (onclick, onmouseenter...)
                 html += `
-                <div class="item-row">
+                <div class="item-row" 
+                     onclick="toggleCheck(this)"
+                     onmouseenter="showTooltip('${item.name}', '${item.id}')"
+                     onmouseleave="hideTooltip()">
+                     
                     <div class="item-icon ${enchantClass}">
                         <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'">
                     </div>
@@ -112,11 +134,17 @@
             totalCountSpan.innerText = resources.length;
         }
 
-        function copyToClipboard() {
-            // 3. ВОСПРОИЗВЕДЕНИЕ ЗВУКА
+        // Функция "Вычеркивания" предмета
+        function toggleCheck(element) {
+            element.classList.toggle('checked');
+            // Звук клика тоже добавим сюда для кайфа
             const sound = document.getElementById('clickSound');
-            sound.currentTime = 0; // Сброс на начало
-            sound.play().catch(e => console.log("Audio play blocked (user didn't interact yet)"));
+            sound.cloneNode(true).play().catch(()=>{}); 
+        }
+
+        function copyToClipboard() {
+            const sound = document.getElementById('clickSound');
+            sound.play().catch(()=>{});
 
             let text = "=== ЗАЯВКА НА ВОЗВРАТ (Common World) ===\n";
             text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n---------------------------\n`;
