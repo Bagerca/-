@@ -13,6 +13,7 @@ body {
     display: flex; justify-content: center; align-items: center;
     min-height: 100vh; overflow-x: hidden;
     
+    /* РЕЗКИЕ ПИКСЕЛИ */
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
@@ -42,7 +43,7 @@ body {
     display: inline-block; padding: 6px 10px; border-radius: 2px;
 }
 
-/* СУНДУК */
+/* СУНДУК (GUI) */
 .inventory-panel {
     background-color: var(--mc-panel);
     border: 4px solid #000;
@@ -71,37 +72,11 @@ body {
     transition: all 0.1s;
     position: relative;
 }
-
-/* Зебра (обычная) */
+/* Зебра */
 .item-row:nth-child(even) { background-color: rgba(0, 0, 0, 0.05); }
 .item-row:nth-child(odd) { background-color: rgba(0, 0, 0, 0.12); }
 
-/* --- НОВЫЙ СТИЛЬ ЗАЧАРОВАНИЯ (ВСЯ СТРОКА) --- */
-.item-row.enchanted-row {
-    /* Легкий фиолетовый градиент фона */
-    background: linear-gradient(90deg, rgba(75, 0, 130, 0.2), rgba(75, 0, 130, 0.05));
-    border: 1px solid #9c70ff; /* Светло-фиолетовая рамка */
-    box-shadow: inset 0 0 10px rgba(138, 43, 226, 0.2); /* Внутреннее свечение */
-}
-
-/* Пульсация названия для зачарованных предметов */
-.item-row.enchanted-row .item-name {
-    color: #d8baff; /* Светло-сиреневый текст */
-    text-shadow: 0 0 5px rgba(160, 32, 240, 0.8);
-    animation: textPulse 2s infinite alternate;
-}
-
-/* Свечение самой иконки (без квадрата!) */
-.item-row.enchanted-row .item-icon img {
-    filter: drop-shadow(0 0 4px #b88aff); /* Контурное свечение вокруг формы предмета */
-}
-
-@keyframes textPulse {
-    from { text-shadow: 0 0 2px rgba(160, 32, 240, 0.5); }
-    to { text-shadow: 0 0 8px rgba(200, 100, 255, 1); }
-}
-
-/* ХОВЕР (ОБЩИЙ) */
+/* ХОВЕР */
 .item-row:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
     border: 1px solid #FFF;
@@ -109,25 +84,45 @@ body {
     z-index: 10;
 }
 
+/* ЗАЧАРОВАННАЯ СТРОКА */
+.item-row.enchanted-row {
+    background: linear-gradient(90deg, rgba(75, 0, 130, 0.2), rgba(75, 0, 130, 0.05));
+    border: 1px solid #9c70ff;
+    box-shadow: inset 0 0 10px rgba(138, 43, 226, 0.2);
+}
+.item-row.enchanted-row .item-name {
+    color: #d8baff; text-shadow: 0 0 5px rgba(160, 32, 240, 0.8);
+    animation: textPulse 2s infinite alternate;
+}
+.item-row.enchanted-row .item-icon img { filter: drop-shadow(0 0 4px #b88aff); }
+@keyframes textPulse { from { text-shadow: 0 0 2px rgba(160, 32, 240, 0.5); } to { text-shadow: 0 0 8px rgba(200, 100, 255, 1); } }
+
 /* ИКОНКА */
-.item-icon {
-    width: 32px; height: 32px;
-    display: flex; justify-content: center; align-items: center;
-    margin-right: 12px;
-}
-.item-icon img {
-    width: 32px; height: 32px;
-    image-rendering: pixelated;
-    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.6));
-}
+.item-icon { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; margin-right: 12px; }
+.item-icon img { width: 32px; height: 32px; image-rendering: pixelated; filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.6)); }
 
 /* ТЕКСТ */
 .item-name { flex-grow: 1; font-size: 12px; color: #ffffff; text-shadow: 2px 2px 0px #3f3f3f; line-height: 1.5; }
 .item-name.rare { color: #55FFFF; text-shadow: 2px 2px 0px #00AAAA; }
 .item-name.epic { color: #FF55FF; text-shadow: 2px 2px 0px #AA00AA; }
 .item-name.common { color: #FFFFFF; }
-
 .item-amount { color: #FFFFFF; text-shadow: 2px 2px 0px #3f3f3f; font-size: 12px; }
+
+/* ЗАЧЕРКНУТЫЙ */
+.item-row.checked { opacity: 0.5; filter: grayscale(100%); text-decoration: line-through; }
+.item-row.checked::after { content: "✔"; color: #55FF55; font-size: 20px; margin-left: auto; text-shadow: 2px 2px 0 #000; display: block; }
+
+/* --- НОВЫЙ ПОДВАЛ (STATUS BAR) --- */
+.panel-footer {
+    margin-top: 8px; padding: 6px 10px;
+    background-color: #8B8B8B; /* Темный фон (вдавленный) */
+    border-top: 2px solid #373737; border-left: 2px solid #373737;
+    border-bottom: 2px solid #FFF; border-right: 2px solid #FFF;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10px; color: #FFF; text-shadow: 2px 2px 0 #000;
+}
+.footer-info { display: flex; align-items: center; gap: 8px; }
+.footer-icon { width: 18px; height: 18px; image-rendering: pixelated; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5)); }
 
 /* КНОПКА */
 .mc-button {
@@ -140,10 +135,6 @@ body {
 }
 .mc-button:hover { background-color: #888888; color: #FFFF55; cursor: url('https://assets.codepen.io/13471/mc-cursor-pointer.png') 6 0, pointer; }
 .mc-button:active { transform: translateY(4px); box-shadow: 0px 0px 0px rgba(0,0,0,0.5); border-top-color: #222; border-left-color: #222; }
-
-/* ЗАЧЕРКНУТЫЙ */
-.item-row.checked { opacity: 0.5; filter: grayscale(100%); text-decoration: line-through; }
-.item-row.checked::after { content: "✔"; color: #55FF55; font-size: 20px; margin-left: auto; text-shadow: 2px 2px 0 #000; display: block; }
 
 /* ТУЛТИП */
 #mc-tooltip {
