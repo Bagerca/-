@@ -5,22 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/grass_block_side.png">
-    <!-- Шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Канвас для резкого фона -->
     <canvas id="bgCanvas"></canvas>
     
-    <!-- Тултип -->
     <div id="mc-tooltip">
         <div class="tooltip-title">Предмет</div>
         <div class="tooltip-desc">minecraft:item</div>
     </div>
 
-    <!-- Виньетка -->
     <div class="vignette-overlay"></div>
 
     <div class="main-container">
@@ -44,20 +40,15 @@
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
-    <!-- Звук клика -->
     <audio id="clickSound" src="https://www.myinstants.com/media/sounds/minecraft_click.mp3"></audio>
 
     <script src="items.js"></script>
 
     <script>
-        /* --- ГЕНЕРАТОР ФОНА (РЕЗКИЙ) --- */
+        /* --- ФОН --- */
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
-
-        // Отключаем сглаживание
-        ctx.imageSmoothingEnabled = false;
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false; ctx.mozImageSmoothingEnabled = false; ctx.webkitImageSmoothingEnabled = false;
 
         const oreUrls = [
             'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/deepslate_coal_ore.png',
@@ -72,70 +63,43 @@
 
         const loadedImages = [];
         let imagesLoadedCount = 0;
-
         oreUrls.forEach(url => {
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.src = url;
-            img.onload = () => {
-                loadedImages.push(img);
-                imagesLoadedCount++;
-                if (imagesLoadedCount === oreUrls.length) {
-                    drawBackground();
-                }
-            };
+            const img = new Image(); img.crossOrigin = "Anonymous"; img.src = url;
+            img.onload = () => { loadedImages.push(img); imagesLoadedCount++; if (imagesLoadedCount === oreUrls.length) drawBackground(); };
             img.onerror = () => { imagesLoadedCount++; };
         });
 
         function drawBackground() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            // ВАЖНО: Отключаем сглаживание снова после ресайза
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             ctx.imageSmoothingEnabled = false;
-            
             const blockSize = 64; 
             const cols = Math.ceil(canvas.width / blockSize);
             const rows = Math.ceil(canvas.height / blockSize);
-
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
                     const randomImg = loadedImages[Math.floor(Math.random() * loadedImages.length)];
-                    if (randomImg) {
-                        ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
-                    }
+                    if (randomImg) ctx.drawImage(randomImg, x * blockSize, y * blockSize, blockSize, blockSize);
                 }
             }
         }
         window.addEventListener('resize', drawBackground);
 
-
-        /* --- ТУЛТИПЫ --- */
+        /* --- ТУЛТИП --- */
         const tooltip = document.getElementById('mc-tooltip');
         const tooltipTitle = tooltip.querySelector('.tooltip-title');
         const tooltipDesc = tooltip.querySelector('.tooltip-desc');
-
         document.addEventListener('mousemove', (e) => {
             if (tooltip.style.display === 'block') {
-                const x = e.clientX + 15;
-                const y = e.clientY - 30;
-                tooltip.style.left = Math.min(x, window.innerWidth - 180) + 'px'; 
-                tooltip.style.top = y + 'px';
+                tooltip.style.left = Math.min(e.clientX + 15, window.innerWidth - 180) + 'px'; 
+                tooltip.style.top = (e.clientY - 30) + 'px';
             }
         });
-
         function showTooltip(name, id) {
-            tooltipTitle.innerText = name;
-            tooltipDesc.innerText = "minecraft:" + id.toLowerCase();
-            tooltip.style.display = 'block';
+            tooltipTitle.innerText = name; tooltipDesc.innerText = "minecraft:" + id.toLowerCase(); tooltip.style.display = 'block';
         }
+        function hideTooltip() { tooltip.style.display = 'none'; }
 
-        function hideTooltip() {
-            tooltip.style.display = 'none';
-        }
-
-
-        /* --- РЕНДЕР СПИСКА --- */
+        /* --- РЕНДЕР (ОБНОВЛЕННЫЙ) --- */
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
 
@@ -144,17 +108,19 @@
             if (typeof resources === 'undefined') return;
 
             resources.forEach((item) => {
-                const enchantClass = item.enchanted ? 'enchanted' : '';
-                // Определяем редкость (по умолчанию common/белый)
+                // ПРОВЕРЯЕМ ЗАЧАРОВАНИЕ
+                // Если enchanted: true, добавляем класс 'enchanted-row' ко ВСЕЙ СТРОКЕ
+                const rowEnchantClass = item.enchanted ? 'enchanted-row' : '';
+                
                 const rarityClass = item.rarity ? item.rarity : 'common';
                 
                 html += `
-                <div class="item-row" 
+                <div class="item-row ${rowEnchantClass}" 
                      onclick="toggleCheck(this)"
                      onmouseenter="showTooltip('${item.name}', '${item.id}')"
                      onmouseleave="hideTooltip()">
                      
-                    <div class="item-icon ${enchantClass}">
+                    <div class="item-icon">
                         <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'">
                     </div>
                     
@@ -175,26 +141,17 @@
         function copyToClipboard() {
             const sound = document.getElementById('clickSound');
             sound.play().catch(()=>{});
-
             let text = "=== ЗАЯВКА НА ВОЗВРАТ (Common World) ===\n";
             text += `Клан: Щербет\nДата: ${new Date().toLocaleDateString()}\n---------------------------\n`;
-            if (typeof resources !== 'undefined') {
-                resources.forEach(item => { text += `• ${item.name}: ${item.amount}\n`; });
-            }
+            if (typeof resources !== 'undefined') { resources.forEach(item => { text += `• ${item.name}: ${item.amount}\n`; }); }
             text += "---------------------------";
-
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.querySelector('.mc-button');
                 const originalText = btn.innerText;
-                btn.innerText = "СКОПИРОВАНО!";
-                btn.style.color = "#55FF55";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.color = "";
-                }, 2000);
+                btn.innerText = "СКОПИРОВАНО!"; btn.style.color = "#55FF55";
+                setTimeout(() => { btn.innerText = originalText; btn.style.color = ""; }, 2000);
             });
         }
-
         renderItems();
     </script>
 </body>
