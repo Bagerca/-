@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клан Щербет: Возврат ресурсов</title>
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.3/assets/minecraft/textures/block/grass_block_side.png">
+    <!-- Шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ВЕРНУЛИ КАНВАС СЮДА -->
+    <!-- Канвас для резкого фона -->
     <canvas id="bgCanvas"></canvas>
     
     <!-- Тултип -->
@@ -44,16 +44,17 @@
         <button class="mc-button" onclick="copyToClipboard()">Скопировать список</button>
     </div>
 
+    <!-- Звук клика -->
     <audio id="clickSound" src="https://www.myinstants.com/media/sounds/minecraft_click.mp3"></audio>
 
     <script src="items.js"></script>
 
     <script>
-        /* --- ГЕНЕРАТОР ФОНА (Прямая отрисовка, без CORS проблем) --- */
+        /* --- ГЕНЕРАТОР ФОНА (РЕЗКИЙ) --- */
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Отключаем сглаживание СРАЗУ
+        // Отключаем сглаживание
         ctx.imageSmoothingEnabled = false;
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
@@ -83,12 +84,10 @@
                     drawBackground();
                 }
             };
-            // Если картинка не грузится (редкий случай), просто игнорируем
             img.onerror = () => { imagesLoadedCount++; };
         });
 
         function drawBackground() {
-            // Подгоняем размер под окно
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             
@@ -108,12 +107,10 @@
                 }
             }
         }
-        
-        // Перерисовываем при изменении размера окна
         window.addEventListener('resize', drawBackground);
 
 
-        /* --- ЛОГИКА ТУЛТИПОВ --- */
+        /* --- ТУЛТИПЫ --- */
         const tooltip = document.getElementById('mc-tooltip');
         const tooltipTitle = tooltip.querySelector('.tooltip-title');
         const tooltipDesc = tooltip.querySelector('.tooltip-desc');
@@ -137,6 +134,7 @@
             tooltip.style.display = 'none';
         }
 
+
         /* --- РЕНДЕР СПИСКА --- */
         const listContainer = document.getElementById('itemList');
         const totalCountSpan = document.getElementById('totalItems');
@@ -147,6 +145,9 @@
 
             resources.forEach((item) => {
                 const enchantClass = item.enchanted ? 'enchanted' : '';
+                // Определяем редкость (по умолчанию common/белый)
+                const rarityClass = item.rarity ? item.rarity : 'common';
+                
                 html += `
                 <div class="item-row" 
                      onclick="toggleCheck(this)"
@@ -156,7 +157,8 @@
                     <div class="item-icon ${enchantClass}">
                         <img src="https://minecraft.wiki/images/Invicon_${item.id}.png" alt="" onerror="this.style.display='none'">
                     </div>
-                    <div class="item-name">${item.name}</div>
+                    
+                    <div class="item-name ${rarityClass}">${item.name}</div>
                     <div class="item-amount">x${item.amount}</div>
                 </div>`;
             });
